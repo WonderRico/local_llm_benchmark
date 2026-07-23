@@ -231,4 +231,4 @@ vLLM efficiency for KV cache is even more visible with Gemma4.
 ## Personal notes and things to investigate
 
 - SGLANG seems faster than vLLM for fewer batches
-- With Qwen models, vLLM crashes in TP2 on my 2x4090D after a few monutes, SGLANG is fine. Gemma models ok on vLLM.
+- With Qwen models, vLLM crashes in TP2 on my 2x4090D after a few minutes, SGLANG is fine. Gemma models ok on vLLM.
