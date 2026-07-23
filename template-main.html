@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Benchmark Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f0f0;
+    --bg-header: linear-gradient(135deg, #fff 0%, #f8f7ff 50%, #fff 100%);
+    --bg-card: rgba(255,255,255,0.9);
+    --bg-table-header: #fafafa;
+    --bg-table-row-hover: #fafafa;
+    --bg-sticky: #fff;
+    --bg-btn: #f3f4f6;
+    --bg-btn-hover: #e5e7eb;
+    --bg-select: #f9fafb;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
+    --text-tertiary: #374151;
+    --border: #e8e8e8;
+    --border-select: #e0e0e0;
+    --grid: #f0f0f0;
+    --scrollbar-thumb: #d1d5db;
+    --scrollbar-thumb-hover: #9ca3af;
+    --accent: #8b5cf6;
+    --accent-glow: rgba(139,92,246,0.1);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.06);
+    --chart-font: #374151;
+    --chart-grid: #f0f0f0;
+    --dot-line-from: #e8e0ff;
+    --dot-line-to: transparent;
+    --bd-row-even: #fafafa;
+    --bd-row-hover: #f5f5f5;
+    --bd-highlight: #f0ecff;
+    --bd-highlight-outline: #8b5cf6;
+  }
+  [data-theme="dark"] {
+    --bg: #111113;
+    --bg-header: linear-gradient(135deg, #1a1a2e 0%, #16162a 50%, #1a1a2e 100%);
+    --bg-card: rgba(30,30,40,0.9);
+    --bg-table-header: #1e1e2e;
+    --bg-table-row-hover: #1e1e2e;
+    --bg-sticky: #1a1a28;
+    --bg-btn: #2a2a3a;
+    --bg-btn-hover: #3a3a4a;
+    --bg-select: #1e1e2e;
+    --text-primary: #e4e4e7;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #d4d4d8;
+    --border: #2a2a3a;
+    --border-select: #2a2a3a;
+    --grid: #2a2a3a;
+    --scrollbar-thumb: #52525b;
+    --scrollbar-thumb-hover: #71717a;
+    --accent: #a78bfa;
+    --accent-glow: rgba(167,139,250,0.15);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.4);
+    --chart-font: #d4d4d8;
+    --chart-grid: #2a2a3a;
+    --dot-line-from: #3b3b5c;
+    --dot-line-to: transparent;
+    --bd-row-even: #1a2332;
+    --bd-row-hover: #263550;
+    --bd-highlight: #4d3d1a;
+    --bd-highlight-outline: #f59e0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s, color 0.2s;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Header - HF style gradient */
+  .bd-header {
+    background: var(--bg-header);
+    padding: 48px 32px 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .bd-header h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .bd-header-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .bd-header-line::before, .bd-header-line::after {
+    content: '';
+    height: 1px;
+    width: 60px;
+  }
+  .bd-header-line::before {
+    background: linear-gradient(to left, var(--dot-line-from), var(--dot-line-to));
+  }
+  .bd-header-line::after {
+    background: linear-gradient(to right, var(--dot-line-from), var(--dot-line-to));
+  }
+  .bd-header-line span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 24px;
+    z-index: 100;
+    background: var(--bg-btn);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .theme-toggle:hover {
+    background: var(--bg-btn-hover);
+  }
+  .theme-toggle svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Content container - sidebar + main */
+  .bd-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .bd-content-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Model filter sidebar */
+  .bd-filter-sidebar {
+    position: sticky;
+    top: 24px;
+    z-index: 50;
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 16px 12px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .bd-filter-sidebar::-webkit-scrollbar { width: 4px; }
+  .bd-filter-sidebar::-webkit-scrollbar-track { background: transparent; }
+  .bd-filter-sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+  .bd-filter-sidebar .bd-filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 6px 8px;
+  }
+  .bd-filter-sidebar label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .bd-filter-sidebar label:hover {
+    background: var(--bg-table-row-hover);
+  }
+  .bd-filter-sidebar input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .bd-filter-sidebar .bd-color-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .bd-filter-sidebar .bd-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 6px 0;
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+  .bd-filter-sidebar .bd-btn {
+    width: 100%;
+    text-align: center;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    background: var(--bg-btn);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-select);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .bd-filter-sidebar .bd-btn:hover {
+    background: var(--bg-btn-hover);
+  }
+
+  /* Section titles */
+  .bd-section__title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bd-section__title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Cards */
+  .bd-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s, transform 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .bd-section:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  .bd-intro {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1.2rem;
+    padding: 28px 32px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    line-height: 1.7;
+  }
+  .bd-intro:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  .bd-intro h1 { font-size: 3rem; margin: 0 0 16px; color: var(--accent); }
+  .bd-intro h2 { font-size: 2.2rem; margin: 0 0 12px; color: var(--accent); }
+  .bd-intro h3 { font-size: 1.6rem; margin: 16px 0 8px; color: var(--accent); }
+  .bd-intro h4 { font-size: 1.15rem; margin: 16px 0 8px; color: var(--text-tertiary); }
+  .bd-intro p { margin: 0 0 12px; color: var(--text-tertiary); }
+  .bd-intro ul { margin: 8px 0 8px 20px; padding-left: 20px; }
+  .bd-intro ul li { margin-bottom: 4px; color: var(--text-tertiary); }
+  .bd-intro a { color: var(--accent); }
+  .bd-intro blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin: 12px 0;
+    color: var(--text-secondary);
+  }
+  .bd-intro code {
+    background: var(--bg-table-row-hover);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+  }
+
+  /* Markdown tables */
+  .bd-intro table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+  }
+  .bd-intro th, .bd-intro td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .bd-intro th {
+    background: var(--bg-table-header);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+   .bd-top-container {
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .bd-scatter-float {
+    float: left;
+    width: 55%;
+    margin-right: 28px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 1024px) {
+    .bd-scatter-float {
+      float: none;
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 24px;
+    }
+  }
+  @media (max-width: 1024px) {
+    .bd-filter-sidebar {
+      position: static;
+      width: 100%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      max-height: none;
+      overflow-y: visible;
+      padding: 12px 16px;
+      gap: 4px;
+    }
+    .bd-filter-sidebar .bd-filter-label {
+      width: 100%;
+      padding: 0 0 4px;
+    }
+    .bd-filter-sidebar .bd-btn-group {
+      flex-direction: row;
+      border-top: none;
+      padding: 4px 0 0;
+      width: 100%;
+    }
+    .bd-filter-sidebar .bd-btn {
+      width: auto;
+    }
+  }
+  @media (max-width: 768px) {
+    .bd-header { padding: 32px 16px 28px; }
+    .bd-header h1 { font-size: 1.5rem; }
+    .bd-wrapper { padding: 24px 16px 48px; flex-direction: column; }
+    .bd-section { padding: 16px; }
+    .bd-intro { padding: 16px; }
+  }
+
+  /* Table controls */
+  .bd-table-controls, .bd-xy-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .bd-table-controls input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-select);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    outline: none;
+    background: var(--bg-select);
+    color: var(--text-tertiary);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .bd-table-controls input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  .bd-table-controls select, .bd-xy-controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-select);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: var(--bg-select);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .bd-table-controls select:focus, .bd-xy-controls select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  .bd-table-controls label, .bd-xy-controls label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  /* Table */
+  .bd-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--bg-card);
+  }
+  .bd-table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+  .bd-table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .bd-table-wrap::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+  .bd-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+  .bd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .bd-table thead th {
+    background: var(--bg-table-header);
+    padding: 10px 8px;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: background 0.15s;
+  }
+  .bd-table thead th:hover {
+    background: var(--bg-table-row-hover);
+  }
+  .bd-table thead th .bd-sort-icon {
+    margin-left: 4px;
+    font-size: 0.7rem;
+    opacity: 0.4;
+    color: var(--text-secondary);
+  }
+  .bd-table thead th.bd-sorted-asc .bd-sort-icon,
+  .bd-table thead th.bd-sorted-desc .bd-sort-icon {
+    opacity: 1;
+    color: var(--accent);
+  }
+  .bd-table thead th:first-child,
+  .bd-table tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--bg-table-header);
+  }
+  .bd-table tbody td:first-child {
+    background: var(--bg-sticky);
+    font-weight: 600;
+  }
+  .bd-table tbody tr:nth-child(even) td:first-child {
+    background: var(--bd-row-even);
+  }
+  .bd-table tbody tr:hover td:first-child {
+    background: var(--bd-row-hover);
+  }
+  .bd-table tbody tr {
+    border-bottom: 1px solid var(--grid);
+    transition: background 0.2s;
+  }
+  .bd-table tbody tr:nth-child(even) {
+    background: var(--bd-row-even);
+  }
+  .bd-table tbody tr:hover {
+    background: var(--bg-table-row-hover);
+  }
+  .bd-table tbody tr.bd-row-highlight {
+    background: var(--bd-highlight) !important;
+    outline: 2px solid var(--bd-highlight-outline);
+    outline-offset: -2px;
+  }
+  .bd-table tbody td {
+    padding: 8px;
+    white-space: nowrap;
+    color: var(--text-tertiary);
+  }
+  .bd-table tbody td.bd-empty-cell {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  /* Charts */
+  .bd-chart-container {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .bd-xy-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 1.3;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light theme" type="button"></button>
+
+<div class="bd-header">
+  <div class="bd-header-line"><span>E2Studio Benchmark Report</span></div>
+  <h1>Is agentic coding with local open weights models worth it ?</h1>
+  <p>Comparing paid API models and localy run open weights models with multiple variants</p>
+</div>
+
+<div class="bd-wrapper">
+  <div id="bd-filter-panel" class="bd-filter-sidebar"></div>
+  <div class="bd-content-main">
+
+    <div class="bd-top-container">
+      <div class="bd-section bd-scatter-float">
+        <div class="bd-section__title">Scatter Graph</div>
+        <div class="bd-xy-controls">
+          <label for="bd-x-axis">X :</label>
+          <select id="bd-x-axis"></select>
+          <label for="bd-y-axis">Y :</label>
+          <select id="bd-y-axis"></select>
+          <label for="bd-size-axis">Size :</label>
+          <select id="bd-size-axis"></select>
+        </div>
+        <div id="bd-xy-chart" class="bd-xy-container"></div>
+      </div>
+
+      <div class="bd-intro">{{ md_html | safe }}</div>
+    </div>
+
+    <div class="bd-section" style="margin-bottom:28px;">
+      <div class="bd-section__title">Data Table</div>
+      <p>TP = total parameters (B), AP = active parameters (B) for MoE models, Size (GB), WQ = weigths quantization, CQ = KV cache quantization</p>
+      <div class="bd-table-controls">
+        <input type="text" id="bd-search" placeholder="Search…" />
+        <select id="bd-filter-engine"><option value="">— Engine (all) —</option></select>
+        <select id="bd-filter-quant"><option value="">— Quantization (all) —</option></select>
+        <select id="bd-filter-gpu"><option value="">— Nb GPU (all) —</option></select>
+      </div>
+      <div class="bd-table-wrap">
+        <table class="bd-table">
+          <thead><tr id="bd-table-head"></tr></thead>
+          <tbody id="bd-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bd-section">
+      <div class="bd-section__title">Bar Charts</div>
+      <div class="bd-xy-controls">
+        <label for="bd-metric-select">Metric :</label>
+        <select id="bd-metric-select"></select>
+      </div>
+      <div id="bd-metric-chart" class="bd-chart-container"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// --- Theme toggle ---
+(function() {
+  const sunSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  const moonSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+  const btn = document.getElementById('theme-toggle');
+  function setTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    btn.innerHTML = (dark ? sunSvg : moonSvg);
+    btn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
+    try { localStorage.setItem('dashboard-theme', dark ? 'dark' : 'light'); } catch(e) {}
+  }
+  const saved = (function() {
+    try { return localStorage.getItem('dashboard-theme'); } catch(e) { return null; }
+  })();
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  setTheme(saved === 'dark' || (!saved && prefersDark));
+  btn.addEventListener('click', function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    setTheme(!isDark);
+    if (window.__themeUpdateCharts) window.__themeUpdateCharts();
+  });
+})();
+
+function getThemeColors() {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    font: cs.getPropertyValue('--chart-font').trim() || '#374151',
+    grid: cs.getPropertyValue('--chart-grid').trim() || '#f0f0f0',
+    accent: cs.getPropertyValue('--accent').trim() || '#8b5cf6',
+    card: cs.getPropertyValue('--bg-card').trim() || 'rgba(255,255,255,0.9)',
+    bg: cs.getPropertyValue('--bg').trim() || '#f0f0f0',
+  };
+}
+
+// --- Data ---
+var DATA = {{ json_data }};
+var VALID = DATA.filter(function(r){return r.score_num !== null;});
+
+var DISPLAY_COLS = [
+  {key:"base",label:"Base"},
+  {key:"model",label:"Model"},
+  {key:"total_params",label:"TP"},
+  {key:"active_params",label:"AP"},
+  {key:"model_size",label:"Size"},
+  {key:"weights_quant",label:"WQ"},
+  {key:"kv_cache_quant",label:"CQ"},
+  {key:"engine",label:"Engine"},
+  {key:"nb_gpu",label:"Nb GPU"},
+  {key:"score",label:"Score"},
+  {key:"duration",label:"Duration"},
+  {key:"requests",label:"Requests"},
+  {key:"req_pts",label:"Req/Pts"},
+  {key:"tokens_processed_mt",label:"in Mtok"},
+  {key:"tokens_generated_mt",label:"out Mtok"},
+  {key:"total_tg_s",label:"TG/s"},
+  {key:"parallel_tasks",label:"Parallel"},
+  {key:"tg_s_per_task",label:"TG/s/task"},
+  {key:"total_cost",label:"Total Cost ($)"}
+ ];
+
+var NUMERIC_KEYS = [
+  {key:"score_num",label:"Score /100",higherBetter:true},
+  {key:"total_params_num",label:"Total Params (B)",higherBetter:false},
+  {key:"active_params_num",label:"Active Params (B)",higherBetter:false},
+  {key:"model_size_num",label:"Model Size (GB)",higherBetter:false},
+  {key:"duration_s",label:"Duration (s)",higherBetter:false},
+  {key:"requests_num",label:"Requests",higherBetter:false},
+  {key:"req_pts_num",label:"Req/Pts",higherBetter:false},
+  {key:"tokens_processed_num",label:"in Mtok",higherBetter:false},
+  {key:"tokens_generated_num",label:"out Mtok",higherBetter:false},
+  {key:"total_tg_s_num",label:"Total TG/s",higherBetter:true},
+  {key:"parallel_tasks_num",label:"Parallel tasks",higherBetter:true},
+  {key:"tg_s_per_task_num",label:"TG/s per task",higherBetter:true},
+  {key:"total_cost_num",label:"Total Cost ($)",higherBetter:false}
+ ];
+
+var NUM_COLS = [
+  {display:"score",num:"score_num",higherBetter:true},
+  {display:"total_params",num:"total_params_num",higherBetter:false},
+  {display:"active_params",num:"active_params_num",higherBetter:false},
+  {display:"model_size",num:"model_size_num",higherBetter:false},
+  {display:"duration",num:"duration_s",higherBetter:false},
+  {display:"requests",num:"requests_num",higherBetter:false},
+  {display:"req_pts",num:"req_pts_num",higherBetter:false},
+  {display:"tokens_processed_mt",num:"tokens_processed_num",higherBetter:false},
+  {display:"tokens_generated_mt",num:"tokens_generated_num",higherBetter:false},
+  {display:"total_tg_s",num:"total_tg_s_num",higherBetter:true},
+  {display:"parallel_tasks",num:"parallel_tasks_num",higherBetter:true},
+  {display:"tg_s_per_task",num:"tg_s_per_task_num",higherBetter:true},
+  {display:"total_cost",num:"total_cost_num",higherBetter:false}
+ ];
+
+function el(tag,cls,parent){var e=document.createElement(tag);if(cls)e.className=cls;if(parent)parent.appendChild(e);return e;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtNum(n){if(n===null||n===undefined||isNaN(n))return "\u2014";return n.toLocaleString("fr-FR");}
+
+// --- Model filter (sticky left sidebar) ---
+var visibleModels = {};
+var baseColors = {};
+var BASE_PALETTE = ["#8b5cf6","#22c55e","#f97316","#ef4444","#6366f1","#0ea5e9","#facc15","#4ade80","#ec4899","#2dd4bf","#9ca3af","#f87171","#a3e635","#a5f3fc","#fde68a"];
+
+function initModelFilters() {
+  var bases = {};
+  DATA.forEach(function(r){ bases[r.base] = true; });
+  var keys = Object.keys(bases).sort();
+  keys.forEach(function(b, i){ visibleModels[b] = true; baseColors[b] = BASE_PALETTE[i % BASE_PALETTE.length]; });
+}
+
+function renderModelFilter() {
+  var panel = document.getElementById("bd-filter-panel");
+  if (!panel) return;
+  var html = '<div class="bd-filter-label">Models</div>';
+  var keys = Object.keys(baseColors).sort();
+  keys.forEach(function(b){
+    var col = baseColors[b];
+    var checked = visibleModels[b] !== false;
+    html += '<label><input type="checkbox" data-base="' + esc(b) + '" class="bd-model-cb"' + (checked ? ' checked' : '') + '><span class="bd-color-swatch" style="background:' + col + ';"></span>' + esc(b) + '</label>';
+  });
+  html += '<div class="bd-btn-group">';
+  html += '<button class="bd-btn" id="bd-check-all" type="button">Check all</button>';
+  html += '<button class="bd-btn" id="bd-uncheck-all" type="button">Uncheck all</button>';
+  html += '</div>';
+  panel.innerHTML = html;
+  panel.querySelectorAll('.bd-model-cb').forEach(function(cb){
+    cb.addEventListener('change', function(){ toggleModelFilter(cb); });
+  });
+  var chkAll = document.getElementById('bd-check-all');
+  if (chkAll) chkAll.addEventListener('click', function(){ setAllModelFilters(true); });
+  var uncAll = document.getElementById('bd-uncheck-all');
+  if (uncAll) uncAll.addEventListener('click', function(){ setAllModelFilters(false); });
+}
+
+function toggleModelFilter(cb) {
+  visibleModels[cb.getAttribute("data-base")] = cb.checked;
+  onFilterChange();
+}
+
+function setAllModelFilters(checked) {
+  Object.keys(baseColors).forEach(function(b){ visibleModels[b] = checked; });
+  document.querySelectorAll('.bd-model-cb').forEach(function(cb){ cb.checked = checked; });
+  onFilterChange();
+}
+
+function onFilterChange() {
+  renderTableBody();
+  buildMetricChart();
+  buildScatter();
+}
+
+function getActiveRecords() {
+  return VALID.filter(function(r){ return visibleModels[r.base] !== false; });
+}
+
+var sortCol = "score";
+var sortDir = "desc";
+
+function renderTableHead(){
+  var tr = document.getElementById("bd-table-head");
+  tr.innerHTML = "";
+  DISPLAY_COLS.forEach(function(col){
+    var th = el("th", null, tr);
+    th.textContent = col.label;
+    var icon = el("span", "bd-sort-icon", th);
+    icon.textContent = " \u25B2\u25BC";
+    if (sortCol === col.key) {
+      th.classList.add(sortDir === "asc" ? "bd-sorted-asc" : "bd-sorted-desc");
+    }
+    th.addEventListener("click", function(){
+      if (sortCol === col.key) {
+        sortDir = sortDir === "asc" ? "desc" : "asc";
+      } else {
+        sortCol = col.key;
+        sortDir = "asc";
+      }
+      renderTableHead();
+      renderTableBody();
+    });
+  });
+}
+
+function getFiltered(){
+  var q = document.getElementById("bd-search").value.toLowerCase();
+  var ef = document.getElementById("bd-filter-engine").value;
+  var qf = document.getElementById("bd-filter-quant").value;
+  var gf = document.getElementById("bd-filter-gpu").value;
+  return VALID.filter(function(r){
+    if (visibleModels[r.base] === false) return false;
+    if (ef && r.engine !== ef) return false;
+    if (qf && r.weights_quant !== qf) return false;
+    if (gf && r.nb_gpu !== gf) return false;
+    if (q) {
+      return Object.keys(r).some(function(k){
+        return String(r[k]||"").toLowerCase().indexOf(q) !== -1;
+      });
+    }
+    return true;
+  });
+}
+
+function cellBg(nc, val, lo, hi){
+  if (lo === null || hi === null || lo === hi) return "";
+  var t = (val - lo) / (hi - lo);
+  var g = Math.round(255 * (nc.higherBetter ? t : 1 - t));
+  var r2 = Math.round(255 * (nc.higherBetter ? 1 - t : t));
+  return "rgba(" + r2 + "," + g + ",40,0.35)";
+}
+
+function renderTableBody(){
+  var tbody = document.getElementById("bd-table-body");
+  tbody.innerHTML = "";
+  var data = getFiltered();
+  var sortNumMap = {};
+  NUM_COLS.forEach(function(nc){ sortNumMap[nc.display] = nc.num; });
+
+  data.sort(function(a, b){
+    var numKey = sortNumMap[sortCol];
+    var va, vb;
+    if (numKey && a[numKey] !== null && b[numKey] !== null) { va = a[numKey]; vb = b[numKey]; }
+    else { va = a[sortCol] || ""; vb = b[sortCol] || ""; }
+    if (typeof va === "number" && typeof vb === "number") {
+      return sortDir === "asc" ? va - vb : vb - va;
+    }
+    va = String(va); vb = String(vb);
+    var c = va.localeCompare(vb);
+    return sortDir === "asc" ? c : -c;
+  });
+
+  var ranges = {};
+  NUM_COLS.forEach(function(nc){
+    var vals = data.map(function(r){return r[nc.num];}).filter(function(v){return v !== null;});
+    if (vals.length) {
+      ranges[nc.display] = Math.min.apply(null, vals);
+      ranges[nc.display + "_max"] = Math.max.apply(null, vals);
+    }
+  });
+
+  data.forEach(function(r){
+    var tr = el("tr", null, tbody);
+    tr.dataset.idx = r.__idx;
+    DISPLAY_COLS.forEach(function(col){
+      var td = el("td", null, tr);
+      var v = r[col.key];
+      if (!v || String(v).trim() === "") { td.classList.add("bd-empty-cell"); td.textContent = "\u2014"; }
+      else {
+        td.textContent = v;
+        var nc = NUM_COLS.filter(function(n){return n.display === col.key;})[0];
+        if (nc && r[nc.num] !== null) {
+          td.style.backgroundColor = cellBg(nc, r[nc.num], ranges[nc.display], ranges[nc.display + "_max"]);
+        }
+      }
+    });
+  });
+}
+
+function populateFilters(){
+  var ef = document.getElementById("bd-filter-engine");
+  var qf = document.getElementById("bd-filter-quant");
+  var gf = document.getElementById("bd-filter-gpu");
+  var seenEng = {}, seenQuant = {}, seenGpu = {};
+  DATA.forEach(function(r){
+    if (r.engine && !seenEng[r.engine]) {
+      seenEng[r.engine] = true;
+      var o = document.createElement("option"); o.value = r.engine; o.textContent = r.engine;
+      ef.appendChild(o);
+    }
+    if (r.weights_quant && !seenQuant[r.weights_quant]) {
+      seenQuant[r.weights_quant] = true;
+      var o = document.createElement("option"); o.value = r.weights_quant; o.textContent = r.weights_quant;
+      qf.appendChild(o);
+    }
+    if (r.nb_gpu && !seenGpu[r.nb_gpu]) {
+      seenGpu[r.nb_gpu] = true;
+      var o = document.createElement("option"); o.value = r.nb_gpu; o.textContent = r.nb_gpu + " GPU";
+      gf.appendChild(o);
+    }
+  });
+}
+
+var metricChart = null;
+function buildMetricChart(){
+  var sel = document.getElementById("bd-metric-select");
+  var key = sel.value;
+  var nk = NUMERIC_KEYS.filter(function(n){return n.key === key;})[0];
+  if (!nk) return;
+
+  var tc = getThemeColors();
+
+  var records = getActiveRecords();
+  var byBase = {};
+  records.forEach(function(r){
+    if (r[key] === null) return;
+    var gk = groupKey(r);
+    if (!byBase[gk]) byBase[gk] = {vals: [], base: r.base, gpu: r.nb_gpu || null};
+    byBase[gk].vals.push(r[key]);
+  });
+
+  var agg = [];
+  Object.keys(byBase).forEach(function(gk){
+    var g = byBase[gk];
+    var vals = g.vals;
+    var vMin = Math.min.apply(null, vals);
+    var vMax = Math.max.apply(null, vals);
+    var vAvg = vals.reduce(function(s,v){return s+v;},0) / vals.length;
+    agg.push({gk: gk, base: g.base, gpu: g.gpu, min: vMin, max: vMax, avg: vAvg, count: vals.length});
+  });
+
+  agg.sort(function(a, b){
+    return nk.higherBetter ? b.avg - a.avg : a.avg - b.avg;
+  });
+
+  var labels = agg.map(function(a){return a.gk;});
+  var avgVals = agg.map(function(a){return a.avg;});
+  var mins = agg.map(function(a){return a.min;});
+  var maxs = agg.map(function(a){return a.max;});
+  var gpuVals = agg.map(function(a){return a.gpu || "\u2014";});
+  var colors = agg.map(function(a){return baseColors[a.base] || '#888';});
+
+  var loErr = avgVals.map(function(a, i){return a - mins[i];});
+  var hiErr = maxs.map(function(m, i){return m - avgVals[i];});
+
+  var trace = {
+    type: "bar", orientation: "h",
+    x: avgVals, y: labels,
+    error_x: {
+      type: "data",
+      symmetric: false,
+      array: hiErr,
+      arrayminus: loErr,
+      color: tc.accent,
+      thickness: 1.5,
+      width: 4
+    },
+    marker: { color: colors, opacity: 0.75, line: { color: tc.grid, width: 0.5 } },
+    text: avgVals.map(function(v){return v !== null ? v.toFixed(1)+" " : "";}),
+    textposition: "inside",
+    insidetextanchor: "end",
+    hovertemplate: "<b>%{y}</b><br>" + nk.label + " avg: %{x:.1f}<br>min: %{customdata[0]:.1f}<br>max: %{customdata[1]:.1f}<br>runs: %{customdata[2]}<extra></extra>",
+    customdata: agg.map(function(a){return [a.min, a.max, a.count];})
+  };
+
+  var layout = {
+    margin: { l: 320, r: 40, t: 30, b: 40 },
+    xaxis: { title: { text: nk.label }, zerocolor: tc.grid, gridcolor: tc.grid, tickfont: {color: tc.font} },
+    yaxis: { automargin: true, tickfont: { size: 10, color: tc.font } },
+    height: Math.max(300, agg.length * 28),
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", color: tc.font }
+  };
+  var cfg = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d","select2d"] };
+  var div = document.getElementById("bd-metric-chart");
+  if (metricChart) Plotly.purge(div);
+  metricChart = Plotly.newPlot(div, [trace], layout, cfg);
+}
+
+function setupMetricSelect(){
+  var sel = document.getElementById("bd-metric-select");
+  NUMERIC_KEYS.forEach(function(nk){
+    var o = document.createElement("option");
+    o.value = nk.key;
+    o.textContent = nk.label + (nk.higherBetter ? " ↑" : " ↓");
+    sel.appendChild(o);
+  });
+  sel.value = "score_num";
+  sel.addEventListener("change", buildMetricChart);
+}
+
+var xyDiv = document.getElementById("bd-xy-chart");
+var xyState = {
+  xKey: "requests_num", yKey: "score_num", sizeKey: "tokens_generated_num"
+};
+
+function getNumKey(key){return NUMERIC_KEYS.filter(function(n){return n.key === key;})[0];}
+function numKeyHigher(key){var nk = getNumKey(key);return nk ? nk.higherBetter : true;}
+function groupKey(r){return r.model + " " + (r.weights_quant||"-") + "/" + (r.kv_cache_quant||"-");}
+
+function buildScatter(){
+  var data = getFiltered();
+  var xk = xyState.xKey, yk = xyState.yKey, sk = xyState.sizeKey;
+  var xMeta = getNumKey(xk), yMeta = getNumKey(yk);
+  if (!xMeta || !yMeta) return;
+
+  var tc = getThemeColors();
+
+  var pts = data.filter(function(r){ return r[xk] !== null && r[yk] !== null; }).map(function(r){
+    return {
+      idx: r.__idx,
+      base: r.base,
+      model: r.model,
+      model_ref: r.model_ref,
+      weights_quant: r.weights_quant || "-",
+      kv_cache_quant: r.kv_cache_quant || "-",
+      nb_gpu: r.nb_gpu,
+      x: r[xk],
+      y: r[yk],
+      s: sk && r[sk] !== null ? r[sk] : null
+    };
+  });
+
+  var sizeVals = pts.map(function(b){return b.s !== null ? b.s : null;}).filter(function(v){return v !== null;});
+  var sizeMin = sizeVals.length ? Math.min.apply(null, sizeVals) : 1;
+  var sizeMax = sizeVals.length ? Math.max.apply(null, sizeVals) : 1;
+  function bubbleSize(v){
+    if (v === null || sizeMax === sizeMin) return 12;
+    var t = (v - sizeMin) / (sizeMax - sizeMin);
+    return 8 + t * 28;
+  }
+
+  var trace = {
+    type: "scatter", mode: "markers",
+    x: pts.map(function(b){return b.x;}),
+    y: pts.map(function(b){return b.y;}),
+    customdata: pts.map(function(b){return b.idx;}),
+    text: pts.map(function(b){
+      var sLabel = sk ? (getNumKey(sk).label + ": " + (b.s !== null ? b.s.toFixed(1) : "\u2014")) : "";
+      return b.model_ref
+        + "<br>" + xMeta.label + ": " + b.x.toFixed(1)
+        + "<br>" + yMeta.label + ": " + b.y.toFixed(1)
+        + "<br>" + sLabel;
+    }),
+    marker: {
+      color: pts.map(function(b){return baseColors[b.base] || '#888';}),
+      line: {color: pts.map(function(b){return baseColors[b.base] || '#888';}), width: 1.5},
+      size: pts.map(function(b){return bubbleSize(b.s);}),
+      sizemode: "raw",
+      opacity: 0.85
+    },
+    hovertemplate: "%{text}<br>Click to highlight in table<extra></extra>",
+    hoverlabel: {bgcolor: tc.card, bordercolor: tc.accent, font: {color: tc.font, size: 12}}
+  };
+
+  var layout = {
+    xaxis: {
+      title: { text: xMeta.label, font: {color: tc.font} },
+      gridcolor: tc.grid,
+      zerolinecolor: tc.grid,
+      tickfont: {color: tc.font}
+    },
+    yaxis: {
+      title: { text: yMeta.label, font: {color: tc.font} },
+      gridcolor: tc.grid,
+      zerolinecolor: tc.grid,
+      tickfont: {color: tc.font}
+    },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", size: 12, color: tc.font },
+    margin: { l: 60, r: 20, t: 30, b: 50 },
+    hovermode: "closest"
+  };
+  var cfg = { responsive: true, displaylogo: false, scrollZoom: true };
+
+  Plotly.react(xyDiv, [trace], layout, cfg);
+}
+
+function setupScatter(){
+  var xs = document.getElementById("bd-x-axis");
+  var ys = document.getElementById("bd-y-axis");
+  var ss = document.getElementById("bd-size-axis");
+  NUMERIC_KEYS.forEach(function(nk){
+    var o1 = document.createElement("option"); o1.value = nk.key; o1.textContent = nk.label;
+    var o2 = document.createElement("option"); o2.value = nk.key; o2.textContent = nk.label;
+    var o3 = document.createElement("option"); o3.value = nk.key; o3.textContent = nk.label;
+    xs.appendChild(o1); ys.appendChild(o2); ss.appendChild(o3);
+  });
+  var noSizeOpt = document.createElement("option");
+  noSizeOpt.value = ""; noSizeOpt.textContent = "(none)";
+  ss.insertBefore(noSizeOpt, ss.firstChild);
+  xs.value = xyState.xKey; ys.value = xyState.yKey; ss.value = xyState.sizeKey;
+
+  xs.addEventListener("change", function(){ xyState.xKey = xs.value; buildScatter(); });
+  ys.addEventListener("change", function(){ xyState.yKey = ys.value; buildScatter(); });
+  ss.addEventListener("change", function(){ xyState.sizeKey = ss.value; buildScatter(); });
+
+  buildScatter();
+  if (xyDiv.on) {
+    xyDiv.on("plotly_click", function(ev){
+      var pt = ev.points && ev.points[0];
+      if (!pt || pt.customdata === undefined) return;
+      highlightTableRow(pt.customdata);
+    });
+  } else {
+    xyDiv.addEventListener("plotly_click", function(ev){
+      var pt = ev.points && ev.points[0];
+      if (!pt || pt.customdata === undefined) return;
+      highlightTableRow(pt.customdata);
+    });
+  }
+}
+
+function highlightTableRow(idx){
+  document.querySelectorAll(".bd-row-highlight").forEach(function(r){r.classList.remove("bd-row-highlight");});
+  var rows = document.querySelectorAll("#bd-table-body tr");
+  var first = null;
+  rows.forEach(function(tr){
+    if (tr.dataset.idx === String(idx)) {
+      tr.classList.add("bd-row-highlight");
+      if (!first) first = tr;
+    }
+  });
+  if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function setupFilterSync(){
+  var s = document.getElementById("bd-search");
+  var ef = document.getElementById("bd-filter-engine");
+  var qf = document.getElementById("bd-filter-quant");
+  var gf = document.getElementById("bd-filter-gpu");
+  s.addEventListener("input", onFilterChange);
+  ef.addEventListener("change", onFilterChange);
+  qf.addEventListener("change", onFilterChange);
+  gf.addEventListener("change", onFilterChange);
+}
+
+// Theme-aware chart updates
+window.__themeUpdateCharts = function() {
+  var tc = getThemeColors();
+  buildMetricChart();
+  buildScatter();
+};
+
+initModelFilters();
+renderModelFilter();
+renderTableHead();
+populateFilters();
+renderTableBody();
+setupMetricSelect();
+buildMetricChart();
+setupFilterSync();
+setupScatter();
+
+})();
+</script>
+
+<div class="footer-sticky">
+  <div class="footer-sticky__project">
+    <svg class="footer-sticky__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1L2 4v6l4 3 4-3V4L6 1z"/><path d="M10 1l4 3v6l-4 3"/><path d="M6 5l2-1m0 0l2 1-2 1m0 0l-2 1"/></svg>
+    <a href="https://github.com/WonderRico/local_llm_benchmark" target="_blank" rel="noopener">local_llm_benchmark</a>
+  </div>
+  <div class="footer-sticky__author">
+    <svg class="footer-sticky__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c.5-2.5 2.5-4 5-4s4.5 1.5 5 4"/></svg>
+    <span>by </span>
+    <a href="https://e2studio.fr/" target="_blank" rel="noopener">E2Studio</a>
+  </div>
+</div>
+
+<style>
+.footer-sticky {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 9999;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: var(--shadow-card-hover);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  max-width: 260px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.footer-sticky__project,
+.footer-sticky__author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+}
+.footer-sticky__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.footer-sticky span {
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.footer-sticky a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all;
+}
+.footer-sticky a:hover {
+  text-decoration: underline;
+}
+</style>
+</body>
+</html>

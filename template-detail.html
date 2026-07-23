@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Benchmark Comparison</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f0f0;
+    --bg-header: linear-gradient(135deg, #fff 0%, #f8f7ff 50%, #fff 100%);
+    --bg-card: rgba(255,255,255,0.9);
+    --bg-table-header: #fafafa;
+    --bg-table-row-hover: #fafafa;
+    --bg-sticky: #fff;
+    --bg-highlight: #f0ecff;
+    --bg-btn: #f3f4f6;
+    --bg-btn-hover: #e5e7eb;
+    --bg-select: #f9fafb;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
+    --text-tertiary: #374151;
+    --border: #e8e8e8;
+    --border-select: #e0e0e0;
+    --grid: #f0f0f0;
+    --scrollbar-thumb: #d1d5db;
+    --scrollbar-thumb-hover: #9ca3af;
+    --accent: #8b5cf6;
+    --accent-glow: rgba(139,92,246,0.1);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.06);
+    --chart-font: #374151;
+    --dot-line-from: #e8e0ff;
+    --dot-line-to: transparent;
+  }
+  [data-theme="dark"] {
+    --bg: #111113;
+    --bg-header: linear-gradient(135deg, #1a1a2e 0%, #16162a 50%, #1a1a2e 100%);
+    --bg-card: rgba(30,30,40,0.9);
+    --bg-table-header: #1e1e2e;
+    --bg-table-row-hover: #1e1e2e;
+    --bg-sticky: #1a1a28;
+    --bg-highlight: #2a2245;
+    --bg-btn: #2a2a3a;
+    --bg-btn-hover: #3a3a4a;
+    --bg-select: #1e1e2e;
+    --text-primary: #e4e4e7;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #d4d4d8;
+    --border: #2a2a3a;
+    --border-select: #2a2a3a;
+    --grid: #2a2a3a;
+    --scrollbar-thumb: #52525b;
+    --scrollbar-thumb-hover: #71717a;
+    --accent: #a78bfa;
+    --accent-glow: rgba(167,139,250,0.15);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.4);
+    --chart-font: #d4d4d8;
+    --dot-line-from: #3b3b5c;
+    --dot-line-to: transparent;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* Header - HF style gradient */
+  .header {
+    background: var(--bg-header);
+    padding: 48px 32px 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .header h1 {
+    font-size: 2.25rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .header-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .header-line::before, .header-line::after {
+    content: '';
+    height: 1px;
+    width: 60px;
+  }
+  .header-line::before {
+    background: linear-gradient(to left, var(--dot-line-from), var(--dot-line-to));
+  }
+  .header-line::after {
+    background: linear-gradient(to right, var(--dot-line-from), var(--dot-line-to));
+  }
+  .header-line span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    background: var(--bg-btn);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .theme-toggle:hover {
+    background: var(--bg-btn-hover);
+  }
+  .theme-toggle svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Content container - sidebar + main */
+  .content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .content-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Section titles - HF card-header style */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 40px 0 20px;
+    letter-spacing: -0.01em;
+  }
+  .section-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-orange { background: #f97316; }
+  .dot-violet { background: #8b5cf6; }
+  .dot-blue { background: #3b82f6; }
+  .dot-green { background: #22c55e; }
+  .dot-red { background: #ef4444; }
+  .dot-lime { background: #84cc16; }
+  .dot-pink { background: #ec4899; }
+
+  /* Cards - HF style: rounded-[1.6rem], border, shadow-sm */
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .chart-box {
+    background: var(--bg-card);
+    border-radius: 1.2rem;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s, transform 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .chart-box:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  .chart-box.full { grid-column: 1 / -1; }
+  .chart-box h3 {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  /* Metric cards */
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .metric-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    padding: 24px 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+    text-align: center;
+    transition: box-shadow 0.2s, transform 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .metric-card:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  .metric-card .value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .metric-card .label {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* Table styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  th {
+    background: var(--bg-table-header);
+    color: var(--accent);
+    padding: 10px 12px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--grid);
+    color: var(--text-tertiary);
+  }
+  .model-col {
+    min-width: 200px;
+    white-space: nowrap;
+  }
+  tr:hover td {
+    background: var(--bg-table-row-hover);
+  }
+  th a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  th a:hover {
+    text-decoration: underline;
+  }
+
+  /* Table scroll container */
+  .table-scroll {
+    max-height: 600px;
+    overflow: auto;
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  .table-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .table-scroll::-webkit-scrollbar-track { background: transparent; }
+  .table-scroll::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+  .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+  /* Keep sticky cell background on row hover */
+  .table-scroll td.sticky-cell:hover {
+    background: var(--bg-sticky);
+  }
+
+  /* Model filter sidebar - vertical left panel */
+  .filter-sidebar {
+    position: sticky;
+    top: 24px;
+    z-index: 50;
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 16px 12px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+  .filter-sidebar::-webkit-scrollbar { width: 4px; }
+  .filter-sidebar::-webkit-scrollbar-track { background: transparent; }
+  .filter-sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+  .filter-sidebar .filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 6px 8px;
+  }
+  .filter-sidebar label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .filter-sidebar label:hover {
+    background: var(--bg-table-row-hover);
+  }
+  .filter-sidebar input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .filter-sidebar .color-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .filter-sidebar .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 6px 0;
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+  .filter-sidebar .btn {
+    width: 100%;
+    text-align: center;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+
+  /* Status dots */
+  .status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .status-resolved { background: #22c55e; }
+  .status-unresolved { background: #f97316; }
+  .status-empty { background: #9ca3af; }
+  .status-error { background: #ef4444; }
+
+  /* Legend */
+  .legend {
+    margin-top: 12px;
+    display: flex;
+    gap: 20px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Highlight column */
+  .table-col-highlight {
+    background: var(--bg-highlight) !important;
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+  }
+
+  /* Scatter controls */
+  .scatter-controls {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .scatter-controls label {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+  }
+  .scatter-controls select {
+    background: var(--bg-select);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-select);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .scatter-controls select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+
+  /* Failure section */
+  .fail-section { margin-bottom: 24px; }
+  .fail-section h3 {
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+
+  /* Error reason checkboxes */
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .checkbox-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+  }
+  .checkbox-group .color-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* Control buttons */
+  .btn {
+    background: var(--bg-btn);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-select);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .btn:hover {
+    background: var(--bg-btn-hover);
+  }
+
+  /* Sub-section headers */
+  .sub-header {
+    color: var(--text-tertiary);
+    margin: 24px 0 12px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* Sticky table cells */
+  .sticky-header {
+    position: sticky;
+    left: 0;
+    background: var(--bg-table-header);
+    z-index: 2;
+  }
+  .sticky-cell {
+    position: sticky;
+    left: 0;
+    background: var(--bg-sticky);
+    z-index: 1;
+    font-weight: 600;
+  }
+
+  .fail-no-data {
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 900px) {
+    .chart-row { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.75rem; }
+    .content {
+      padding: 24px 16px 48px;
+      flex-direction: column;
+    }
+    .filter-sidebar {
+      position: static;
+      width: 100%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      max-height: none;
+      overflow-y: visible;
+      padding: 12px 16px;
+      gap: 4px;
+    }
+    .filter-sidebar .filter-label {
+      width: 100%;
+      padding: 0 0 4px;
+    }
+    .filter-sidebar .btn-group {
+      flex-direction: row;
+      border-top: none;
+      padding: 4px 0 0;
+      width: 100%;
+    }
+    .filter-sidebar .btn {
+      width: auto;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light theme" type="button"></button>
+  <div class="header-line"><span>E2Studio Benchmark Report</span></div>
+  <h1>Agentic coding Models Benchmark Comparison</h1>
+  <p>Focus on model efficiency: Tool calls and return codes analysis</p>
+</div>
+<div class="content">
+  <div id="filter-panel" class="filter-sidebar"></div>
+  <div class="content-main">
+    <div id="section-eval"></div>
+    <div id="section-summary"></div>
+    <div id="section-failures"></div>
+    <div id="section-table"></div>
+  </div>
+</div>
+
+<script>
+const DATA = {{JSON_DATA}};
+
+// --- Theme toggle ---
+(function() {
+  const sunSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  const moonSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+  const btn = document.getElementById('theme-toggle');
+  function setTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    btn.innerHTML = (dark ? sunSvg : moonSvg);
+    try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch(e) {}
+  }
+  const saved = (function() {
+    try { return localStorage.getItem('theme'); } catch(e) { return null; }
+  })();
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  setTheme(saved === 'dark' || (!saved && prefersDark));
+  btn.addEventListener('click', function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    setTheme(!isDark);
+    if (window.__themeUpdateCharts) window.__themeUpdateCharts();
+  });
+})();
+
+const COLORS = [
+  '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#6366f1',
+  '#0ea5e9', '#facc15', '#4ade80', '#ec4899', '#2dd4bf',
+  '#9ca3af', '#f87171', '#a3e635', '#a5f3fc', '#fde68a'
+];
+
+let colorIndex = 0;
+function nextColor() { return COLORS[colorIndex++ % COLORS.length]; }
+
+const _modelColors = {};
+let _modelColorIndex = 0;
+function getModelKey(v) { return v.key.split('/')[0]; }
+function modelColor(v) {
+  const mk = getModelKey(v);
+  if (!_modelColors[mk]) _modelColors[mk] = COLORS[_modelColorIndex++ % COLORS.length];
+  return _modelColors[mk];
+}
+function resetModelColors() { Object.keys(_modelColors).forEach(k => delete _modelColors[k]); _modelColorIndex = 0; }
+
+// --- Model filter (sticky top panel) ---
+const visibleModels = {};
+
+function initModelFilters() {
+  const models = Object.keys(DATA);
+  models.forEach((model, i) => {
+    visibleModels[model] = true;
+    if (!_modelColors[model]) _modelColors[model] = COLORS[i % COLORS.length];
+  });
+}
+
+function getFilteredVariants() {
+  return getAllVariants().filter(v => visibleModels[getModelKey(v)] !== false);
+}
+
+function renderModelFilter() {
+  const panel = document.getElementById('filter-panel');
+  if (!panel) return;
+  let html = '<span class="filter-label">Models:</span>';
+  for (const model of Object.keys(DATA)) {
+    const col = _modelColors[model] || '#8b5cf6';
+    const checked = visibleModels[model] !== false;
+    html += '<label><input type="checkbox" data-model="' + esc(model) + '"' + (checked ? ' checked' : '') + ' onchange="toggleModelFilter(this)"><span class="color-swatch" style="background:' + col + ';"></span>' + esc(model) + '</label>';
+  }
+  html += '<div class="btn-group">';
+  html += '<button class="btn" onclick="setAllModelFilters(true)" type="button">Check all</button>';
+  html += '<button class="btn" onclick="setAllModelFilters(false)" type="button">Uncheck all</button>';
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+function toggleModelFilter(cb) {
+  visibleModels[cb.getAttribute('data-model')] = cb.checked;
+  renderAll();
+}
+
+function setAllModelFilters(checked) {
+  for (const model of Object.keys(DATA)) {
+    visibleModels[model] = checked;
+  }
+  renderAll();
+}
+
+// Preserve scatter axis selection across model-filter re-renders
+const _scatterState = { x: 'rc_ratio', y: 'score', size: 'total_tools' };
+
+function saveScatterState() {
+  const xEl = document.getElementById('scatter-x-axis');
+  const yEl = document.getElementById('scatter-y-axis');
+  const sEl = document.getElementById('scatter-size');
+  if (xEl) _scatterState.x = xEl.value;
+  if (yEl) _scatterState.y = yEl.value;
+  if (sEl) _scatterState.size = sEl.value;
+}
+
+function restoreScatterState() {
+  const xEl = document.getElementById('scatter-x-axis');
+  const yEl = document.getElementById('scatter-y-axis');
+  const sEl = document.getElementById('scatter-size');
+  if (xEl) xEl.value = _scatterState.x;
+  if (yEl) yEl.value = _scatterState.y;
+  if (sEl) sEl.value = _scatterState.size;
+}
+
+function renderAll() {
+  saveScatterState();
+  renderModelFilter();
+  renderSummary(document.getElementById('section-summary'));
+  renderFailures(document.getElementById('section-failures'));
+  renderTable(document.getElementById('section-table'));
+  restoreScatterState();
+  if (window.__updateScatterPlot) window.__updateScatterPlot();
+}
+
+function shortLabel(v) {
+  let label = v.model;
+  const pm = label.match(/^(.+)\s+\((.+)\)$/);
+  if (pm) {
+    label = pm[1] + ' ' + pm[2];
+  }
+  label = label.replace(/notag/g, '');
+  label = label.replace(/_WQ(\w+)_CQ(\w+)/g, ' $1 $2');
+  return label;
+}
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function getAllVariants() {
+  const variants = [];
+  for (const [model, vmap] of Object.entries(DATA)) {
+    for (const [variant, data] of Object.entries(vmap)) {
+      if (data.summary) variants.push({ model: data.model, variant, data, key: model + '/' + variant });
+    }
+  }
+  return variants;
+}
+
+function getThemeColors() {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    font: cs.getPropertyValue('--chart-font').trim() || '#374151',
+    grid: cs.getPropertyValue('--grid').trim() || '#f0f0f0',
+    tableHeader: cs.getPropertyValue('--bg-table-header').trim() || '#fafafa',
+    stickyBg: cs.getPropertyValue('--bg-sticky').trim() || '#fff',
+    accent: cs.getPropertyValue('--accent').trim() || '#8b5cf6'
+  };
+}
+
+function commonLayout(leftMargin, xTitle) {
+  const tc = getThemeColors();
+  return {
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: tc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+    margin: { t: 10, r: 20, b: 40, l: leftMargin || 140 },
+    xaxis: { gridcolor: tc.grid, title: xTitle || '' },
+    yaxis: { gridcolor: tc.grid },
+    legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font } }
+  };
+}
+
+function renderSummary(panel) {
+  const variants = getFilteredVariants();
+
+  let html = '<div class="section-title"><div class="section-dot dot-violet"></div>Summary</div>';
+  html += '<div class="metric-row">';
+  html += '<div class="metric-card"><div class="value">' + variants.length + '</div><div class="label">Models/Variants Compared</div></div>';
+  html += '<div class="metric-card"><div class="value">' +
+    variants.reduce((s, v) => s + (v.data.summary.total_trajectories || 0), 0) +
+    '</div><div class="label">Total Trajectories</div></div>';
+  html += '<div class="metric-card"><div class="value">' +
+    variants.reduce((s, v) => s + (v.data.total_tools || 0), 0) +
+    '</div><div class="label">Total Tool Calls</div></div>';
+  html += '</div>';
+
+  let evalChartData = null;
+  const evalVariants = variants.filter(v => v.data.eval);
+  if (evalVariants.length) {
+    const sortedEval = evalVariants.slice().sort((a, b) => (a.data.eval.resolved || 0) - (b.data.eval.resolved || 0));
+    html += '<div class="chart-row">';
+    html += '<div class="chart-box full"><h3>Task Resolution Breakdown by Variant</h3><div id="eval-stacked" style="height:500px;"></div></div>';
+    html += '</div>';
+    evalChartData = sortedEval.map(v => ({ label: shortLabel(v), resolved: v.data.eval.resolved || 0, unresolved: v.data.eval.unresolved || 0, empty_patch: v.data.eval.empty_patch || 0, error: v.data.eval.error || 0 }));
+  }
+
+  const labels = variants.map(v => shortLabel(v));
+  const maxLabelLen = labels.reduce((m, l) => Math.max(m, l.length), 0);
+  const leftMargin = Math.max(140, maxLabelLen * 6.8);
+
+  html += '<div class="chart-row">';
+  html += '<div class="chart-box full"><h3>Total Tool Calls by Variant (lower is better)</h3><div id="chart-tools" style="height:500px;"></div></div>';
+  html += '</div>';
+  html += '<div class="chart-row">';
+  html += '<div class="chart-box"><h3>Total Non-Zero RC by Variant (lower is better)</h3><div id="chart-rc" style="height:500px;"></div></div>';
+  html += '<div class="chart-box"><h3>Non-Zero RC Ratio (%) (lower is better)</h3><div id="chart-rcpct" style="height:500px;"></div></div>';
+  html += '</div>';
+  html += '<div class="chart-row">';
+  html += '<div class="chart-box full"><h3>Scatter Plot</h3>';
+  html += '<div class="scatter-controls">';
+  html += '<div><label>X Axis: </label><select id="scatter-x-axis"><option value="score">Score</option><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio" selected>Non-Zero RC Ratio</option></select></div>';
+  html += '<div><label>Y Axis: </label><select id="scatter-y-axis"><option value="score" selected>Score</option><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio">Non-Zero RC Ratio</option></select></div>';
+  html += '<div><label>Size: </label><select id="scatter-size"><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio">Non-Zero RC Ratio</option></select></div>';
+  html += '</div>';
+  html += '<div id="chart-scatter" style="height:500px;"></div></div>';
+  html += '</div>';
+
+  panel.innerHTML = html;
+
+  resetColorIndex();
+
+  if (evalChartData) {
+    const evalLabels = evalChartData.map(e => e.label);
+    const evalMaxLabelLen = evalLabels.reduce((m, l) => Math.max(m, l.length), 0);
+    const evalLeftMargin = Math.max(140, evalMaxLabelLen * 6.8);
+    Plotly.newPlot('eval-stacked', [
+      { type: 'bar', orientation: 'h', name: 'Resolved', y: evalLabels, x: evalChartData.map(e => e.resolved), marker: { color: '#22c55e' } },
+      { type: 'bar', orientation: 'h', name: 'Unresolved', y: evalLabels, x: evalChartData.map(e => e.unresolved), marker: { color: '#f97316' } },
+      { type: 'bar', orientation: 'h', name: 'Empty Patch', y: evalLabels, x: evalChartData.map(e => e.empty_patch), marker: { color: '#9ca3af' } },
+      { type: 'bar', orientation: 'h', name: 'Error', y: evalLabels, x: evalChartData.map(e => e.error), marker: { color: '#ef4444' } }
+    ], { ...commonLayout(evalLeftMargin), barmode: 'stack' }, { responsive: true });
+  }
+
+  const toolsSorted = variants.slice().sort((a, b) => (b.data.total_tools || 0) - (a.data.total_tools || 0));
+  Plotly.newPlot('chart-tools', [{
+    type: 'bar', orientation: 'h', y: toolsSorted.map(v => shortLabel(v)), x: toolsSorted.map(v => v.data.total_tools || 0),
+    marker: { color: toolsSorted.map(v => modelColor(v)) },
+    text: toolsSorted.map(v => (v.data.total_tools || 0).toLocaleString()), textposition: 'outside', textfont: { size: 11 }
+  }], { ...commonLayout(leftMargin, 'Total Tool Calls') }, { responsive: true });
+
+  const rcSorted = variants.slice().sort((a, b) => (b.data.total_nonzero_rc || 0) - (a.data.total_nonzero_rc || 0));
+  Plotly.newPlot('chart-rc', [{
+    type: 'bar', orientation: 'h', y: rcSorted.map(v => shortLabel(v)), x: rcSorted.map(v => v.data.total_nonzero_rc || 0),
+    marker: { color: rcSorted.map(v => modelColor(v)) },
+    text: rcSorted.map(v => (v.data.total_nonzero_rc || 0).toLocaleString()), textposition: 'outside', textfont: { size: 9 }
+  }], { ...commonLayout(leftMargin, 'Total Non-Zero RC') }, { responsive: true });
+
+  const rcpctSorted = variants.slice().sort((a, b) => (b.data.total_tools ? (b.data.total_nonzero_rc / b.data.total_tools * 100) : 0) - (a.data.total_tools ? (a.data.total_nonzero_rc / a.data.total_tools * 100) : 0));
+  Plotly.newPlot('chart-rcpct', [{
+    type: 'bar', orientation: 'h', y: rcpctSorted.map(v => shortLabel(v)),
+    x: rcpctSorted.map(v => v.data.total_tools ? (v.data.total_nonzero_rc / v.data.total_tools * 100) : 0),
+    marker: { color: rcpctSorted.map(v => modelColor(v)) },
+    text: rcpctSorted.map(v => (v.data.total_tools ? (v.data.total_nonzero_rc / v.data.total_tools * 100) : 0).toFixed(2) + '%'),
+    textposition: 'outside', textfont: { size: 10 }
+  }], { ...commonLayout(leftMargin, 'RC Ratio %'), showlegend: false }, { responsive: true });
+
+  const scatterVariants = variants.filter(v => (v.data.eval && (v.data.eval.resolved || 0) > 0));
+
+  function getAxisValue(v, axis) {
+    switch (axis) {
+      case 'score': return v.data.eval ? v.data.eval.resolved || 0 : 0;
+      case 'total_tools': return v.data.total_tools || 0;
+      case 'total_nonzero_rc': return v.data.total_nonzero_rc || 0;
+      case 'rc_ratio': return v.data.total_tools ? v.data.total_nonzero_rc / v.data.total_tools * 100 : 0;
+      default: return 0;
+    }
+  }
+
+  function getAxisTitle(axis) {
+    switch (axis) {
+      case 'score': return 'Score (Resolved)';
+      case 'total_tools': return 'Total Tool Calls';
+      case 'total_nonzero_rc': return 'Total Non-Zero RC';
+      case 'rc_ratio': return 'Non-Zero RC Ratio (%)';
+      default: return '';
+    }
+  }
+
+  function updateScatterPlot() {
+    const xAxis = document.getElementById('scatter-x-axis').value;
+    const yAxis = document.getElementById('scatter-y-axis').value;
+    const sizeAxis = document.getElementById('scatter-size').value;
+
+    const scatterX = scatterVariants.map(v => getAxisValue(v, xAxis));
+    const scatterY = scatterVariants.map(v => getAxisValue(v, yAxis));
+    const scatterSizes = scatterVariants.map(v => getAxisValue(v, sizeAxis));
+
+    const minSize = 8;
+    const maxSize = 40;
+    const sMin = Math.min(...scatterSizes);
+    const sMax = Math.max(...scatterSizes);
+    const sRange = sMax - sMin || 1;
+    const markerSizes = scatterSizes.map(s => minSize + (maxSize - minSize) * ((s - sMin) / sRange));
+
+    const xMin = Math.min(...scatterX);
+    const xMax = Math.max(...scatterX);
+    const xPad = (xMax - xMin) * 0.3 || 1;
+    const yMin = Math.min(...scatterY);
+    const yMax = Math.max(...scatterY);
+    const yPad = (yMax - yMin) * 0.3 || 1;
+
+    const stc = getThemeColors();
+    Plotly.newPlot('chart-scatter', [{
+      type: 'scatter', mode: 'markers', x: scatterX, y: scatterY,
+      text: scatterVariants.map(v => shortLabel(v)), hoverinfo: 'text',
+      hoverlabel: { bgcolor: stc.stickyBg, bordercolor: stc.accent, font: { size: 12, color: stc.font } },
+      marker: { size: markerSizes, color: scatterVariants.map(v => modelColor(v)), line: { width: 1, color: stc.grid } }
+    }], { ...commonLayout(60), margin: { t: 10, r: 20, b: 80, l: 60 },
+      xaxis: { ...commonLayout().xaxis, title: getAxisTitle(xAxis), type: 'linear', range: [Math.max(0, xMin - xPad), xMax + xPad] },
+      yaxis: { ...commonLayout().yaxis, title: getAxisTitle(yAxis), type: 'linear', range: [Math.max(0, yMin - yPad), yMax + yPad] }
+    }, { responsive: true });
+  }
+
+  updateScatterPlot();
+  document.getElementById('scatter-x-axis').addEventListener('change', updateScatterPlot);
+  document.getElementById('scatter-y-axis').addEventListener('change', updateScatterPlot);
+  document.getElementById('scatter-size').addEventListener('change', updateScatterPlot);
+  window.__updateScatterPlot = updateScatterPlot;
+}
+
+function renderFailures(panel) {
+  const variants = getFilteredVariants().filter(v => v.data.failures);
+
+  if (!variants.length) {
+    panel.innerHTML = '<div class="section-title"><div class="section-dot dot-red"></div>Failures</div><p class="fail-no-data">No failure data available.</p>';
+    return;
+  }
+
+  let html = '';
+
+  const failLabels = variants.map(v => shortLabel(v));
+  const failMaxLabelLen = failLabels.reduce((m, l) => Math.max(m, l.length), 0);
+  const failLeftMargin = Math.max(200, failMaxLabelLen * 6.8);
+
+  const allReasons = {};
+  variants.forEach(v => {
+    for (const [reason, count] of Object.entries(v.data.failures.reasons || {})) {
+      if (!allReasons[reason]) allReasons[reason] = [];
+      allReasons[reason].push({ label: shortLabel(v), v, count });
+    }
+  });
+
+  const sortedReasons = Object.entries(allReasons).sort((a, b) => b[1].reduce((s, e) => s + e.count, 0) - a[1].reduce((s, e) => s + e.count, 0));
+
+  const variantTotals = variants.map(v => {
+    let total = 0;
+    for (const entries of Object.values(allReasons)) {
+      const entry = entries.find(e => e.v === v);
+      if (entry) total += entry.count;
+    }
+    return { v, total };
+  });
+  variantTotals.sort((a, b) => b.total - a.total);
+  const reasonLabels = variantTotals.map(vt => shortLabel(vt.v));
+  const maxReasonLabelLen = reasonLabels.reduce((m, l) => Math.max(m, l.length), 0);
+  const reasonLeftMargin = Math.max(140, maxReasonLabelLen * 6.8);
+
+  let reasonsHtml = '<div class="section-title"><div class="section-dot dot-orange"></div>Error Details by Reason</div>';
+  reasonsHtml += '<div class="chart-row">';
+  reasonsHtml += '<div class="chart-box full">';
+  reasonsHtml += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">';
+  reasonsHtml += '<button class="btn" onclick="uncheckAllErrorReasons()">Uncheck all</button>';
+  reasonsHtml += '<button class="btn" onclick="checkAllErrorReasons()">Check all</button>';
+  reasonsHtml += '</div>';
+  reasonsHtml += '<div style="display:flex;gap:20px;">';
+  reasonsHtml += '<div id="error-reason-checkboxes" class="checkbox-group" style="min-width:180px;padding-right:12px;overflow-y:auto;max-height:500px;"></div>';
+  reasonsHtml += '<div id="error-reason-chart" style="height:500px;flex:1;"></div>';
+  reasonsHtml += '</div></div></div>';
+
+  // Set all HTML at once to avoid innerHTML += re-parsing and destroying Plotly state
+  panel.innerHTML = html + reasonsHtml;
+
+  const reasonColors = ['#f97316', '#8b5cf6', '#22c55e', '#ef4444', '#6366f1', '#0ea5e9', '#facc15', '#4ade80', '#ec4899', '#2dd4bf', '#9ca3af', '#f87171', '#a3e635', '#a5f3fc', '#fde68a'];
+
+  const checkboxesEl = document.getElementById('error-reason-checkboxes');
+  sortedReasons.forEach(([reason], idx) => {
+    const cbId = 'cb-reason-' + idx;
+    const col = reasonColors[idx % reasonColors.length];
+    checkboxesEl.innerHTML += '<label><input type="checkbox" id="' + cbId + '" checked onchange="toggleErrorReason(' + idx + ', this.checked)"><span class="color-swatch" style="background:' + col + ';"></span>' + esc(reason) + '</label>';
+  });
+
+  const traces = sortedReasons.map(([reason, entries], idx) => {
+    const lookup = {};
+    entries.forEach(e => { lookup[e.v.key] = e.count; });
+    const counts = variantTotals.map(vt => lookup[vt.v.key] || 0);
+    return {
+      type: 'bar', orientation: 'h', y: reasonLabels, x: counts,
+      name: reason,
+      marker: { color: reasonColors[idx % reasonColors.length] },
+      visible: true
+    };
+  });
+
+  const tc = getThemeColors();
+  Plotly.newPlot('error-reason-chart', traces, {
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: tc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+    margin: { t: 10, r: 20, b: 20, l: reasonLeftMargin },
+    xaxis: { gridcolor: tc.grid, title: 'Count', type: 'linear' },
+    yaxis: { gridcolor: tc.grid },
+    barmode: 'stack',
+    legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font }, visible: false, clicktolayoutattributes: [{ visible: false }] }
+  }, { responsive: true });
+
+  window.toggleErrorReason = function(idx, checked) {
+    const el = document.getElementById('error-reason-chart');
+    if (!el) return;
+    Plotly.restyle(el, { visible: checked }, [idx]);
+  };
+
+  window.uncheckAllErrorReasons = function() {
+    sortedReasons.forEach((_, idx) => {
+      const cb = document.getElementById('cb-reason-' + idx);
+      if (cb) cb.checked = false;
+    });
+    const el = document.getElementById('error-reason-chart');
+    if (el) Plotly.restyle(el, { visible: false });
+  };
+
+  window.checkAllErrorReasons = function() {
+    sortedReasons.forEach((_, idx) => {
+      const cb = document.getElementById('cb-reason-' + idx);
+      if (cb) cb.checked = true;
+    });
+    const el = document.getElementById('error-reason-chart');
+    if (el) Plotly.restyle(el, { visible: true });
+  };
+
+  const gd = document.getElementById('error-reason-chart');
+  gd.on('plotly_legendclick', function(data) {
+    const allTraces = data.data || [];
+    const reasons = sortedReasons.map(([r]) => r);
+    reasons.forEach((reason, i) => {
+      const cb = document.getElementById('cb-reason-' + i);
+      if (cb) cb.checked = allTraces[i] && allTraces[i].visible !== false;
+    });
+  });
+}
+
+function renderTable(panel) {
+  const variants = getFilteredVariants();
+
+  const lookup = {};
+  const allInstances = new Set();
+  const allToolValues = [];
+  variants.forEach(v => {
+    (v.data.table || []).forEach(r => {
+      lookup[r.instance] = lookup[r.instance] || {};
+      lookup[r.instance][v.key] = { tools: r.tools, nonzero_rc: r.nonzero_rc };
+      allInstances.add(r.instance);
+      allToolValues.push(r.tools);
+    });
+  });
+
+  const allRcValues = [];
+  variants.forEach(v => {
+    (v.data.table || []).forEach(r => {
+      allRcValues.push(r.nonzero_rc);
+    });
+  });
+
+  const toolMin = Math.min(...allToolValues);
+  const toolMax = Math.max(...allToolValues);
+  const sorted = allToolValues.slice().sort((a, b) => a - b);
+  const bottom20Idx = Math.floor(sorted.length * 0.2);
+  const top20Idx = Math.ceil(sorted.length * 0.8);
+  const bottomThreshold = bottom20Idx > 0 ? sorted[bottom20Idx - 1] : sorted[0];
+  const topThreshold = top20Idx < sorted.length ? sorted[top20Idx] : sorted[sorted.length - 1];
+  function toolColor(val) {
+    if (val >= bottomThreshold && val <= topThreshold) return '#374151';
+    const t = allToolValues.length > 1 ? (val - toolMin) / (toolMax - toolMin) : 0;
+    const r = Math.round(34 + (239 - 34) * t);
+    const g = Math.round(137 + (116 - 137) * t);
+    const b = Math.round(220 + (22 - 220) * t);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  const instances = Array.from(allInstances).sort((a, b) => {
+    const na = parseInt(a.replace('django__django-', ''));
+    const nb = parseInt(b.replace('django__django-', ''));
+    return na - nb;
+  });
+
+  let html = '<div class="section-title"><div class="section-dot dot-blue"></div>Per-Instance Table</div>';
+
+  const evalVariants = variants.filter(v => v.data.eval);
+  if (evalVariants.length) {
+    const statusColors = {
+      resolved: 'status-resolved',
+      unresolved: 'status-unresolved',
+      empty_patch: 'status-empty',
+      error: 'status-error'
+    };
+
+    html += '<div class="sub-header">Task Status</div>';
+    html += '<div class="table-scroll" id="table-scroll-status"><table class="sync-table"><thead><tr>';
+    html += '<th class="model-col sticky-header" data-col="0">Model</th>';
+    instances.forEach((inst, ci) => {
+      const short = inst.replace('django__django-', '');
+      html += '<th data-col="' + (ci + 1) + '"><a href="https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified/viewer/default/test?views%5B%5D=test&sql=SELECT+*+FROM+test+WHERE+instance_id+%3D+%27'+inst+'%27">' + short + '</a></th>';
+    });
+    html += '</tr></thead><tbody>';
+
+    variants.forEach(v => {
+      html += '<tr><td class="model-col sticky-cell" data-col="0">' + esc(shortLabel(v)) + '</td>';
+      const status = v.data.eval && v.data.eval.instance_status || {};
+      instances.forEach(inst => {
+        const st = status[inst];
+        if (st) {
+          html += '<td style="text-align:center;"><span class="status-dot ' + statusColors[st] + '"></span></td>';
+        } else {
+          html += '<td></td>';
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+
+    html += '<div class="legend">';
+    html += '<span class="legend-item"><span class="status-dot status-resolved"></span> Resolved</span>';
+    html += '<span class="legend-item"><span class="status-dot status-unresolved"></span> Unresolved</span>';
+    html += '<span class="legend-item"><span class="status-dot status-empty"></span> Empty Patch</span>';
+    html += '<span class="legend-item"><span class="status-dot status-error"></span> Error</span>';
+    html += '</div>';
+  }
+
+  html += '<div class="sub-header">Tool Calls</div>';
+  html += '<div class="table-scroll" id="table-scroll-tools"><table class="sync-table"><thead><tr>';
+  html += '<th class="model-col sticky-header" data-col="0">Model</th>';
+  instances.forEach((inst, ci) => {
+    const short = inst.replace('django__django-', '');
+    html += '<th data-col="' + (ci + 1) + '"><a href="https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified/viewer/default/test?views%5B%5D=test&sql=SELECT+*+FROM+test+WHERE+instance_id+%3D+%27'+inst+'%27">' + short + '</a></th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  variants.forEach(v => {
+    html += '<tr><td class="model-col sticky-cell" data-col="0">' + esc(shortLabel(v)) + '</td>';
+    instances.forEach(inst => {
+      const row = lookup[inst] && lookup[inst][v.key];
+      if (row) {
+        html += '<td style="color:' + toolColor(row.tools) + ';">' + row.tools + '</td>';
+      } else {
+        html += '<td>-</td>';
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+
+  const rcMin = Math.min(...allRcValues);
+  const rcMax = Math.max(...allRcValues);
+  const rcSorted = allRcValues.slice().sort((a, b) => a - b);
+  const rcBottom20Idx = Math.floor(rcSorted.length * 0.2);
+  const rcTop20Idx = Math.ceil(rcSorted.length * 0.8);
+  const rcBottomThreshold = rcBottom20Idx > 0 ? rcSorted[rcBottom20Idx - 1] : rcSorted[0];
+  const rcTopThreshold = rcTop20Idx < rcSorted.length ? rcSorted[rcTop20Idx] : rcSorted[rcSorted.length - 1];
+  function rcColor(val) {
+    if (val >= rcBottomThreshold && val <= rcTopThreshold) return '#374151';
+    const t = allRcValues.length > 1 ? (val - rcMin) / (rcMax - rcMin) : 0;
+    const r = Math.round(34 + (239 - 34) * t);
+    const g = Math.round(137 + (116 - 137) * t);
+    const b = Math.round(220 + (22 - 220) * t);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  html += '<div class="sub-header">Non-Zero Return Codes</div>';
+  html += '<div class="table-scroll" id="table-scroll-rc"><table class="sync-table"><thead><tr>';
+  html += '<th class="model-col sticky-header" data-col="0">Model</th>';
+  instances.forEach((inst, ci) => {
+    const short = inst.replace('django__django-', '');
+    html += '<th data-col="' + (ci + 1) + '"><a href="https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified/viewer/default/test?views%5B%5D=test&sql=SELECT+*+FROM+test+WHERE+instance_id+%3D+%27'+inst+'%27">' + short + '</a></th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  variants.forEach(v => {
+    html += '<tr><td class="model-col sticky-cell" data-col="0">' + esc(shortLabel(v)) + '</td>';
+    instances.forEach(inst => {
+      const row = lookup[inst] && lookup[inst][v.key];
+      if (row) {
+        html += '<td style="color:' + rcColor(row.nonzero_rc) + ';">' + row.nonzero_rc + '</td>';
+      } else {
+        html += '<td>-</td>';
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+
+  panel.innerHTML = html;
+
+  const scrollStatus = document.getElementById('table-scroll-status');
+  const scrollTools = document.getElementById('table-scroll-tools');
+  const scrollRc = document.getElementById('table-scroll-rc');
+  const scrollables = [scrollStatus, scrollTools, scrollRc].filter(Boolean);
+  let _scrollSyncing = false;
+  scrollables.forEach(el => {
+    if (!el) return;
+    el.addEventListener('scroll', () => {
+      if (_scrollSyncing) return;
+      _scrollSyncing = true;
+      scrollables.forEach(other => {
+        if (other !== el) other.scrollLeft = el.scrollLeft;
+      });
+      requestAnimationFrame(() => { _scrollSyncing = false; });
+    });
+  });
+
+  let _activeHighlight = null;
+  function highlightColumn(colIndex) {
+    if (_activeHighlight) {
+      _activeHighlight.forEach(td => td.classList.remove('table-col-highlight'));
+    }
+    const rowCells = panel.querySelectorAll('.sync-table tr');
+    rowCells.forEach(tr => {
+      const children = tr.children;
+      for (let i = 0; i < children.length; i++) {
+        if (i === colIndex) {
+          children[i].classList.add('table-col-highlight');
+        }
+      }
+    });
+    _activeHighlight = [];
+    rowCells.forEach(tr => {
+      if (tr.children[colIndex]) _activeHighlight.push(tr.children[colIndex]);
+    });
+  }
+  panel.querySelectorAll('.sync-table td:not([style*="sticky"]), .sync-table th:not([style*="sticky"])').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const col = Array.prototype.indexOf.call(cell.parentNode.children, cell);
+      highlightColumn(col);
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!panel.contains(e.target)) {
+      if (_activeHighlight) {
+        _activeHighlight.forEach(td => td.classList.remove('table-col-highlight'));
+        _activeHighlight = null;
+      }
+    }
+  });
+}
+
+function resetColorIndex() { colorIndex = 0; }
+
+// Re-apply theme colors to all Plotly charts
+window.__themeUpdateCharts = function() {
+  const tc = getThemeColors();
+  ['chart-tools','chart-rc','chart-rcpct','chart-scatter','eval-stacked','error-reason-chart'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el || !el.layout) return;
+    Plotly.relayout(el, {
+      'font.color': tc.font,
+      'xaxis.gridcolor': tc.grid,
+      'xaxis.tickfont.color': tc.font,
+      'yaxis.gridcolor': tc.grid,
+      'yaxis.tickfont.color': tc.font
+    });
+    Plotly.restyle(el, { 'textfont.color': tc.font });
+  });
+};
+
+initModelFilters();
+renderAll();
+</script>
+
+<div class="footer-sticky">
+  <div class="footer-sticky__project">
+    <svg class="footer-sticky__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1L2 4v6l4 3 4-3V4L6 1z"/><path d="M10 1l4 3v6l-4 3"/><path d="M6 5l2-1m0 0l2 1-2 1m0 0l-2 1"/></svg>
+    <a href="https://github.com/WonderRico/local_llm_benchmark" target="_blank" rel="noopener">local_llm_benchmark</a>
+  </div>
+  <div class="footer-sticky__author">
+    <svg class="footer-sticky__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c.5-2.5 2.5-4 5-4s4.5 1.5 5 4"/></svg>
+    <span>by </span>
+    <a href="https://e2studio.fr/" target="_blank" rel="noopener">E2Studio</a>
+  </div>
+</div>
+
+<style>
+.footer-sticky {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 9999;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: var(--shadow-card-hover);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  max-width: 260px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.footer-sticky__project,
+.footer-sticky__author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+}
+.footer-sticky__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.footer-sticky span {
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.footer-sticky a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all;
+}
+.footer-sticky a:hover {
+  text-decoration: underline;
+}
+</style>
+</body>
+</html>

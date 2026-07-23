@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Benchmark Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f0f0;
+    --bg-header: linear-gradient(135deg, #fff 0%, #f8f7ff 50%, #fff 100%);
+    --bg-card: rgba(255,255,255,0.9);
+    --bg-table-header: #fafafa;
+    --bg-table-row-hover: #fafafa;
+    --bg-sticky: #fff;
+    --bg-btn: #f3f4f6;
+    --bg-btn-hover: #e5e7eb;
+    --bg-select: #f9fafb;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
+    --text-tertiary: #374151;
+    --border: #e8e8e8;
+    --border-select: #e0e0e0;
+    --grid: #f0f0f0;
+    --scrollbar-thumb: #d1d5db;
+    --scrollbar-thumb-hover: #9ca3af;
+    --accent: #8b5cf6;
+    --accent-glow: rgba(139,92,246,0.1);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.06);
+    --chart-font: #374151;
+    --chart-grid: #f0f0f0;
+    --dot-line-from: #e8e0ff;
+    --dot-line-to: transparent;
+    --bd-row-even: #fafafa;
+    --bd-row-hover: #f5f5f5;
+    --bd-highlight: #f0ecff;
+    --bd-highlight-outline: #8b5cf6;
+  }
+  [data-theme="dark"] {
+    --bg: #111113;
+    --bg-header: linear-gradient(135deg, #1a1a2e 0%, #16162a 50%, #1a1a2e 100%);
+    --bg-card: rgba(30,30,40,0.9);
+    --bg-table-header: #1e1e2e;
+    --bg-table-row-hover: #1e1e2e;
+    --bg-sticky: #1a1a28;
+    --bg-btn: #2a2a3a;
+    --bg-btn-hover: #3a3a4a;
+    --bg-select: #1e1e2e;
+    --text-primary: #e4e4e7;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #d4d4d8;
+    --border: #2a2a3a;
+    --border-select: #2a2a3a;
+    --grid: #2a2a3a;
+    --scrollbar-thumb: #52525b;
+    --scrollbar-thumb-hover: #71717a;
+    --accent: #a78bfa;
+    --accent-glow: rgba(167,139,250,0.15);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.4);
+    --chart-font: #d4d4d8;
+    --chart-grid: #2a2a3a;
+    --dot-line-from: #3b3b5c;
+    --dot-line-to: transparent;
+    --bd-row-even: #1a2332;
+    --bd-row-hover: #263550;
+    --bd-highlight: #4d3d1a;
+    --bd-highlight-outline: #f59e0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s, color 0.2s;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Header - HF style gradient */
+  .bd-header {
+    background: var(--bg-header);
+    padding: 48px 32px 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .bd-header h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .bd-header-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .bd-header-line::before, .bd-header-line::after {
+    content: '';
+    height: 1px;
+    width: 60px;
+  }
+  .bd-header-line::before {
+    background: linear-gradient(to left, var(--dot-line-from), var(--dot-line-to));
+  }
+  .bd-header-line::after {
+    background: linear-gradient(to right, var(--dot-line-from), var(--dot-line-to));
+  }
+  .bd-header-line span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 24px;
+    z-index: 100;
+    background: var(--bg-btn);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .theme-toggle:hover {
+    background: var(--bg-btn-hover);
+  }
+  .theme-toggle svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Content container - sidebar + main */
+  .bd-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .bd-content-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Model filter sidebar */
+  .bd-filter-sidebar {
+    position: sticky;
+    top: 24px;
+    z-index: 50;
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 16px 12px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .bd-filter-sidebar::-webkit-scrollbar { width: 4px; }
+  .bd-filter-sidebar::-webkit-scrollbar-track { background: transparent; }
+  .bd-filter-sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+  .bd-filter-sidebar .bd-filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 6px 8px;
+  }
+  .bd-filter-sidebar label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .bd-filter-sidebar label:hover {
+    background: var(--bg-table-row-hover);
+  }
+  .bd-filter-sidebar input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .bd-filter-sidebar .bd-color-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .bd-filter-sidebar .bd-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 6px 0;
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+  .bd-filter-sidebar .bd-btn {
+    width: 100%;
+    text-align: center;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    background: var(--bg-btn);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-select);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .bd-filter-sidebar .bd-btn:hover {
+    background: var(--bg-btn-hover);
+  }
+
+  /* Section titles */
+  .bd-section__title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bd-section__title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Cards */
+  .bd-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s, transform 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .bd-section:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  .bd-intro {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1.2rem;
+    padding: 28px 32px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    line-height: 1.7;
+  }
+  .bd-intro:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  .bd-intro h1 { font-size: 3rem; margin: 0 0 16px; color: var(--accent); }
+  .bd-intro h2 { font-size: 2.2rem; margin: 0 0 12px; color: var(--accent); }
+  .bd-intro h3 { font-size: 1.6rem; margin: 16px 0 8px; color: var(--accent); }
+  .bd-intro h4 { font-size: 1.15rem; margin: 16px 0 8px; color: var(--text-tertiary); }
+  .bd-intro p { margin: 0 0 12px; color: var(--text-tertiary); }
+  .bd-intro ul { margin: 8px 0 8px 20px; padding-left: 20px; }
+  .bd-intro ul li { margin-bottom: 4px; color: var(--text-tertiary); }
+  .bd-intro a { color: var(--accent); }
+  .bd-intro blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin: 12px 0;
+    color: var(--text-secondary);
+  }
+  .bd-intro code {
+    background: var(--bg-table-row-hover);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+  }
+
+  /* Markdown tables */
+  .bd-intro table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+  }
+  .bd-intro th, .bd-intro td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .bd-intro th {
+    background: var(--bg-table-header);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+   .bd-top-container {
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .bd-scatter-float {
+    float: left;
+    width: 55%;
+    margin-right: 28px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 1024px) {
+    .bd-scatter-float {
+      float: none;
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 24px;
+    }
+  }
+  @media (max-width: 1024px) {
+    .bd-filter-sidebar {
+      position: static;
+      width: 100%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      max-height: none;
+      overflow-y: visible;
+      padding: 12px 16px;
+      gap: 4px;
+    }
+    .bd-filter-sidebar .bd-filter-label {
+      width: 100%;
+      padding: 0 0 4px;
+    }
+    .bd-filter-sidebar .bd-btn-group {
+      flex-direction: row;
+      border-top: none;
+      padding: 4px 0 0;
+      width: 100%;
+    }
+    .bd-filter-sidebar .bd-btn {
+      width: auto;
+    }
+  }
+  @media (max-width: 768px) {
+    .bd-header { padding: 32px 16px 28px; }
+    .bd-header h1 { font-size: 1.5rem; }
+    .bd-wrapper { padding: 24px 16px 48px; flex-direction: column; }
+    .bd-section { padding: 16px; }
+    .bd-intro { padding: 16px; }
+  }
+
+  /* Table controls */
+  .bd-table-controls, .bd-xy-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .bd-table-controls input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-select);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    outline: none;
+    background: var(--bg-select);
+    color: var(--text-tertiary);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .bd-table-controls input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  .bd-table-controls select, .bd-xy-controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-select);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: var(--bg-select);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .bd-table-controls select:focus, .bd-xy-controls select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  .bd-table-controls label, .bd-xy-controls label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  /* Table */
+  .bd-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--bg-card);
+  }
+  .bd-table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+  .bd-table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .bd-table-wrap::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+  .bd-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+  .bd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .bd-table thead th {
+    background: var(--bg-table-header);
+    padding: 10px 8px;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: background 0.15s;
+  }
+  .bd-table thead th:hover {
+    background: var(--bg-table-row-hover);
+  }
+  .bd-table thead th .bd-sort-icon {
+    margin-left: 4px;
+    font-size: 0.7rem;
+    opacity: 0.4;
+    color: var(--text-secondary);
+  }
+  .bd-table thead th.bd-sorted-asc .bd-sort-icon,
+  .bd-table thead th.bd-sorted-desc .bd-sort-icon {
+    opacity: 1;
+    color: var(--accent);
+  }
+  .bd-table thead th:first-child,
+  .bd-table tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--bg-table-header);
+  }
+  .bd-table tbody td:first-child {
+    background: var(--bg-sticky);
+    font-weight: 600;
+  }
+  .bd-table tbody tr:nth-child(even) td:first-child {
+    background: var(--bd-row-even);
+  }
+  .bd-table tbody tr:hover td:first-child {
+    background: var(--bd-row-hover);
+  }
+  .bd-table tbody tr {
+    border-bottom: 1px solid var(--grid);
+    transition: background 0.2s;
+  }
+  .bd-table tbody tr:nth-child(even) {
+    background: var(--bd-row-even);
+  }
+  .bd-table tbody tr:hover {
+    background: var(--bg-table-row-hover);
+  }
+  .bd-table tbody tr.bd-row-highlight {
+    background: var(--bd-highlight) !important;
+    outline: 2px solid var(--bd-highlight-outline);
+    outline-offset: -2px;
+  }
+  .bd-table tbody td {
+    padding: 8px;
+    white-space: nowrap;
+    color: var(--text-tertiary);
+  }
+  .bd-table tbody td.bd-empty-cell {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  /* Charts */
+  .bd-chart-container {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .bd-xy-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 1.3;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light theme" type="button"></button>
+
+<div class="bd-header">
+  <div class="bd-header-line"><span>E2Studio Benchmark Report</span></div>
+  <h1>Is agentic coding with local open weights models worth it ?</h1>
+  <p>Comparing paid API models and localy run open weights models with multiple variants</p>
+</div>
+
+<div class="bd-wrapper">
+  <div id="bd-filter-panel" class="bd-filter-sidebar"></div>
+  <div class="bd-content-main">
+
+    <div class="bd-top-container">
+      <div class="bd-section bd-scatter-float">
+        <div class="bd-section__title">Scatter Graph</div>
+        <div class="bd-xy-controls">
+          <label for="bd-x-axis">X :</label>
+          <select id="bd-x-axis"></select>
+          <label for="bd-y-axis">Y :</label>
+          <select id="bd-y-axis"></select>
+          <label for="bd-size-axis">Size :</label>
+          <select id="bd-size-axis"></select>
+        </div>
+        <div id="bd-xy-chart" class="bd-xy-container"></div>
+      </div>
+
+      <div class="bd-intro"><h1>Preamble</h1>
+<p><strong>TLDR</strong> : <em>Benchmark scores of "small" open weights models are as good as last year's SOTA paid models. When local inference is needed (data privacy for instance) or preferred (cost), it's totally valid to do agentic coding at scale with the latest ones, such as Qwen 3.6 27B. I do so since a few month, and never looked back. I did this study to make sure my guts feeling was aligned with hard data.</em></p>
+<h2>Disclaimer</h2>
+<p>This is just my (a random guy) own data and observations based on my own tests with limited time and resources. It may contains errors and mistakes, but also provide some interesting facts and insights...</p>
+<p>The scores are from a subset of a public benchmark <a href="https://www.swebench.com/verified.html">sweVerified</a> covering the <strong>first 100 tasks of the django set</strong>. (Processing all 500 tasks for each model would be too long on my hardware...) This is a benchmark of <strong>agentic AI dev</strong> tasks. A code repo is provided alongside a task and the agent is autonomous until achieved. The agent in question is the lightweight <a href="https://github.com/swe-agent/mini-swe-agent">mini-swe-agent</a></p>
+<p>If you want to dig even deeper in each of the benchmark traces and see more details, you can do so : <a href="./benchmark-detail.html">Focus on model efficiency</a></p>
+<p>The main goal here is to <strong>compare different local models</strong> and the <strong>impact of different configuration of the same model.</strong> (quantization, inference engine, hardware, finetunes, etc...)</p>
+<p>The second goal is to provide some pointers to compare locally run open weights models to paid subscriptions SOTA models.</p>
+<h2>Some technical information:</h2>
+<p>Hardware available is (for a total of 192GB VRAM) :</p>
+<ul>
+<li>a single <strong>RTX 6000 Pro Blackwell WS 96 GB VRAM</strong> (limited to 450W)</li>
+<li>two <strong>RTX 4090D</strong> (limited to 300W each) <strong>moded to 48GB</strong></li>
+</ul>
+<p>Models tested with <strong>SGLANG</strong> or <strong>vLLM</strong> run on either the single RTX 6000 or both RTX 4090D.</p>
+<p>Bigger local Models are tested with llama.cpp with all three GPUs. llama.cpp is necessary to use the 3 heterogeneous GPUs <strong>and</strong> be able to load the more aggressive quantization.</p>
+<p>Some paid API models have been tested through OpenRouter API, for reference.</p>
+<p>All bench runs have been set to 5 parallel tasks, except for llama.cpp which is not optimized for concurrency and was limited to 1 request at a time.</p>
+<p>When available, <strong>Multi Token Prediction</strong> was enabled. Suggested params from the model creators were applied. Thinking mode enabled for all.</p>
+<h2>Limitations</h2>
+<p>/!\ Warning about <strong>benchmaxxing</strong>. This reference benchmark is public, so models may oversample this data during their training. A good score on the benchmark is not necessarily an absolute guarantee of good "quality" in real life tasks...</p>
+<p>Since I only use a subset of the benchmark, we cannot directly compare with the published scores <a href="https://benchlm.ai/benchmarks/sweVerified">on the official site</a>, but it gives a general idea.</p>
+<ul>
+<li>For reference, one of the latest paid models, <strong>Claude Fable 5 scores 95%</strong>. And the (comparable in size) two year older <strong>Claude 3.5 Sonnet scores 49%</strong></li>
+<li>Both <strong>Claude Sonnet 4.5 and Qwen 3.6 27B scores 77.2%</strong>. Meaning that <strong>a small local open weight model scores the same as a SOTA paid model from the year before.</strong> which is already impressive.</li>
+</ul>
+<p>Python and django tasks only: scores cannot be extrapolated to other languages or domains use cases...</p>
+<p>The token generation speed is not relevant here, because it's derived from the benchmark total execution duration divided by the output token number. This duration contains all kinds of overheads related to the benchmark and the agentic harness. But the methodology is consistent between all runs, so we can compare the values between each others.</p>
+<h1>Analysis</h1>
+<h2>Hall of fame</h2>
+<p>(at July 20 2026)</p>
+<ul>
+<li><strong>Best score overall</strong> : (80) tie Deepseek v4 pro (API) &amp; GLM 5.2 (API) </li>
+<li><strong>Best score local</strong> : (79) tie MiniMax-M2.7 Q4_K_M &amp; DeepSeek v4 Flash Q3_K_XL</li>
+<li><strong>Best score single GPU</strong> : (76) Qwen3.6 27B BF16 FP8</li>
+<li><strong>Worst score</strong> : (56) Gemma-4-26B-A4B-it BF16 FP8</li>
+<li><strong>Most efficient local</strong> (lower request number per points scored) : Gemma-4-31B-it </li>
+<li><strong>Less tokens generated</strong> : Hy3 : 0.62M</li>
+<li><strong>Most tokens generated</strong> : tie Ornith-1.0-35B &amp; Gemma-4-26B-A4B-it with 2.2M (almost 4x more)</li>
+</ul>
+<h2>About cost...</h2>
+<p>The cost of API LLMs are the cost directly billed by the OpenRouter provider.</p>
+<p>The cost of locally run LLMs have been estimated base on the average power draw of the rig (about 700W), the duration of the test, and a cost of 0.2$ per KWh (which is relevant for France, but maybe not for other part of the world...)</p>
+<p>However... The initial cost of the rig itself, while very significant, is not part of this discussion... You obviously need to account for it in order to estimate any long term rentability.</p>
+<ul>
+<li>Qwen 3.7 Max (API) full run did cost 60$ while not scoring better than its little siblings. That's more than 200 times more expensive than the smaller locally run Qwen 3.6 (less than 0.3$) showing how per token $ is not sustainable for agentic dev. You must obviously use a monthly subscription, but with limits sometimes reached very soon... </li>
+<li>Gemma 4 local, being less chatty, is even twice cheaper than Qwen 3.6 local models.</li>
+<li>Minimax 2.7 Q4 local or Deepseek v4 flash Q3 local costs less than 1 dollar for the full run and score just 1 point shy of the recent GLM 5.2 . N.B. the cost for bigger models run with llama.cpp are impacted by the concurrency limitation. We could expect it to be 5 times cheaper if run with SGLANG or vLLM with the adequate hardware. (2x RTX Pro 6000 BW for instance)</li>
+<li>An expensive GPU price can be hard to justify as a single dev, but for a small team of 5 or 10, one (or more) 10k$ GPU can be quickly paid off...</li>
+</ul>
+<h2>Generalities</h2>
+<ul>
+<li>Keep in mind that the benchmark contains 100 complex tasks, each resolved in multi turns (around 50 in average), tool use etc... Having 70 of them being successfully resolved in a few hours by a locally run open weights model is already impressive.</li>
+<li>"Larger" models, even quantized, are often qualitatively better than smaller non-quantized models. But (depending on the hardware) significantly slower, which can hinder one's (or a team's) productivity...</li>
+<li>In general, for similar sizes, dense models score better than their MoE counterparts (but are slower, of course).</li>
+<li><strong>Quantization variants of dense models</strong> (FP8, weights and/or cache) have similar scores. (Gemma4 31B / Qwen3.6 27B).</li>
+<li>It is <strong>the opposite for MoE models</strong> (Gemma4 26B-A4B / Qwen3.6 35B-A3B) which seem to degrade significantly.</li>
+<li>Some surprising significant delta in score for a same model, but running on different GPUs and/or engine... Still under investigation.</li>
+</ul>
+<h2>Model-Specific observations</h2>
+<h3>Qwen 3.X 35B-A3B MoE family</h3>
+<h4>original 3.5 35B-A3B <em>score=68</em></h4>
+<p>This MoE model is fast, but was not so good with tools, but a recent promising finetune has been released :</p>
+<h4>Ornith-1.0-35B <em>score=75</em></h4>
+<p>is a finetune of the older Qwen3.5-35B-A3B, and has a very good score for its category. We see that it generates many more requests and tokens to achieve this in twice as much time as Qwen3.6-35B-A3B. This could have one or more explanations:</p>
+<ul>
+<li>The model was trained to lengthen its "chain-of-thought" during "thinking"</li>
+<li>The model makes more mistakes, incorrect tool calls, and generating code bugs that it must later fix</li>
+<li>while still being a little better than the original model, since it scored higher (+7).</li>
+</ul>
+<p>Trying to understand, let's see the details in <a href="./benchmark-detail.html">Focus on model efficiency</a> </p>
+<ul>
+<li>the model generated a lot more of tool calls (8327 vs 7546)</li>
+<li>but generated less tool call errors (Non-zero return codes) in total (489 vs 739)</li>
+<li>being at the end twice as "precise" (5.87% errors vs 9.79%)</li>
+<li>looking at the error details, there is no significant change in the distribution.</li>
+</ul>
+<p>The models tries harder, generate less tool call errors and scores higher, which seems a good finetune result.</p>
+<h4>Qwen 3.6 35B-A3B <em>score=66</em></h4>
+<p>This recent 3.6 update is better (even if it is not showing in this benchmark...), specially for people without GPU or with limited VRAM, but surpassed by it's dense model brother...</p>
+<p>3.6 generates only 6186 tool calls with only 584 with non zero return code, compared to 3.5 7546 / 739.</p>
+<h3>Gemma-4 26B-A4B MoE <em>score=56-57</em></h3>
+<p>Fast but Quite poor... lowest score.</p>
+<h3>Gemma-4 31B <em>score=69-72</em></h3>
+<p>Nice score, and one of the most efficient for the requests / score ratio. It's actually the most efficient of the local models. Some people say it is "lazy", meaning it's not trying has hard as it could. Maybe a 4.1 version trained to try harder could be very good!</p>
+<p>This model is praised for its writing ability, so I keep using it for others tasks than coding.</p>
+<h3>Qwen3.6 27B family <em>score=66-76</em></h3>
+<p>To my knowledge, currently the best for its size and efficiency with tools. And with MTP, it's fast too!</p>
+<h4>Qwen3.6 27B heretic-v2 <em>score=70-73</em></h4>
+<p>An uncensored version, which managed to preserve most of it's intelligence. Useful if you still need to know what really happened in Tienanmen, or just not a fan of PRC's guardrails baked into their models.</p>
+<h4>ThinkingCap Qwen3.6 27B <em>score=66-69</em></h4>
+<p>A finetune version trained to be more efficient and generate less tokens (and less requests), which is achieved, but at the cost of a few score points. Very good finetune nonetheless.</p>
+<h3>Qwen3.5 122B-A10B <em>score=68</em></h3>
+<p>This one was my previous favorite. Its size 122B pack a bunch of knowledge and with only 10B active parameters it was fast. I'd love to see the 3.6 version of this one...</p>
+<h3>Bigger models via llama.cpp</h3>
+<h4>MiniMax-M2.7 Q4_K_M <em>score=79</em></h4>
+<p>Very good model, even highly quantized. Just 1 point shy of bigger and more recent models. And very efficient too, with just 1.1M token generated.</p>
+<h4>Deepseek v4 flash (preview) Q3_K_XL <em>score=79</em></h4>
+<p>Also a good model, even more highly quantized. Just 1 point shy of bigger and more recent models.</p>
+<p>The final release version is expected to be very good!</p>
+<h3>Bigger models yet to be tested</h3>
+<h4>Tencent Hy3 <em>score=70</em></h4>
+<p>Tested on the cloud has proved to get a decent score while being the most efficient of them all. I shall test it soon locally.</p>
+<h4>Xiaomi Mimo 2.5 <em>score=70</em></h4>
+<p>Has the same score, but is way less efficient.</p>
+<h2>Impact of Model Weights Quantization</h2>
+<p>On consumer GPUs limited in VRAM, it is often mandatory to quantize (compress) the model weights to be able to load it on the GPU.</p>
+<p>Roughly, switching from BF16 to FP8 will halve the size of the model weights. BF16 to AWQ 4bit or NVFP4 will divide it by 4.</p>
+<p>It is estimated that the precision loss of FP8 is negligible. It depends...</p>
+<h3>Gemma4 31B</h3>
+<p>Surprisingly, FP8 quantization slightly improves the score, up to +3 pts, and saves requests and tokens. NVFP4 is in between, also surprising...</p>
+<h3>Qwen3.6 27B</h3>
+<p>Some small impact on the score, between -4 and -1 pts on the score. <strong>When possible</strong>, it is better to avoid it...</p>
+<h2>Impact of KV cache Quantization</h2>
+<p>To increase the context size available it is also useful to quantize the KV cache (size of 150kt is my sweet spot).</p>
+<p>Even if the score is not negatively impacted by KV Cache quantization, it generates more requests and more tokens, an indication of more errors generated. <strong>If possible</strong>, it's better to avoid it.</p>
+<h3>Gemma4 31B BF16 &amp;&amp; Gemma4 31B FP8 (vLLM)</h3>
+<p>The FP8 quantization of the KV Cache has no impact on the score, but a small impact on speed. However, we see that it generated more requests and more tokens to reach the same score, which seems to indicate that errors were generated, but they were fixed, and in the end, the speed gain was still beneficial.</p>
+<h3>Qwen3.6 27B BF16 (SGLANG)</h3>
+<p>Quantizing the KV cache to FP8 had no impact on the score and very little on the other metrics.</p>
+<h3>Qwen3.6 27B FP8 (SGLANG)</h3>
+<p>The FP8 quantization of the KV Cache resulted in lost time. More requests and more tokens. However the score remained identical.</p>
+<h2>Context sizes</h2>
+<p>Max context size available for 96GB VRAM, as logged by the engines, with GPU utilization between 0.9 and 0.95 (some tweaking on VRAM usage might allow to get a little more)</p>
+<p>On some VRAM limited setup, many other tweaks can help (dropping the vision capability, removing MTP, etc...)</p>
+<p>The benchmark was run with a target of 150kt and 5x concurrency. So, if all 5 use the max size configured, we need 750kt total, but in practice, we never got there. But it did sometimes reach maximum capacity. Before this limit was reached, no impact was seen. After, some speed loss was seen (to swap context between each concurrent requests...) until a task is finished and released all its allocated token capacity.</p>
+<p>Qwen and Gemma models have different architectures and attention mechanisms, so each token in cache uses a different amount of bytes in VRAM.</p>
+<h4>Qwen3.6 27B</h4>
+<table>
+<thead>
+<tr>
+<th>Engine</th>
+<th>Weigths</th>
+<th>Cache</th>
+<th>total max tokens</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SGLANG</td>
+<td>BF16</td>
+<td>BF16</td>
+<td>287k</td>
+<td>❌ no enough: speed drop around task 60 for 15 min.</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>BF16</td>
+<td>BF16</td>
+<td>404k</td>
+<td>✅ for this bench, but limit to x3 concurrency worst case</td>
+</tr>
+<tr>
+<td>SGLANG</td>
+<td>BF16</td>
+<td>FP8</td>
+<td>574k</td>
+<td>✅ for this bench, but limit to x4 concurrency worst case</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>BF16</td>
+<td>FP8</td>
+<td>752k</td>
+<td>✅✅ for x5 concurrency worst case</td>
+</tr>
+<tr>
+<td>SGLANG</td>
+<td>FP8</td>
+<td>BF16</td>
+<td>564k</td>
+<td>✅ for this bench, but limit to x4 concurrency worst case</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>FP8</td>
+<td>BF16</td>
+<td>730k</td>
+<td>✅✅ for this bench, almost enough for x5 worst case</td>
+</tr>
+<tr>
+<td>SGLANG</td>
+<td>FP8</td>
+<td>FP8</td>
+<td>1128k</td>
+<td>✅✅ even for x7 concurrency worst case</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>FP8</td>
+<td>FP8</td>
+<td>1359k</td>
+<td>✅✅ even for x9 concurrency worst case</td>
+</tr>
+</tbody>
+</table>
+<p>vLLM is more efficient in handling KV cache in VRAM.</p>
+<h4>Gemma4 31B</h4>
+<table>
+<thead>
+<tr>
+<th>Engine</th>
+<th>Weigths</th>
+<th>Cache</th>
+<th>total max tokens</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SGLANG</td>
+<td>FP8</td>
+<td>FP8</td>
+<td>114k</td>
+<td>❌ no enough</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>FP8</td>
+<td>FP8</td>
+<td>757k</td>
+<td>✅✅ for x5 concurrency worst case</td>
+</tr>
+</tbody>
+</table>
+<p>vLLM is even more efficient for KV cache and Gemma4.</p>
+<h2>Personal notes and things to investigate</h2>
+<ul>
+<li>SGLANG seems faster than vLLM for fewer batches</li>
+<li>SGLANG needs more VRAM for KV cache for concurrency</li>
+<li>When not enough KV cache available, SGLANG speed drops to a crawl</li>
+<li>With Qwen models, vLLM crashes in TP2 on my 2x4090D, SGLANG is fine. Gemma models ok on vLLM</li>
+</ul></div>
+    </div>
+
+    <div class="bd-section" style="margin-bottom:28px;">
+      <div class="bd-section__title">Data Table</div>
+      <p>TP = total parameters (B), AP = active parameters (B) for MoE models, Size (GB), WQ = weigths quantization, CQ = KV cache quantization</p>
+      <div class="bd-table-controls">
+        <input type="text" id="bd-search" placeholder="Search…" />
+        <select id="bd-filter-engine"><option value="">— Engine (all) —</option></select>
+        <select id="bd-filter-quant"><option value="">— Quantization (all) —</option></select>
+        <select id="bd-filter-gpu"><option value="">— Nb GPU (all) —</option></select>
+      </div>
+      <div class="bd-table-wrap">
+        <table class="bd-table">
+          <thead><tr id="bd-table-head"></tr></thead>
+          <tbody id="bd-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bd-section">
+      <div class="bd-section__title">Bar Charts</div>
+      <div class="bd-xy-controls">
+        <label for="bd-metric-select">Metric :</label>
+        <select id="bd-metric-select"></select>
+      </div>
+      <div id="bd-metric-chart" class="bd-chart-container"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// --- Theme toggle ---
+(function() {
+  const sunSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  const moonSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+  const btn = document.getElementById('theme-toggle');
+  function setTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    btn.innerHTML = (dark ? sunSvg : moonSvg);
+    btn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
+    try { localStorage.setItem('dashboard-theme', dark ? 'dark' : 'light'); } catch(e) {}
+  }
+  const saved = (function() {
+    try { return localStorage.getItem('dashboard-theme'); } catch(e) { return null; }
+  })();
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  setTheme(saved === 'dark' || (!saved && prefersDark));
+  btn.addEventListener('click', function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    setTheme(!isDark);
+    if (window.__themeUpdateCharts) window.__themeUpdateCharts();
+  });
+})();
+
+function getThemeColors() {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    font: cs.getPropertyValue('--chart-font').trim() || '#374151',
+    grid: cs.getPropertyValue('--chart-grid').trim() || '#f0f0f0',
+    accent: cs.getPropertyValue('--accent').trim() || '#8b5cf6',
+    card: cs.getPropertyValue('--bg-card').trim() || 'rgba(255,255,255,0.9)',
+    bg: cs.getPropertyValue('--bg').trim() || '#f0f0f0',
+  };
+}
+
+// --- Data ---
+var DATA = [{"base": "Gemma-4-26B-A4B-it", "model": "Gemma-4-26B-A4B-it", "total_params": "26", "active_params": "4", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "vLLM", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-gemma-4-26B-A4B-it_48GB_vLLM_2GPU_48", "score": "57", "duration": "02:20:04", "requests": "6258", "req_pts": "110", "tokens_processed_mt": "195", "tokens_generated_mt": "2,20", "total_tg_s": "262", "parallel_tasks": "5", "tg_s_per_task": "52", "total_cost": "0,33", "score_num": 57.0, "duration_s": 8404, "total_params_num": 26.0, "active_params_num": 4.0, "model_size_num": 52.0, "requests_num": 6258.0, "req_pts_num": 110.0, "tokens_processed_num": 195.0, "tokens_generated_num": 2.2, "total_tg_s_num": 262.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 52.0, "total_cost_num": 0.33, "__idx": 0}, {"base": "Gemma-4-26B-A4B-it", "model": "Gemma-4-26B-A4B-it", "total_params": "26", "active_params": "4", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-26B-A4B-it_48GB_vLLM_1GPU_96 no mtp", "score": "56", "duration": "04:24:25", "requests": "6953", "req_pts": "124", "tokens_processed_mt": "227", "tokens_generated_mt": "2,27", "total_tg_s": "143", "parallel_tasks": "5", "tg_s_per_task": "29", "total_cost": "0,62", "score_num": 56.0, "duration_s": 15865, "total_params_num": 26.0, "active_params_num": 4.0, "model_size_num": 52.0, "requests_num": 6953.0, "req_pts_num": 124.0, "tokens_processed_num": 227.0, "tokens_generated_num": 2.27, "total_tg_s_num": 143.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 29.0, "total_cost_num": 0.62, "__idx": 1}, {"base": "Qwen3.6-35B-A3B", "model": "Qwen3.6-35B-A3B", "total_params": "35", "active_params": "3", "model_size": "37", "weights_quant": "FP8", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-35B-A3B-FP8_34GB_SGLANG_1GPU_96", "score": "57", "duration": "00:51:54", "requests": "6004", "req_pts": "105", "tokens_processed_mt": "153", "tokens_generated_mt": "1,50", "total_tg_s": "482", "parallel_tasks": "5", "tg_s_per_task": "96", "total_cost": "0,12", "score_num": 57.0, "duration_s": 3114, "total_params_num": 35.0, "active_params_num": 3.0, "model_size_num": 37.0, "requests_num": 6004.0, "req_pts_num": 105.0, "tokens_processed_num": 153.0, "tokens_generated_num": 1.5, "total_tg_s_num": 482.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 96.0, "total_cost_num": 0.12, "__idx": 2}, {"base": "Qwen3.6-35B-A3B", "model": "Qwen3.6-35B-A3B", "total_params": "35", "active_params": "3", "model_size": "67", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-35B-A3B_66GB_SGLANG_1GPU_96", "score": "66", "duration": "01:07:44", "requests": "6700", "req_pts": "102", "tokens_processed_mt": "199", "tokens_generated_mt": "1,70", "total_tg_s": "418", "parallel_tasks": "5", "tg_s_per_task": "84", "total_cost": "0,16", "score_num": 66.0, "duration_s": 4064, "total_params_num": 35.0, "active_params_num": 3.0, "model_size_num": 67.0, "requests_num": 6700.0, "req_pts_num": 102.0, "tokens_processed_num": 199.0, "tokens_generated_num": 1.7, "total_tg_s_num": 418.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 84.0, "total_cost_num": 0.16, "__idx": 3}, {"base": "Qwen3.6-35B-A3B", "model": "Qwen3.6-35B-A3B", "total_params": "35", "active_params": "3", "model_size": "67", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-35B-A3B_66GB_SGLANG_1GPU_96", "score": "66", "duration": "01:04:48", "requests": "6276", "req_pts": "95", "tokens_processed_mt": "169", "tokens_generated_mt": "1,58", "total_tg_s": "406", "parallel_tasks": "5", "tg_s_per_task": "81", "total_cost": "0,15", "score_num": 66.0, "duration_s": 3888, "total_params_num": 35.0, "active_params_num": 3.0, "model_size_num": 67.0, "requests_num": 6276.0, "req_pts_num": 95.0, "tokens_processed_num": 169.0, "tokens_generated_num": 1.58, "total_tg_s_num": 406.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 81.0, "total_cost_num": 0.15, "__idx": 4}, {"base": "Qwen3.5-35B-A3B", "model": "Ornith-1.0-35B", "total_params": "35", "active_params": "3", "model_size": "65", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Ornith-1.0-35B_65GB_SGLANG_1GPU_96", "score": "75", "duration": "02:00:40", "requests": "8323", "req_pts": "111", "tokens_processed_mt": "284", "tokens_generated_mt": "2,20", "total_tg_s": "304", "parallel_tasks": "5", "tg_s_per_task": "61", "total_cost": "0,28", "score_num": 75.0, "duration_s": 7240, "total_params_num": 35.0, "active_params_num": 3.0, "model_size_num": 65.0, "requests_num": 8323.0, "req_pts_num": 111.0, "tokens_processed_num": 284.0, "tokens_generated_num": 2.2, "total_tg_s_num": 304.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 61.0, "total_cost_num": 0.28, "__idx": 5}, {"base": "Qwen3.5-35B-A3B", "model": "Qwen3.5-35B-A3B", "total_params": "35", "active_params": "3", "model_size": "65", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.5-35B-A3B_66GB_SGLANG_1GPU_96", "score": "68", "duration": "01:10:07", "requests": "7551", "req_pts": "111", "tokens_processed_mt": "224", "tokens_generated_mt": "1,73", "total_tg_s": "411", "parallel_tasks": "5", "tg_s_per_task": "82", "total_cost": "0,16", "score_num": 68.0, "duration_s": 4207, "total_params_num": 35.0, "active_params_num": 3.0, "model_size_num": 65.0, "requests_num": 7551.0, "req_pts_num": 111.0, "tokens_processed_num": 224.0, "tokens_generated_num": 1.73, "total_tg_s_num": 411.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 82.0, "total_cost_num": 0.16, "__idx": 6}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-FP8_28GB_SGLANG_1GPU_96", "score": "68", "duration": "01:24:24", "requests": "5029", "req_pts": "74", "tokens_processed_mt": "112", "tokens_generated_mt": "1,40", "total_tg_s": "276", "parallel_tasks": "5", "tg_s_per_task": "55", "total_cost": "0,20", "score_num": 68.0, "duration_s": 5064, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 31.0, "requests_num": 5029.0, "req_pts_num": 74.0, "tokens_processed_num": 112.0, "tokens_generated_num": 1.4, "total_tg_s_num": 276.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 55.0, "total_cost_num": 0.2, "__idx": 7}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-FP8_28GB_SGLANG_1GPU_96", "score": "68", "duration": "01:44:20", "requests": "5377", "req_pts": "79", "tokens_processed_mt": "141", "tokens_generated_mt": "1,60", "total_tg_s": "256", "parallel_tasks": "5", "tg_s_per_task": "51", "total_cost": "0,24", "score_num": 68.0, "duration_s": 6260, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 31.0, "requests_num": 5377.0, "req_pts_num": 79.0, "tokens_processed_num": 141.0, "tokens_generated_num": 1.6, "total_tg_s_num": 256.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 51.0, "total_cost_num": 0.24, "__idx": 8}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-FP8_28GB_SGLANG_2GPU_48", "score": "72", "duration": "01:38:11", "requests": "5314", "req_pts": "74", "tokens_processed_mt": "132", "tokens_generated_mt": "1,58", "total_tg_s": "268", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "0,23", "score_num": 72.0, "duration_s": 5891, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 31.0, "requests_num": 5314.0, "req_pts_num": 74.0, "tokens_processed_num": 132.0, "tokens_generated_num": 1.58, "total_tg_s_num": 268.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 0.23, "__idx": 9}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B-heretic-v2", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-heretic-v2_51GB_SGLANG_1GPU_96", "score": "70", "duration": "01:55:51", "requests": "5355", "req_pts": "77", "tokens_processed_mt": "139", "tokens_generated_mt": "1,57", "total_tg_s": "226", "parallel_tasks": "5", "tg_s_per_task": "45", "total_cost": "0,27", "score_num": 70.0, "duration_s": 6951, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5355.0, "req_pts_num": 77.0, "tokens_processed_num": 139.0, "tokens_generated_num": 1.57, "total_tg_s_num": 226.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 45.0, "total_cost_num": 0.27, "__idx": 10}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B-heretic-v2", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-heretic-v2_51GB_SGLANG_1GPU_96", "score": "70", "duration": "01:53:00", "requests": "5367", "req_pts": "77", "tokens_processed_mt": "136", "tokens_generated_mt": "1,62", "total_tg_s": "239", "parallel_tasks": "5", "tg_s_per_task": "48", "total_cost": "0,26", "score_num": 70.0, "duration_s": 6780, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5367.0, "req_pts_num": 77.0, "tokens_processed_num": 136.0, "tokens_generated_num": 1.62, "total_tg_s_num": 239.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 48.0, "total_cost_num": 0.26, "__idx": 11}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B-heretic-v2", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-heretic-v2_51GB_SGLANG_2GPU_48", "score": "73", "duration": "02:10:32", "requests": "5455", "req_pts": "75", "tokens_processed_mt": "143", "tokens_generated_mt": "1,66", "total_tg_s": "212", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,30", "score_num": 73.0, "duration_s": 7832, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5455.0, "req_pts_num": 75.0, "tokens_processed_num": 143.0, "tokens_generated_num": 1.66, "total_tg_s_num": 212.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.3, "__idx": 12}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "score": "69", "duration": "01:56:28", "requests": "5240", "req_pts": "76", "tokens_processed_mt": "130", "tokens_generated_mt": "1,50", "total_tg_s": "215", "parallel_tasks": "5", "tg_s_per_task": "43", "total_cost": "0,27", "score_num": 69.0, "duration_s": 6988, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5240.0, "req_pts_num": 76.0, "tokens_processed_num": 130.0, "tokens_generated_num": 1.5, "total_tg_s_num": 215.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 43.0, "total_cost_num": 0.27, "__idx": 13}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "score": "75", "duration": "02:25:28", "requests": "5248", "req_pts": "70", "tokens_processed_mt": "126", "tokens_generated_mt": "1,53", "total_tg_s": "175", "parallel_tasks": "5", "tg_s_per_task": "35", "total_cost": "0,34", "score_num": 75.0, "duration_s": 8728, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5248.0, "req_pts_num": 70.0, "tokens_processed_num": 126.0, "tokens_generated_num": 1.53, "total_tg_s_num": 175.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 35.0, "total_cost_num": 0.34, "__idx": 14}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "score": "69", "duration": "01:49:12", "requests": "5248", "req_pts": "76", "tokens_processed_mt": "120", "tokens_generated_mt": "1,52", "total_tg_s": "232", "parallel_tasks": "5", "tg_s_per_task": "46", "total_cost": "0,25", "score_num": 69.0, "duration_s": 6552, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5248.0, "req_pts_num": 76.0, "tokens_processed_num": 120.0, "tokens_generated_num": 1.52, "total_tg_s_num": 232.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 46.0, "total_cost_num": 0.25, "__idx": 15}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "score": "69", "duration": "01:39:53", "requests": "5153", "req_pts": "75", "tokens_processed_mt": "123", "tokens_generated_mt": "1,38", "total_tg_s": "230", "parallel_tasks": "5", "tg_s_per_task": "46", "total_cost": "0,23", "score_num": 69.0, "duration_s": 5993, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5153.0, "req_pts_num": 75.0, "tokens_processed_num": 123.0, "tokens_generated_num": 1.38, "total_tg_s_num": 230.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 46.0, "total_cost_num": 0.23, "__idx": 16}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "score": "69", "duration": "01:40:45", "requests": "5099", "req_pts": "74", "tokens_processed_mt": "122", "tokens_generated_mt": "1,41", "total_tg_s": "233", "parallel_tasks": "5", "tg_s_per_task": "47", "total_cost": "0,24", "score_num": 69.0, "duration_s": 6045, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5099.0, "req_pts_num": 74.0, "tokens_processed_num": 122.0, "tokens_generated_num": 1.41, "total_tg_s_num": 233.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 47.0, "total_cost_num": 0.24, "__idx": 17}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "score": "75", "duration": "02:00:55", "requests": "5364", "req_pts": "72", "tokens_processed_mt": "129", "tokens_generated_mt": "1,52", "total_tg_s": "210", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,28", "score_num": 75.0, "duration_s": 7255, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5364.0, "req_pts_num": 72.0, "tokens_processed_num": 129.0, "tokens_generated_num": 1.52, "total_tg_s_num": 210.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.28, "__idx": 18}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "score": "74", "duration": "02:04:17", "requests": "5289", "req_pts": "71", "tokens_processed_mt": "129", "tokens_generated_mt": "1,57", "total_tg_s": "211", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,29", "score_num": 74.0, "duration_s": 7457, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5289.0, "req_pts_num": 71.0, "tokens_processed_num": 129.0, "tokens_generated_num": 1.57, "total_tg_s_num": 211.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.29, "__idx": 19}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_vLLM_1GPU_96", "score": "76", "duration": "02:29:58", "requests": "5154", "req_pts": "68", "tokens_processed_mt": "113", "tokens_generated_mt": "1,4", "total_tg_s": "156", "parallel_tasks": "5", "tg_s_per_task": "31", "total_cost": "0,35", "score_num": 76.0, "duration_s": 8998, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 5154.0, "req_pts_num": 68.0, "tokens_processed_num": 113.0, "tokens_generated_num": 1.4, "total_tg_s_num": 156.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 31.0, "total_cost_num": 0.35, "__idx": 20}, {"base": "Qwen3.6-27B", "model": "ThinkingCap-Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-ThinkingCap-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "score": "69", "duration": "01:40:17", "requests": "4657", "req_pts": "67", "tokens_processed_mt": "106", "tokens_generated_mt": "1,3", "total_tg_s": "216", "parallel_tasks": "5", "tg_s_per_task": "43", "total_cost": "0,23", "score_num": 69.0, "duration_s": 6017, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 4657.0, "req_pts_num": 67.0, "tokens_processed_num": 106.0, "tokens_generated_num": 1.3, "total_tg_s_num": 216.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 43.0, "total_cost_num": 0.23, "__idx": 21}, {"base": "Qwen3.6-27B", "model": "ThinkingCap-Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-ThinkingCap-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "score": "69", "duration": "01:19:55", "requests": "4331", "req_pts": "63", "tokens_processed_mt": "86", "tokens_generated_mt": "1,11", "total_tg_s": "231", "parallel_tasks": "5", "tg_s_per_task": "46", "total_cost": "0,19", "score_num": 69.0, "duration_s": 4795, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 4331.0, "req_pts_num": 63.0, "tokens_processed_num": 86.0, "tokens_generated_num": 1.11, "total_tg_s_num": 231.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 46.0, "total_cost_num": 0.19, "__idx": 22}, {"base": "Qwen3.6-27B", "model": "ThinkingCap-Qwen3.6-27B", "total_params": "27", "active_params": "27", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-ThinkingCap-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "score": "66", "duration": "01:30:22", "requests": "4420", "req_pts": "67", "tokens_processed_mt": "87", "tokens_generated_mt": "1,18", "total_tg_s": "218", "parallel_tasks": "5", "tg_s_per_task": "44", "total_cost": "0,21", "score_num": 66.0, "duration_s": 5422, "total_params_num": 27.0, "active_params_num": 27.0, "model_size_num": 52.0, "requests_num": 4420.0, "req_pts_num": 67.0, "tokens_processed_num": 87.0, "tokens_generated_num": 1.18, "total_tg_s_num": 218.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 44.0, "total_cost_num": 0.21, "__idx": 23}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "58", "weights_quant": "BF16", "kv_cache_quant": "BF16", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it_58GB_vLLM_1GPU_96", "score": "69", "duration": "01:19:30", "requests": "3424", "req_pts": "50", "tokens_processed_mt": "51", "tokens_generated_mt": "0,90", "total_tg_s": "189", "parallel_tasks": "5", "tg_s_per_task": "38", "total_cost": "0,19", "score_num": 69.0, "duration_s": 4770, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 58.0, "requests_num": 3424.0, "req_pts_num": 50.0, "tokens_processed_num": 51.0, "tokens_generated_num": 0.9, "total_tg_s_num": 189.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 38.0, "total_cost_num": 0.19, "__idx": 24}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "58", "weights_quant": "BF16", "kv_cache_quant": "FP8", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it_58GB_vLLM_1GPU_96", "score": "69", "duration": "01:24:55", "requests": "3545", "req_pts": "51", "tokens_processed_mt": "61", "tokens_generated_mt": "1,06", "total_tg_s": "208", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,20", "score_num": 69.0, "duration_s": 5095, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 58.0, "requests_num": 3545.0, "req_pts_num": 51.0, "tokens_processed_num": 61.0, "tokens_generated_num": 1.06, "total_tg_s_num": 208.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.2, "__idx": 25}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "BF16", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_vLLM_1GPU_96", "score": "71", "duration": "00:58:24", "requests": "3546", "req_pts": "50", "tokens_processed_mt": "56", "tokens_generated_mt": "0,95", "total_tg_s": "271", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "0,14", "score_num": 71.0, "duration_s": 3504, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 31.0, "requests_num": 3546.0, "req_pts_num": 50.0, "tokens_processed_num": 56.0, "tokens_generated_num": 0.95, "total_tg_s_num": 271.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 0.14, "__idx": 26}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_vLLM_1GPU_96", "score": "71", "duration": "00:56:33", "requests": "3815", "req_pts": "54", "tokens_processed_mt": "67", "tokens_generated_mt": "1,03", "total_tg_s": "304", "parallel_tasks": "5", "tg_s_per_task": "61", "total_cost": "0,13", "score_num": 71.0, "duration_s": 3393, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 31.0, "requests_num": 3815.0, "req_pts_num": 54.0, "tokens_processed_num": 67.0, "tokens_generated_num": 1.03, "total_tg_s_num": 304.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 61.0, "total_cost_num": 0.13, "__idx": 27}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_vLLM_1GPU_96", "score": "71", "duration": "01:01:16", "requests": "3823", "req_pts": "54", "tokens_processed_mt": "66", "tokens_generated_mt": "1,02", "total_tg_s": "277", "parallel_tasks": "5", "tg_s_per_task": "55", "total_cost": "0,14", "score_num": 71.0, "duration_s": 3676, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 31.0, "requests_num": 3823.0, "req_pts_num": 54.0, "tokens_processed_num": 66.0, "tokens_generated_num": 1.02, "total_tg_s_num": 277.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 55.0, "total_cost_num": 0.14, "__idx": 28}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_SGLANG_1GPU_96", "score": "71", "duration": "01:22:05", "requests": "3250", "req_pts": "46", "tokens_processed_mt": "47", "tokens_generated_mt": "1,02", "total_tg_s": "207", "parallel_tasks": "5", "tg_s_per_task": "41", "total_cost": "0,19", "score_num": 71.0, "duration_s": 4925, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 31.0, "requests_num": 3250.0, "req_pts_num": 46.0, "tokens_processed_num": 47.0, "tokens_generated_num": 1.02, "total_tg_s_num": 207.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 41.0, "total_cost_num": 0.19, "__idx": 29}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "engine": "SGLANG", "nb_gpu": "2", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_SGLANG_2GPU_48", "score": "72", "duration": "01:15:42", "requests": "3250", "req_pts": "45", "tokens_processed_mt": "50", "tokens_generated_mt": "0,97", "total_tg_s": "214", "parallel_tasks": "5", "tg_s_per_task": "43", "total_cost": "0,18", "score_num": 72.0, "duration_s": 4542, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 31.0, "requests_num": 3250.0, "req_pts_num": 45.0, "tokens_processed_num": 50.0, "tokens_generated_num": 0.97, "total_tg_s_num": 214.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 43.0, "total_cost_num": 0.18, "__idx": 30}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "total_params": "31", "active_params": "31", "model_size": "18", "weights_quant": "NVFP4", "kv_cache_quant": "BF16", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-NVFP4-turbo_18GB_vLLM_1GPU_96", "score": "70", "duration": "01:02:16", "requests": "3318", "req_pts": "47", "tokens_processed_mt": "53", "tokens_generated_mt": "1,00", "total_tg_s": "268", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "0,15", "score_num": 70.0, "duration_s": 3736, "total_params_num": 31.0, "active_params_num": 31.0, "model_size_num": 18.0, "requests_num": 3318.0, "req_pts_num": 47.0, "tokens_processed_num": 53.0, "tokens_generated_num": 1.0, "total_tg_s_num": 268.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 0.15, "__idx": 31}, {"base": "Qwen3.5-122B-A10B", "model": "Qwen3.5-122B-A10B", "total_params": "122", "active_params": "10", "model_size": "76", "weights_quant": "NVFP4", "kv_cache_quant": "BF16", "engine": "vLLM", "nb_gpu": "1", "license": "Apache 2.0", "model_ref": "ST-Qwen3.5-122B-A10B-NVFP4_77GB_vLLM_1GPU_96", "score": "68", "duration": "03:45:49", "requests": "7696", "req_pts": "113", "tokens_processed_mt": "223", "tokens_generated_mt": "1,68", "total_tg_s": "124", "parallel_tasks": "5", "tg_s_per_task": "25", "total_cost": "0,53", "score_num": 68.0, "duration_s": 13549, "total_params_num": 122.0, "active_params_num": 10.0, "model_size_num": 76.0, "requests_num": 7696.0, "req_pts_num": 113.0, "tokens_processed_num": 223.0, "tokens_generated_num": 1.68, "total_tg_s_num": 124.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 25.0, "total_cost_num": 0.53, "__idx": 32}, {"base": "MiniMax-M2.7", "model": "MiniMax-M2.7", "total_params": "230", "active_params": "10", "model_size": "131", "weights_quant": "Q4_K_M", "kv_cache_quant": "BF16", "engine": "llama.cpp", "nb_gpu": "3", "license": "Non-commercial MIT", "model_ref": "GGUF-MiniMax-M2.7-Q4_K_M_130GB_3GPU_local", "score": "79", "duration": "06:25:00", "requests": "4079", "req_pts": "52", "tokens_processed_mt": "72", "tokens_generated_mt": "1,10", "total_tg_s": "48", "parallel_tasks": "1", "tg_s_per_task": "48", "total_cost": "0,90", "score_num": 79.0, "duration_s": 23100, "total_params_num": 230.0, "active_params_num": 10.0, "model_size_num": 131.0, "requests_num": 4079.0, "req_pts_num": 52.0, "tokens_processed_num": 72.0, "tokens_generated_num": 1.1, "total_tg_s_num": 48.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 48.0, "total_cost_num": 0.9, "__idx": 33}, {"base": "MiniMax-M2.7", "model": "MiniMax-M2.7", "total_params": "230", "active_params": "10", "model_size": "131", "weights_quant": "Q4_K_M", "kv_cache_quant": "Q8_0", "engine": "llama.cpp", "nb_gpu": "3", "license": "Non-commercial MIT", "model_ref": "GGUF-MiniMax-M2.7-Q4_K_M_130GB_3GPU_local", "score": "79", "duration": "07:18:49", "requests": "3935", "req_pts": "50", "tokens_processed_mt": "68", "tokens_generated_mt": "1,14", "total_tg_s": "43", "parallel_tasks": "1", "tg_s_per_task": "43", "total_cost": "1,02", "score_num": 79.0, "duration_s": 26329, "total_params_num": 230.0, "active_params_num": 10.0, "model_size_num": 131.0, "requests_num": 3935.0, "req_pts_num": 50.0, "tokens_processed_num": 68.0, "tokens_generated_num": 1.14, "total_tg_s_num": 43.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 43.0, "total_cost_num": 1.02, "__idx": 34}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash", "total_params": "284", "active_params": "13", "model_size": "120", "weights_quant": "Q3_K_XL", "kv_cache_quant": "Q8_0", "engine": "llama.cpp", "nb_gpu": "3", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-Q3_K_XL_120GB_3GPU_local", "score": "79", "duration": "06:38:56", "requests": "4634", "req_pts": "59", "tokens_processed_mt": "116", "tokens_generated_mt": "1,49", "total_tg_s": "62", "parallel_tasks": "5", "tg_s_per_task": "12", "total_cost": "0,93", "score_num": 79.0, "duration_s": 23936, "total_params_num": 284.0, "active_params_num": 13.0, "model_size_num": 120.0, "requests_num": 4634.0, "req_pts_num": 59.0, "tokens_processed_num": 116.0, "tokens_generated_num": 1.49, "total_tg_s_num": 62.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 12.0, "total_cost_num": 0.93, "__idx": 35}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash (API)", "total_params": "284", "active_params": "13", "model_size": "?", "weights_quant": "?", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "MIT", "model_ref": "openrouter/deepseek/deepseek-v4-flash", "score": "73", "duration": "02:17:11", "requests": "4121", "req_pts": "56", "tokens_processed_mt": "110", "tokens_generated_mt": "1,6", "total_tg_s": "194", "parallel_tasks": "5", "tg_s_per_task": "39", "total_cost": "4,96", "score_num": 73.0, "duration_s": 8231, "total_params_num": 284.0, "active_params_num": 13.0, "model_size_num": null, "requests_num": 4121.0, "req_pts_num": 56.0, "tokens_processed_num": 110.0, "tokens_generated_num": 1.6, "total_tg_s_num": 194.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 39.0, "total_cost_num": 4.96, "__idx": 36}, {"base": "Hy3", "model": "Hy3", "total_params": "295", "active_params": "21", "model_size": "?", "weights_quant": "?", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "Apache 2.0", "model_ref": "openrouter/tencent/hy3:free", "score": "70", "duration": "01:14:45", "requests": "2516", "req_pts": "36", "tokens_processed_mt": "41", "tokens_generated_mt": "0,82", "total_tg_s": "183", "parallel_tasks": "5", "tg_s_per_task": "37", "total_cost": "", "score_num": 70.0, "duration_s": 4485, "total_params_num": 295.0, "active_params_num": 21.0, "model_size_num": null, "requests_num": 2516.0, "req_pts_num": 36.0, "tokens_processed_num": 41.0, "tokens_generated_num": 0.82, "total_tg_s_num": 183.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 37.0, "total_cost_num": null, "__idx": 37}, {"base": "Hy3", "model": "Hy3", "total_params": "295", "active_params": "21", "model_size": "?", "weights_quant": "?", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "Apache 2.0", "model_ref": "openrouter/tencent/hy3:free", "score": "70", "duration": "01:09:26", "requests": "2676", "req_pts": "38", "tokens_processed_mt": "40", "tokens_generated_mt": "0,62", "total_tg_s": "149", "parallel_tasks": "5", "tg_s_per_task": "30", "total_cost": "", "score_num": 70.0, "duration_s": 4166, "total_params_num": 295.0, "active_params_num": 21.0, "model_size_num": null, "requests_num": 2676.0, "req_pts_num": 38.0, "tokens_processed_num": 40.0, "tokens_generated_num": 0.62, "total_tg_s_num": 149.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 30.0, "total_cost_num": null, "__idx": 38}, {"base": "MiMo-V2.5", "model": "MiMo-V2.5", "total_params": "310", "active_params": "15", "model_size": "310", "weights_quant": "FP8", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "MIT", "model_ref": "openrouter/xiaomi/mimo-v2.5", "score": "70", "duration": "02:00:32", "requests": "4308", "req_pts": "62", "tokens_processed_mt": "136", "tokens_generated_mt": "2,07", "total_tg_s": "286", "parallel_tasks": "5", "tg_s_per_task": "57", "total_cost": "2,20", "score_num": 70.0, "duration_s": 7232, "total_params_num": 310.0, "active_params_num": 15.0, "model_size_num": 310.0, "requests_num": 4308.0, "req_pts_num": 62.0, "tokens_processed_num": 136.0, "tokens_generated_num": 2.07, "total_tg_s_num": 286.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 57.0, "total_cost_num": 2.2, "__idx": 39}, {"base": "GLM 5.2", "model": "GLM 5.2", "total_params": "753", "active_params": "40", "model_size": "756", "weights_quant": "FP8", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "MIT", "model_ref": "openrouter/z-ai/glm-5.2", "score": "80", "duration": "02:22:57", "requests": "3463", "req_pts": "43", "tokens_processed_mt": "74", "tokens_generated_mt": "1,03", "total_tg_s": "120", "parallel_tasks": "5", "tg_s_per_task": "24", "total_cost": "18,50", "score_num": 80.0, "duration_s": 8577, "total_params_num": 753.0, "active_params_num": 40.0, "model_size_num": 756.0, "requests_num": 3463.0, "req_pts_num": 43.0, "tokens_processed_num": 74.0, "tokens_generated_num": 1.03, "total_tg_s_num": 120.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 24.0, "total_cost_num": 18.5, "__idx": 40}, {"base": "GLM 5.2", "model": "GLM 5.2", "total_params": "753", "active_params": "40", "model_size": "756", "weights_quant": "FP8", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "MIT", "model_ref": "openrouter/z-ai/glm-5.2", "score": "80", "duration": "02:03:07", "requests": "3261", "req_pts": "41", "tokens_processed_mt": "62", "tokens_generated_mt": "0,99", "total_tg_s": "134", "parallel_tasks": "5", "tg_s_per_task": "27", "total_cost": "7,44", "score_num": 80.0, "duration_s": 7387, "total_params_num": 753.0, "active_params_num": 40.0, "model_size_num": 756.0, "requests_num": 3261.0, "req_pts_num": 41.0, "tokens_processed_num": 62.0, "tokens_generated_num": 0.99, "total_tg_s_num": 134.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 27.0, "total_cost_num": 7.44, "__idx": 41}, {"base": "Deepseek v4 pro", "model": "Deepseek v4 pro", "total_params": "1600", "active_params": "49", "model_size": "865", "weights_quant": "FP8", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "MIT", "model_ref": "openrouter/deepseek/deepseek-v4-pro", "score": "80", "duration": "01:19:50", "requests": "4024", "req_pts": "50", "tokens_processed_mt": "112", "tokens_generated_mt": "1,4", "total_tg_s": "292", "parallel_tasks": "5", "tg_s_per_task": "58", "total_cost": "2,45", "score_num": 80.0, "duration_s": 4790, "total_params_num": 1600.0, "active_params_num": 49.0, "model_size_num": 865.0, "requests_num": 4024.0, "req_pts_num": 50.0, "tokens_processed_num": 112.0, "tokens_generated_num": 1.4, "total_tg_s_num": 292.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 58.0, "total_cost_num": 2.45, "__idx": 42}, {"base": "Deepseek v4 pro", "model": "Deepseek v4 pro", "total_params": "1600", "active_params": "49", "model_size": "865", "weights_quant": "FP8", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "MIT", "model_ref": "openrouter/deepseek/deepseek-v4-pro", "score": "80", "duration": "01:29:00", "requests": "4084", "req_pts": "51", "tokens_processed_mt": "113", "tokens_generated_mt": "1,45", "total_tg_s": "272", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "2,38", "score_num": 80.0, "duration_s": 5340, "total_params_num": 1600.0, "active_params_num": 49.0, "model_size_num": 865.0, "requests_num": 4084.0, "req_pts_num": 51.0, "tokens_processed_num": 113.0, "tokens_generated_num": 1.45, "total_tg_s_num": 272.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 2.38, "__idx": 43}, {"base": "Qwen 3.7 max", "model": "Qwen 3.7 max", "total_params": "?", "active_params": "?", "model_size": "?", "weights_quant": "?", "kv_cache_quant": "?", "engine": "API", "nb_gpu": "n/a", "license": "proprietary", "model_ref": "openrouter/qwen/qwen3.7-max", "score": "70", "duration": "02:36:27", "requests": "5599", "req_pts": "80", "tokens_processed_mt": "123", "tokens_generated_mt": "1,8", "total_tg_s": "192", "parallel_tasks": "5", "tg_s_per_task": "38", "total_cost": "60,70", "score_num": 70.0, "duration_s": 9387, "total_params_num": null, "active_params_num": null, "model_size_num": null, "requests_num": 5599.0, "req_pts_num": 80.0, "tokens_processed_num": 123.0, "tokens_generated_num": 1.8, "total_tg_s_num": 192.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 38.0, "total_cost_num": 60.7, "__idx": 44}];
+var VALID = DATA.filter(function(r){return r.score_num !== null;});
+
+var DISPLAY_COLS = [
+  {key:"base",label:"Base"},
+  {key:"model",label:"Model"},
+  {key:"total_params",label:"TP"},
+  {key:"active_params",label:"AP"},
+  {key:"model_size",label:"Size"},
+  {key:"weights_quant",label:"WQ"},
+  {key:"kv_cache_quant",label:"CQ"},
+  {key:"engine",label:"Engine"},
+  {key:"nb_gpu",label:"Nb GPU"},
+  {key:"score",label:"Score"},
+  {key:"duration",label:"Duration"},
+  {key:"requests",label:"Requests"},
+  {key:"req_pts",label:"Req/Pts"},
+  {key:"tokens_processed_mt",label:"in Mtok"},
+  {key:"tokens_generated_mt",label:"out Mtok"},
+  {key:"total_tg_s",label:"TG/s"},
+  {key:"parallel_tasks",label:"Parallel"},
+  {key:"tg_s_per_task",label:"TG/s/task"},
+  {key:"total_cost",label:"Total Cost ($)"}
+ ];
+
+var NUMERIC_KEYS = [
+  {key:"score_num",label:"Score /100",higherBetter:true},
+  {key:"total_params_num",label:"Total Params (B)",higherBetter:false},
+  {key:"active_params_num",label:"Active Params (B)",higherBetter:false},
+  {key:"model_size_num",label:"Model Size (GB)",higherBetter:false},
+  {key:"duration_s",label:"Duration (s)",higherBetter:false},
+  {key:"requests_num",label:"Requests",higherBetter:false},
+  {key:"req_pts_num",label:"Req/Pts",higherBetter:false},
+  {key:"tokens_processed_num",label:"in Mtok",higherBetter:false},
+  {key:"tokens_generated_num",label:"out Mtok",higherBetter:false},
+  {key:"total_tg_s_num",label:"Total TG/s",higherBetter:true},
+  {key:"parallel_tasks_num",label:"Parallel tasks",higherBetter:true},
+  {key:"tg_s_per_task_num",label:"TG/s per task",higherBetter:true},
+  {key:"total_cost_num",label:"Total Cost ($)",higherBetter:false}
+ ];
+
+var NUM_COLS = [
+  {display:"score",num:"score_num",higherBetter:true},
+  {display:"total_params",num:"total_params_num",higherBetter:false},
+  {display:"active_params",num:"active_params_num",higherBetter:false},
+  {display:"model_size",num:"model_size_num",higherBetter:false},
+  {display:"duration",num:"duration_s",higherBetter:false},
+  {display:"requests",num:"requests_num",higherBetter:false},
+  {display:"req_pts",num:"req_pts_num",higherBetter:false},
+  {display:"tokens_processed_mt",num:"tokens_processed_num",higherBetter:false},
+  {display:"tokens_generated_mt",num:"tokens_generated_num",higherBetter:false},
+  {display:"total_tg_s",num:"total_tg_s_num",higherBetter:true},
+  {display:"parallel_tasks",num:"parallel_tasks_num",higherBetter:true},
+  {display:"tg_s_per_task",num:"tg_s_per_task_num",higherBetter:true},
+  {display:"total_cost",num:"total_cost_num",higherBetter:false}
+ ];
+
+function el(tag,cls,parent){var e=document.createElement(tag);if(cls)e.className=cls;if(parent)parent.appendChild(e);return e;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtNum(n){if(n===null||n===undefined||isNaN(n))return "\u2014";return n.toLocaleString("fr-FR");}
+
+// --- Model filter (sticky left sidebar) ---
+var visibleModels = {};
+var baseColors = {};
+var BASE_PALETTE = ["#8b5cf6","#22c55e","#f97316","#ef4444","#6366f1","#0ea5e9","#facc15","#4ade80","#ec4899","#2dd4bf","#9ca3af","#f87171","#a3e635","#a5f3fc","#fde68a"];
+
+function initModelFilters() {
+  var bases = {};
+  DATA.forEach(function(r){ bases[r.base] = true; });
+  var keys = Object.keys(bases).sort();
+  keys.forEach(function(b, i){ visibleModels[b] = true; baseColors[b] = BASE_PALETTE[i % BASE_PALETTE.length]; });
+}
+
+function renderModelFilter() {
+  var panel = document.getElementById("bd-filter-panel");
+  if (!panel) return;
+  var html = '<div class="bd-filter-label">Models</div>';
+  var keys = Object.keys(baseColors).sort();
+  keys.forEach(function(b){
+    var col = baseColors[b];
+    var checked = visibleModels[b] !== false;
+    html += '<label><input type="checkbox" data-base="' + esc(b) + '" class="bd-model-cb"' + (checked ? ' checked' : '') + '><span class="bd-color-swatch" style="background:' + col + ';"></span>' + esc(b) + '</label>';
+  });
+  html += '<div class="bd-btn-group">';
+  html += '<button class="bd-btn" id="bd-check-all" type="button">Check all</button>';
+  html += '<button class="bd-btn" id="bd-uncheck-all" type="button">Uncheck all</button>';
+  html += '</div>';
+  panel.innerHTML = html;
+  panel.querySelectorAll('.bd-model-cb').forEach(function(cb){
+    cb.addEventListener('change', function(){ toggleModelFilter(cb); });
+  });
+  var chkAll = document.getElementById('bd-check-all');
+  if (chkAll) chkAll.addEventListener('click', function(){ setAllModelFilters(true); });
+  var uncAll = document.getElementById('bd-uncheck-all');
+  if (uncAll) uncAll.addEventListener('click', function(){ setAllModelFilters(false); });
+}
+
+function toggleModelFilter(cb) {
+  visibleModels[cb.getAttribute("data-base")] = cb.checked;
+  onFilterChange();
+}
+
+function setAllModelFilters(checked) {
+  Object.keys(baseColors).forEach(function(b){ visibleModels[b] = checked; });
+  document.querySelectorAll('.bd-model-cb').forEach(function(cb){ cb.checked = checked; });
+  onFilterChange();
+}
+
+function onFilterChange() {
+  renderTableBody();
+  buildMetricChart();
+  buildScatter();
+}
+
+function getActiveRecords() {
+  return VALID.filter(function(r){ return visibleModels[r.base] !== false; });
+}
+
+var sortCol = "score";
+var sortDir = "desc";
+
+function renderTableHead(){
+  var tr = document.getElementById("bd-table-head");
+  tr.innerHTML = "";
+  DISPLAY_COLS.forEach(function(col){
+    var th = el("th", null, tr);
+    th.textContent = col.label;
+    var icon = el("span", "bd-sort-icon", th);
+    icon.textContent = " \u25B2\u25BC";
+    if (sortCol === col.key) {
+      th.classList.add(sortDir === "asc" ? "bd-sorted-asc" : "bd-sorted-desc");
+    }
+    th.addEventListener("click", function(){
+      if (sortCol === col.key) {
+        sortDir = sortDir === "asc" ? "desc" : "asc";
+      } else {
+        sortCol = col.key;
+        sortDir = "asc";
+      }
+      renderTableHead();
+      renderTableBody();
+    });
+  });
+}
+
+function getFiltered(){
+  var q = document.getElementById("bd-search").value.toLowerCase();
+  var ef = document.getElementById("bd-filter-engine").value;
+  var qf = document.getElementById("bd-filter-quant").value;
+  var gf = document.getElementById("bd-filter-gpu").value;
+  return VALID.filter(function(r){
+    if (visibleModels[r.base] === false) return false;
+    if (ef && r.engine !== ef) return false;
+    if (qf && r.weights_quant !== qf) return false;
+    if (gf && r.nb_gpu !== gf) return false;
+    if (q) {
+      return Object.keys(r).some(function(k){
+        return String(r[k]||"").toLowerCase().indexOf(q) !== -1;
+      });
+    }
+    return true;
+  });
+}
+
+function cellBg(nc, val, lo, hi){
+  if (lo === null || hi === null || lo === hi) return "";
+  var t = (val - lo) / (hi - lo);
+  var g = Math.round(255 * (nc.higherBetter ? t : 1 - t));
+  var r2 = Math.round(255 * (nc.higherBetter ? 1 - t : t));
+  return "rgba(" + r2 + "," + g + ",40,0.35)";
+}
+
+function renderTableBody(){
+  var tbody = document.getElementById("bd-table-body");
+  tbody.innerHTML = "";
+  var data = getFiltered();
+  var sortNumMap = {};
+  NUM_COLS.forEach(function(nc){ sortNumMap[nc.display] = nc.num; });
+
+  data.sort(function(a, b){
+    var numKey = sortNumMap[sortCol];
+    var va, vb;
+    if (numKey && a[numKey] !== null && b[numKey] !== null) { va = a[numKey]; vb = b[numKey]; }
+    else { va = a[sortCol] || ""; vb = b[sortCol] || ""; }
+    if (typeof va === "number" && typeof vb === "number") {
+      return sortDir === "asc" ? va - vb : vb - va;
+    }
+    va = String(va); vb = String(vb);
+    var c = va.localeCompare(vb);
+    return sortDir === "asc" ? c : -c;
+  });
+
+  var ranges = {};
+  NUM_COLS.forEach(function(nc){
+    var vals = data.map(function(r){return r[nc.num];}).filter(function(v){return v !== null;});
+    if (vals.length) {
+      ranges[nc.display] = Math.min.apply(null, vals);
+      ranges[nc.display + "_max"] = Math.max.apply(null, vals);
+    }
+  });
+
+  data.forEach(function(r){
+    var tr = el("tr", null, tbody);
+    tr.dataset.idx = r.__idx;
+    DISPLAY_COLS.forEach(function(col){
+      var td = el("td", null, tr);
+      var v = r[col.key];
+      if (!v || String(v).trim() === "") { td.classList.add("bd-empty-cell"); td.textContent = "\u2014"; }
+      else {
+        td.textContent = v;
+        var nc = NUM_COLS.filter(function(n){return n.display === col.key;})[0];
+        if (nc && r[nc.num] !== null) {
+          td.style.backgroundColor = cellBg(nc, r[nc.num], ranges[nc.display], ranges[nc.display + "_max"]);
+        }
+      }
+    });
+  });
+}
+
+function populateFilters(){
+  var ef = document.getElementById("bd-filter-engine");
+  var qf = document.getElementById("bd-filter-quant");
+  var gf = document.getElementById("bd-filter-gpu");
+  var seenEng = {}, seenQuant = {}, seenGpu = {};
+  DATA.forEach(function(r){
+    if (r.engine && !seenEng[r.engine]) {
+      seenEng[r.engine] = true;
+      var o = document.createElement("option"); o.value = r.engine; o.textContent = r.engine;
+      ef.appendChild(o);
+    }
+    if (r.weights_quant && !seenQuant[r.weights_quant]) {
+      seenQuant[r.weights_quant] = true;
+      var o = document.createElement("option"); o.value = r.weights_quant; o.textContent = r.weights_quant;
+      qf.appendChild(o);
+    }
+    if (r.nb_gpu && !seenGpu[r.nb_gpu]) {
+      seenGpu[r.nb_gpu] = true;
+      var o = document.createElement("option"); o.value = r.nb_gpu; o.textContent = r.nb_gpu + " GPU";
+      gf.appendChild(o);
+    }
+  });
+}
+
+var metricChart = null;
+function buildMetricChart(){
+  var sel = document.getElementById("bd-metric-select");
+  var key = sel.value;
+  var nk = NUMERIC_KEYS.filter(function(n){return n.key === key;})[0];
+  if (!nk) return;
+
+  var tc = getThemeColors();
+
+  var records = getActiveRecords();
+  var byBase = {};
+  records.forEach(function(r){
+    if (r[key] === null) return;
+    var gk = groupKey(r);
+    if (!byBase[gk]) byBase[gk] = {vals: [], base: r.base, gpu: r.nb_gpu || null};
+    byBase[gk].vals.push(r[key]);
+  });
+
+  var agg = [];
+  Object.keys(byBase).forEach(function(gk){
+    var g = byBase[gk];
+    var vals = g.vals;
+    var vMin = Math.min.apply(null, vals);
+    var vMax = Math.max.apply(null, vals);
+    var vAvg = vals.reduce(function(s,v){return s+v;},0) / vals.length;
+    agg.push({gk: gk, base: g.base, gpu: g.gpu, min: vMin, max: vMax, avg: vAvg, count: vals.length});
+  });
+
+  agg.sort(function(a, b){
+    return nk.higherBetter ? b.avg - a.avg : a.avg - b.avg;
+  });
+
+  var labels = agg.map(function(a){return a.gk;});
+  var avgVals = agg.map(function(a){return a.avg;});
+  var mins = agg.map(function(a){return a.min;});
+  var maxs = agg.map(function(a){return a.max;});
+  var gpuVals = agg.map(function(a){return a.gpu || "\u2014";});
+  var colors = agg.map(function(a){return baseColors[a.base] || '#888';});
+
+  var loErr = avgVals.map(function(a, i){return a - mins[i];});
+  var hiErr = maxs.map(function(m, i){return m - avgVals[i];});
+
+  var trace = {
+    type: "bar", orientation: "h",
+    x: avgVals, y: labels,
+    error_x: {
+      type: "data",
+      symmetric: false,
+      array: hiErr,
+      arrayminus: loErr,
+      color: tc.accent,
+      thickness: 1.5,
+      width: 4
+    },
+    marker: { color: colors, opacity: 0.75, line: { color: tc.grid, width: 0.5 } },
+    text: avgVals.map(function(v){return v !== null ? v.toFixed(1)+" " : "";}),
+    textposition: "inside",
+    insidetextanchor: "end",
+    hovertemplate: "<b>%{y}</b><br>" + nk.label + " avg: %{x:.1f}<br>min: %{customdata[0]:.1f}<br>max: %{customdata[1]:.1f}<br>runs: %{customdata[2]}<extra></extra>",
+    customdata: agg.map(function(a){return [a.min, a.max, a.count];})
+  };
+
+  var layout = {
+    margin: { l: 320, r: 40, t: 30, b: 40 },
+    xaxis: { title: { text: nk.label }, zerocolor: tc.grid, gridcolor: tc.grid, tickfont: {color: tc.font} },
+    yaxis: { automargin: true, tickfont: { size: 10, color: tc.font } },
+    height: Math.max(300, agg.length * 28),
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", color: tc.font }
+  };
+  var cfg = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d","select2d"] };
+  var div = document.getElementById("bd-metric-chart");
+  if (metricChart) Plotly.purge(div);
+  metricChart = Plotly.newPlot(div, [trace], layout, cfg);
+}
+
+function setupMetricSelect(){
+  var sel = document.getElementById("bd-metric-select");
+  NUMERIC_KEYS.forEach(function(nk){
+    var o = document.createElement("option");
+    o.value = nk.key;
+    o.textContent = nk.label + (nk.higherBetter ? " ↑" : " ↓");
+    sel.appendChild(o);
+  });
+  sel.value = "score_num";
+  sel.addEventListener("change", buildMetricChart);
+}
+
+var xyDiv = document.getElementById("bd-xy-chart");
+var xyState = {
+  xKey: "requests_num", yKey: "score_num", sizeKey: "tokens_generated_num"
+};
+
+function getNumKey(key){return NUMERIC_KEYS.filter(function(n){return n.key === key;})[0];}
+function numKeyHigher(key){var nk = getNumKey(key);return nk ? nk.higherBetter : true;}
+function groupKey(r){return r.model + " " + (r.weights_quant||"-") + "/" + (r.kv_cache_quant||"-");}
+
+function buildScatter(){
+  var data = getFiltered();
+  var xk = xyState.xKey, yk = xyState.yKey, sk = xyState.sizeKey;
+  var xMeta = getNumKey(xk), yMeta = getNumKey(yk);
+  if (!xMeta || !yMeta) return;
+
+  var tc = getThemeColors();
+
+  var pts = data.filter(function(r){ return r[xk] !== null && r[yk] !== null; }).map(function(r){
+    return {
+      idx: r.__idx,
+      base: r.base,
+      model: r.model,
+      model_ref: r.model_ref,
+      weights_quant: r.weights_quant || "-",
+      kv_cache_quant: r.kv_cache_quant || "-",
+      nb_gpu: r.nb_gpu,
+      x: r[xk],
+      y: r[yk],
+      s: sk && r[sk] !== null ? r[sk] : null
+    };
+  });
+
+  var sizeVals = pts.map(function(b){return b.s !== null ? b.s : null;}).filter(function(v){return v !== null;});
+  var sizeMin = sizeVals.length ? Math.min.apply(null, sizeVals) : 1;
+  var sizeMax = sizeVals.length ? Math.max.apply(null, sizeVals) : 1;
+  function bubbleSize(v){
+    if (v === null || sizeMax === sizeMin) return 12;
+    var t = (v - sizeMin) / (sizeMax - sizeMin);
+    return 8 + t * 28;
+  }
+
+  var trace = {
+    type: "scatter", mode: "markers",
+    x: pts.map(function(b){return b.x;}),
+    y: pts.map(function(b){return b.y;}),
+    customdata: pts.map(function(b){return b.idx;}),
+    text: pts.map(function(b){
+      var sLabel = sk ? (getNumKey(sk).label + ": " + (b.s !== null ? b.s.toFixed(1) : "\u2014")) : "";
+      return b.model_ref
+        + "<br>" + xMeta.label + ": " + b.x.toFixed(1)
+        + "<br>" + yMeta.label + ": " + b.y.toFixed(1)
+        + "<br>" + sLabel;
+    }),
+    marker: {
+      color: pts.map(function(b){return baseColors[b.base] || '#888';}),
+      line: {color: pts.map(function(b){return baseColors[b.base] || '#888';}), width: 1.5},
+      size: pts.map(function(b){return bubbleSize(b.s);}),
+      sizemode: "raw",
+      opacity: 0.85
+    },
+    hovertemplate: "%{text}<br>Click to highlight in table<extra></extra>",
+    hoverlabel: {bgcolor: tc.card, bordercolor: tc.accent, font: {color: tc.font, size: 12}}
+  };
+
+  var layout = {
+    xaxis: {
+      title: { text: xMeta.label, font: {color: tc.font} },
+      gridcolor: tc.grid,
+      zerolinecolor: tc.grid,
+      tickfont: {color: tc.font}
+    },
+    yaxis: {
+      title: { text: yMeta.label, font: {color: tc.font} },
+      gridcolor: tc.grid,
+      zerolinecolor: tc.grid,
+      tickfont: {color: tc.font}
+    },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", size: 12, color: tc.font },
+    margin: { l: 60, r: 20, t: 30, b: 50 },
+    hovermode: "closest"
+  };
+  var cfg = { responsive: true, displaylogo: false, scrollZoom: true };
+
+  Plotly.react(xyDiv, [trace], layout, cfg);
+}
+
+function setupScatter(){
+  var xs = document.getElementById("bd-x-axis");
+  var ys = document.getElementById("bd-y-axis");
+  var ss = document.getElementById("bd-size-axis");
+  NUMERIC_KEYS.forEach(function(nk){
+    var o1 = document.createElement("option"); o1.value = nk.key; o1.textContent = nk.label;
+    var o2 = document.createElement("option"); o2.value = nk.key; o2.textContent = nk.label;
+    var o3 = document.createElement("option"); o3.value = nk.key; o3.textContent = nk.label;
+    xs.appendChild(o1); ys.appendChild(o2); ss.appendChild(o3);
+  });
+  var noSizeOpt = document.createElement("option");
+  noSizeOpt.value = ""; noSizeOpt.textContent = "(none)";
+  ss.insertBefore(noSizeOpt, ss.firstChild);
+  xs.value = xyState.xKey; ys.value = xyState.yKey; ss.value = xyState.sizeKey;
+
+  xs.addEventListener("change", function(){ xyState.xKey = xs.value; buildScatter(); });
+  ys.addEventListener("change", function(){ xyState.yKey = ys.value; buildScatter(); });
+  ss.addEventListener("change", function(){ xyState.sizeKey = ss.value; buildScatter(); });
+
+  buildScatter();
+  if (xyDiv.on) {
+    xyDiv.on("plotly_click", function(ev){
+      var pt = ev.points && ev.points[0];
+      if (!pt || pt.customdata === undefined) return;
+      highlightTableRow(pt.customdata);
+    });
+  } else {
+    xyDiv.addEventListener("plotly_click", function(ev){
+      var pt = ev.points && ev.points[0];
+      if (!pt || pt.customdata === undefined) return;
+      highlightTableRow(pt.customdata);
+    });
+  }
+}
+
+function highlightTableRow(idx){
+  document.querySelectorAll(".bd-row-highlight").forEach(function(r){r.classList.remove("bd-row-highlight");});
+  var rows = document.querySelectorAll("#bd-table-body tr");
+  var first = null;
+  rows.forEach(function(tr){
+    if (tr.dataset.idx === String(idx)) {
+      tr.classList.add("bd-row-highlight");
+      if (!first) first = tr;
+    }
+  });
+  if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function setupFilterSync(){
+  var s = document.getElementById("bd-search");
+  var ef = document.getElementById("bd-filter-engine");
+  var qf = document.getElementById("bd-filter-quant");
+  var gf = document.getElementById("bd-filter-gpu");
+  s.addEventListener("input", onFilterChange);
+  ef.addEventListener("change", onFilterChange);
+  qf.addEventListener("change", onFilterChange);
+  gf.addEventListener("change", onFilterChange);
+}
+
+// Theme-aware chart updates
+window.__themeUpdateCharts = function() {
+  var tc = getThemeColors();
+  buildMetricChart();
+  buildScatter();
+};
+
+initModelFilters();
+renderModelFilter();
+renderTableHead();
+populateFilters();
+renderTableBody();
+setupMetricSelect();
+buildMetricChart();
+setupFilterSync();
+setupScatter();
+
+})();
+</script>
+
+<div class="footer-sticky">
+  <div class="footer-sticky__project">
+    <svg class="footer-sticky__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1L2 4v6l4 3 4-3V4L6 1z"/><path d="M10 1l4 3v6l-4 3"/><path d="M6 5l2-1m0 0l2 1-2 1m0 0l-2 1"/></svg>
+    <a href="https://github.com/WonderRico/local_llm_benchmark" target="_blank" rel="noopener">local_llm_benchmark</a>
+  </div>
+  <div class="footer-sticky__author">
+    <svg class="footer-sticky__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c.5-2.5 2.5-4 5-4s4.5 1.5 5 4"/></svg>
+    <span>by </span>
+    <a href="https://e2studio.fr/" target="_blank" rel="noopener">E2Studio</a>
+  </div>
+</div>
+
+<style>
+.footer-sticky {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 9999;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: var(--shadow-card-hover);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  max-width: 260px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.footer-sticky__project,
+.footer-sticky__author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+}
+.footer-sticky__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.footer-sticky span {
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.footer-sticky a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all;
+}
+.footer-sticky a:hover {
+  text-decoration: underline;
+}
+</style>
+</body>
+</html>
