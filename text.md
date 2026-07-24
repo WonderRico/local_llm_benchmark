@@ -169,11 +169,11 @@ It is estimated that the precision loss of FP8 is negligible. It depends...
 
 ### Gemma4 31B
 
-Surprisingly, FP8 quantization slightly improves the score, up to +3 pts, and saves requests and tokens. NVFP4 is in between, also surprising...
+Surprisingly, FP8 quantization slightly improves the score, up to +3 pts, but generates more requests and tokens. NVFP4 is in between, also surprising...
 
 ### Qwen3.6 27B
 
-Some small impact on the score, between -4 and -1 pts on the score. **When possible**, it is better to avoid it...
+Some small impact on the score, between -3 and -1 pts on the score. **When possible**, it is better to avoid it...
 
 ## Impact of KV cache Quantization
 
@@ -232,3 +232,4 @@ vLLM efficiency for KV cache is even more visible with Gemma4.
 
 - SGLANG seems faster than vLLM for fewer batches
 - With Qwen models, vLLM crashes in TP2 on my 2x4090D after a few minutes, SGLANG is fine. Gemma models ok on vLLM.
+

@@ -673,9 +673,9 @@
 <p>Roughly, switching from BF16 to FP8 will halve the size of the model weights. BF16 to AWQ 4bit or NVFP4 will divide it by 4.</p>
 <p>It is estimated that the precision loss of FP8 is negligible. It depends...</p>
 <h3>Gemma4 31B</h3>
-<p>Surprisingly, FP8 quantization slightly improves the score, up to +3 pts, and saves requests and tokens. NVFP4 is in between, also surprising...</p>
+<p>Surprisingly, FP8 quantization slightly improves the score, up to +3 pts, but generates more requests and tokens. NVFP4 is in between, also surprising...</p>
 <h3>Qwen3.6 27B</h3>
-<p>Some small impact on the score, between -4 and -1 pts on the score. <strong>When possible</strong>, it is better to avoid it...</p>
+<p>Some small impact on the score, between -3 and -1 pts on the score. <strong>When possible</strong>, it is better to avoid it...</p>
 <h2>Impact of KV cache Quantization</h2>
 <p>To increase the context size available it is also useful to quantize the KV cache (size of 150kt is my sweet spot).</p>
 <p>Even if the score is not negatively impacted by KV Cache quantization, it generates more requests and more tokens, an indication of more errors generated. <strong>If possible</strong>, it's better to avoid it.</p>
@@ -695,7 +695,7 @@
 <thead>
 <tr>
 <th>Engine</th>
-<th>Weigths</th>
+<th>Weights</th>
 <th>Cache</th>
 <th>total max tokens</th>
 <th>Notes</th>
@@ -766,7 +766,7 @@
 <thead>
 <tr>
 <th>Engine</th>
-<th>Weigths</th>
+<th>Weights</th>
 <th>Cache</th>
 <th>total max tokens</th>
 <th>Notes</th>
@@ -789,13 +789,11 @@
 </tr>
 </tbody>
 </table>
-<p>vLLM is even more efficient for KV cache and Gemma4.</p>
+<p>vLLM efficiency for KV cache is even more visible with Gemma4.</p>
 <h2>Personal notes and things to investigate</h2>
 <ul>
 <li>SGLANG seems faster than vLLM for fewer batches</li>
-<li>SGLANG needs more VRAM for KV cache for concurrency</li>
-<li>When not enough KV cache available, SGLANG speed drops to a crawl</li>
-<li>With Qwen models, vLLM crashes in TP2 on my 2x4090D, SGLANG is fine. Gemma models ok on vLLM</li>
+<li>With Qwen models, vLLM crashes in TP2 on my 2x4090D after a few minutes, SGLANG is fine. Gemma models ok on vLLM.</li>
 </ul></div>
     </div>
 
