@@ -48,6 +48,14 @@ The token generation speed is not relevant here, because it's derived from the b
 
 ## Hall of fame
 
+(update August 3rd 2026)
+
+DeepSeek V4 Flash 0731 update came out...
+
+- **Best score overall** : (81) Deepseek v4 flash 0731 (MXPF4)
+- **Best score local** : (81) Deepseek v4 flash 0731 (MXPF4)
+- **Most efficient local** (lower request number per points scored) : Deepseek v4 flash 0731 (MXPF4)
+
 (at July 20 2026)
 
 - **Best score overall** : (80) tie Deepseek v4 pro (API) & GLM 5.2 (API) 
@@ -148,6 +156,14 @@ Very good model, even highly quantized. Just 1 point shy of bigger and more rece
 Also a good model, even more highly quantized. Just 1 point shy of bigger and more recent models.
 
 The final release version is expected to be very good!
+
+#### Deepseek v4 flash 0731 XFP4 *score 81*
+
+It just came out and is very good. Best score *AND* very efficient!
+
+Very strong model!
+
+Running at 50 tokens/s currently is fast enough. (Speculative decoding via DSpark not yet enabled.)
 
 ### Bigger models yet to be tested
 
