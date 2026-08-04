@@ -722,6 +722,13 @@ function commonLayout(leftMargin, xTitle) {
   };
 }
 
+// Horizontal bar charts need enough height per category for y-axis labels to show.
+// A fixed 500px clips labels once there are many bars.
+function barChartHeight(n) {
+  //return Math.max(320, Math.min(n * 25, 1600));
+  return Math.max(50, n*25);
+}
+
 function renderSummary(panel) {
   const variants = getFilteredVariants();
 
@@ -741,7 +748,7 @@ function renderSummary(panel) {
   if (evalVariants.length) {
     const sortedEval = evalVariants.slice().sort((a, b) => (a.data.eval.resolved || 0) - (b.data.eval.resolved || 0));
     html += '<div class="chart-row">';
-    html += '<div class="chart-box full"><h3>Task Resolution Breakdown by Variant</h3><div id="eval-stacked" style="height:500px;"></div></div>';
+    html += '<div class="chart-box full"><h3>Task Resolution Breakdown by Variant</h3><div id="eval-stacked" style="height:' + barChartHeight(evalVariants.length) + 'px;"></div></div>';
     html += '</div>';
     evalChartData = sortedEval.map(v => ({ label: shortLabel(v), resolved: v.data.eval.resolved || 0, unresolved: v.data.eval.unresolved || 0, empty_patch: v.data.eval.empty_patch || 0, error: v.data.eval.error || 0 }));
   }
@@ -750,12 +757,13 @@ function renderSummary(panel) {
   const maxLabelLen = labels.reduce((m, l) => Math.max(m, l.length), 0);
   const leftMargin = Math.max(140, maxLabelLen * 6.8);
 
+  const barH = barChartHeight(variants.length);
   html += '<div class="chart-row">';
-  html += '<div class="chart-box full"><h3>Total Tool Calls by Variant (lower is better)</h3><div id="chart-tools" style="height:500px;"></div></div>';
+  html += '<div class="chart-box full"><h3>Total Tool Calls by Variant (lower is better)</h3><div id="chart-tools" style="height:' + barH + 'px;"></div></div>';
   html += '</div>';
   html += '<div class="chart-row">';
-  html += '<div class="chart-box"><h3>Total Non-Zero RC by Variant (lower is better)</h3><div id="chart-rc" style="height:500px;"></div></div>';
-  html += '<div class="chart-box"><h3>Non-Zero RC Ratio (%) (lower is better)</h3><div id="chart-rcpct" style="height:500px;"></div></div>';
+  html += '<div class="chart-box"><h3>Total Non-Zero RC by Variant (lower is better)</h3><div id="chart-rc" style="height:' + barH + 'px;"></div></div>';
+  html += '<div class="chart-box"><h3>Non-Zero RC Ratio (%) (lower is better)</h3><div id="chart-rcpct" style="height:' + barH + 'px;"></div></div>';
   html += '</div>';
   html += '<div class="chart-row">';
   html += '<div class="chart-box full"><h3>Scatter Plot</h3>';
@@ -916,7 +924,7 @@ function renderFailures(panel) {
   reasonsHtml += '</div>';
   reasonsHtml += '<div style="display:flex;gap:20px;">';
   reasonsHtml += '<div id="error-reason-checkboxes" class="checkbox-group" style="min-width:180px;padding-right:12px;overflow-y:auto;max-height:500px;"></div>';
-  reasonsHtml += '<div id="error-reason-chart" style="height:500px;flex:1;"></div>';
+  reasonsHtml += '<div id="error-reason-chart" style="height:' + barChartHeight(variantTotals.length) + 'px;flex:1;"></div>';
   reasonsHtml += '</div></div></div>';
 
   // Set all HTML at once to avoid innerHTML += re-parsing and destroying Plotly state
