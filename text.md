@@ -163,7 +163,9 @@ It just came out and is very good. Best score *AND* very efficient!
 
 Very strong model!
 
-Running at 50 tokens/s currently is fast enough. (Speculative decoding via DSpark not yet enabled.)
+Running at 50 tokens/s without speculative decoding via DSpark.
+
+With Dspark enabled for 3 predicted tokens, I reached 95 tokens/s average for the whole benchmark run. It degrades the prefill stage, but the boost in generation is totaly worth it. The run with dspark took 4 hours instead of 6 to 7 hours.
 
 ### Bigger models yet to be tested
 
