@@ -673,7 +673,8 @@
 <h4>Deepseek v4 flash 0731 XFP4 <em>score 81</em></h4>
 <p>It just came out and is very good. Best score <em>AND</em> very efficient!</p>
 <p>Very strong model!</p>
-<p>Running at 50 tokens/s currently is fast enough. (Speculative decoding via DSpark not yet enabled.)</p>
+<p>Running at 50 tokens/s without speculative decoding via DSpark.</p>
+<p>With Dspark enabled for 3 predicted tokens, I reached 95 tokens/s average for the whole benchmark run. It degrades the prefill stage, but the boost in generation is totaly worth it. The run with dspark took 4 hours instead of 6 to 7 hours.</p>
 <h3>Bigger models yet to be tested</h3>
 <h4>Tencent Hy3 <em>score=70</em></h4>
 <p>Tested on the cloud has proved to get a decent score while being the most efficient of them all. I shall test it soon locally.</p>
