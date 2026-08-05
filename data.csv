@@ -53,6 +53,8 @@ Deepseek v4 flash,Deepseek v4 flash 3107 high,284,13,145,MXFP4,BF16,llama.cpp,3,
 Deepseek v4 flash,Deepseek v4 flash 3107 high,284,13,145,MXFP4,BF16,llama.cpp,3,MIT ,GGUF-DeepSeek-V4-Flash-0731-MXFP4_145GB_3GPU_local,80,07:13:41,2764,35,58,"1,18",45,1,45,"1,01"
 Deepseek v4 flash,Deepseek v4 flash 3107 max,284,13,145,MXFP4,BF16,llama.cpp,3,MIT ,GGUF-DeepSeek-V4-Flash-0731-MXFP4_145GB_3GPU_local,81,06:39:40,2777,34,59,"1,17",49,1,49,"0,93"
 Deepseek v4 flash,Deepseek v4 flash 3107 high dspark,284,13,145,MXFP4,BF16,llama.cpp,3,MIT ,GGUF-DeepSeek-V4-Flash-0731-MXFP4_145GB_3GPU_local,81,04:05:44,2716,34,51,1,68,1,68,"0,57"
+Deepseek v4 flash,Deepseek v4 flash 3107 high dspark top_p 0.95,284,13,145,MXFP4,BF16,llama.cpp,3,MIT ,GGUF-DeepSeek-V4-Flash-0731-MXFP4_145GB_3GPU_local,81,04:54:17,2742,34,71,"1,22",69,1,69,"0,69"
+Deepseek v4 flash,Deepseek v4 flash 3107 high dspark top_p 0.95 top_k 0,284,13,145,MXFP4,BF16,llama.cpp,3,MIT ,GGUF-DeepSeek-V4-Flash-0731-MXFP4_145GB_3GPU_local,81,04:44:12,2714,34,62,"1,07",63,1,63,"0,66"
 Deepseek v4 flash,Deepseek v4 flash (API),284,13,?,?,?,API,n/a,MIT ,openrouter/deepseek/deepseek-v4-flash,73,02:17:11,4121,56,110,"1,6",194,5,39,"4,96"
 Hy3,Hy3,295,21,?,?,?,API,n/a,Apache 2.0,openrouter/tencent/hy3:free,70,01:14:45,2516,36,41,"0,82",183,5,37,
 Hy3,Hy3,295,21,?,?,?,API,n/a,Apache 2.0,openrouter/tencent/hy3:free,70,01:09:26,2676,38,40,"0,62",149,5,30,

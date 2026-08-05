@@ -157,15 +157,15 @@ Also a good model, even more highly quantized. Just 1 point shy of bigger and mo
 
 The final release version is expected to be very good!
 
-#### Deepseek v4 flash 0731 XFP4 *score 81*
+#### Deepseek v4 flash 0731 MXFP4 *score 81*
 
 It just came out and is very good. Best score *AND* very efficient!
 
-Very strong model!
+Very strong model! Too bad it's lacking vision support...
 
 Running at 50 tokens/s without speculative decoding via DSpark.
 
-With Dspark enabled for 3 predicted tokens, I reached 95 tokens/s average for the whole benchmark run. It degrades the prefill stage, but the boost in generation is totaly worth it. The run with dspark took 4 hours instead of 6 to 7 hours.
+With Dspark enabled for 3 predicted tokens, I reached 95 tokens/s average for the whole benchmark run (looking at the actual inference logs). Dspark degrades the prefill speed, but the boost in generation is totaly worth it. The run with dspark took 4 to 5 hours instead of 6 to 7 hours.
 
 ### Bigger models yet to be tested
 
