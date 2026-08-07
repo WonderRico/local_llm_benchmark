@@ -760,6 +760,24 @@ function renderSummary(panel) {
     html += '</div>';
   }
 
+  const ecdfVariants = variants.filter(v => v.data.table && v.data.table.length);
+  if (ecdfVariants.length) {
+    html += '<div class="chart-row">';
+    html += '<div class="chart-box full"><h3>ECDF of Per-Task Request Counts</h3><div id="chart-ecdf" style="height:500px;"></div></div>';
+    html += '</div>';
+  }
+
+  const agmtVariants = variants.filter(v => v.data.eval && v.data.eval.instance_status && Object.keys(v.data.eval.instance_status).length > 0);
+  const agmtHeight = agmtVariants.length ? Math.max(280, agmtVariants.length * 34 + 40) : 0;
+  if (agmtVariants.length) {
+    html += '<div class="chart-row">';
+    html += '<div class="chart-box full"><h3>Agreement Matrix (solve patterns)</h3><div id="chart-agreement" style="height:' + agmtHeight + 'px;"></div></div>';
+    html += '</div>';
+    html += '<div class="chart-row">';
+    html += '<div class="chart-box full"><h3>Agreement Histogram (tasks by number of variants that solved them)</h3><div id="chart-agreement-hist" style="height:320px;"></div></div>';
+    html += '</div>';
+  }
+
   const labels = variants.map(v => shortLabel(v));
   const maxLabelLen = labels.reduce((m, l) => Math.max(m, l.length), 0);
   const leftMargin = Math.max(140, maxLabelLen * 6.8);
@@ -786,6 +804,88 @@ function renderSummary(panel) {
 
   resetColorIndex();
 
+  if (agmtVariants.length) {
+    // Cluster tasks so identical solve-patterns (tuple of per-model statuses) are adjacent.
+    const agmtStatusIdx = { resolved: 0, unresolved: 1, empty_patch: 2, error: 3 };
+    const agmtStatusName = ['Resolved', 'Unresolved', 'Empty Patch', 'Error', 'N/A'];
+    const agmtSet = new Set();
+    agmtVariants.forEach(v => Object.keys(v.data.eval.instance_status || {}).forEach(i => agmtSet.add(i)));
+    const agmtPattern = inst => agmtVariants.map(v => (v.data.eval.instance_status || {})[inst] || 'none').join('|');
+    const agmtGroups = new Map();
+    agmtSet.forEach(inst => {
+      const p = agmtPattern(inst);
+      if (!agmtGroups.has(p)) agmtGroups.set(p, []);
+      agmtGroups.get(p).push(inst);
+    });
+    const agmtOrdered = Array.from(agmtGroups.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .flatMap(([p, list]) => list.sort((a, b) => {
+        const na = parseInt(a.replace('django__django-', ''), 10);
+        const nb = parseInt(b.replace('django__django-', ''), 10);
+        return ((isNaN(na) ? 0 : na) - (isNaN(nb) ? 0 : nb));
+      }));
+
+    const agmtY = agmtVariants.map(v => shortLabel(v));
+    const agmtX = agmtOrdered.map(i => i.replace('django__django-', ''));
+    const agmtZ = agmtVariants.map(v => agmtOrdered.map(inst => {
+      const st = (v.data.eval.instance_status || {})[inst];
+      return st !== undefined ? agmtStatusIdx[st] : 4;
+    }));
+    const agmtText = agmtVariants.map(v => agmtOrdered.map(inst => {
+      const st = (v.data.eval.instance_status || {})[inst];
+      return st !== undefined ? agmtStatusName[agmtStatusIdx[st]] : 'N/A';
+    }));
+    const agmtColorscale = [
+      [0, '#22c55e'], [0.2, '#22c55e'],
+      [0.2, '#f97316'], [0.4, '#f97316'],
+      [0.4, '#9ca3af'], [0.6, '#9ca3af'],
+      [0.6, '#ef4444'], [0.8, '#ef4444'],
+      [0.8, '#f0f0f0'], [1, '#f0f0f0']
+    ];
+    const agmtTc = getThemeColors();
+    Plotly.newPlot('chart-agreement', [{
+      type: 'heatmap',
+      z: agmtZ,
+      x: agmtX,
+      y: agmtY,
+      text: agmtText,
+      colorscale: agmtColorscale,
+      zmin: 0, zmax: 5,
+      showscale: false,
+      hovertemplate: '%{y}<br><b>%{x}</b> : %{text}<extra></extra>'
+    }], {
+      paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { color: agmtTc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+      margin: { t: 10, r: 20, b: 60, l: 150 },
+      xaxis: { gridcolor: agmtTc.grid, title: 'Tasks (clustered by solve pattern)', type: 'category', tickmode: 'array', tickvals: agmtX.filter((_, i) => i % 10 === 0), ticktext: agmtX.filter((_, i) => i % 10 === 0), tickangle: -90, tickfont: { size: 9 } },
+      yaxis: { gridcolor: agmtTc.grid, title: 'Models', automargin: true }
+    }, { responsive: true });
+
+    const agmtN = agmtVariants.length;
+    const agmtHist = Array(agmtN + 1).fill(0);
+    agmtOrdered.forEach(inst => {
+      const solved = agmtVariants.filter(v => (v.data.eval.instance_status || {})[inst] === 'resolved').length;
+      agmtHist[solved]++;
+    });
+    const agmtHistX = agmtHist.map((_, i) => i);
+    const agmtHistLabels = agmtHistX.map(i => i === agmtN ? (i + ' (all)') : String(i));
+    Plotly.newPlot('chart-agreement-hist', [{
+      type: 'bar',
+      x: agmtHistX,
+      y: agmtHist,
+      text: agmtHist,
+      textposition: 'outside',
+      marker: { color: agmtHistX.map(i => i === agmtN ? '#22c55e' : '#8b5cf6') },
+      hovertemplate: '%{x} variant(s) solved: %{y} task(s)<extra></extra>'
+    }], {
+      paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { color: agmtTc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+      margin: { t: 10, r: 20, b: 50, l: 50 },
+      xaxis: { gridcolor: agmtTc.grid, title: 'Number of variants that solved the task', tickmode: 'array', tickvals: agmtHistX, ticktext: agmtHistLabels },
+      yaxis: { gridcolor: agmtTc.grid, title: 'Number of tasks' }
+    }, { responsive: true });
+  }
+
   if (cumVariants.length) {
     const cumTraces = cumVariants.map(v => {
       const status = v.data.eval.instance_status || {};
@@ -808,6 +908,23 @@ function renderSummary(panel) {
     const cumLayout = commonLayout(70, 'Cumulative Requests (API calls)');
     cumLayout.yaxis = Object.assign({}, cumLayout.yaxis, { title: 'Cumulative Solved Tasks' });
     Plotly.newPlot('chart-cumulative', cumTraces, cumLayout, { responsive: true });
+  }
+
+  if (ecdfVariants.length) {
+    const ecdfTraces = ecdfVariants.map(v => {
+      const counts = v.data.table.map(r => r.api).sort((a, b) => a - b);
+      const n = counts.length;
+      return {
+        type: 'scatter', mode: 'lines', name: shortLabel(v),
+        x: counts, y: counts.map((_, i) => (i + 1) / n),
+        line: { color: modelColor(v), width: 2 },
+        hoverinfo: 'x+y+name',
+        hoverlabel: { namelength: -1, align: 'left' }
+      };
+    });
+    const ecdfLayout = commonLayout(70, 'Requests (API calls) per task');
+    ecdfLayout.yaxis = Object.assign({}, ecdfLayout.yaxis, { title: 'Cumulative fraction of tasks' });
+    Plotly.newPlot('chart-ecdf', ecdfTraces, ecdfLayout, { responsive: true });
   }
 
   if (evalChartData) {
@@ -1238,7 +1355,7 @@ function resetColorIndex() { colorIndex = 0; }
 // Re-apply theme colors to all Plotly charts
 window.__themeUpdateCharts = function() {
   const tc = getThemeColors();
-  ['chart-cumulative','chart-tools','chart-rc','chart-rcpct','chart-scatter','eval-stacked','error-reason-chart'].forEach(function(id) {
+  ['chart-cumulative','chart-ecdf','chart-tools','chart-rc','chart-rcpct','chart-scatter','eval-stacked','error-reason-chart','chart-agreement','chart-agreement-hist'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el || !el.layout) return;
     Plotly.relayout(el, {
