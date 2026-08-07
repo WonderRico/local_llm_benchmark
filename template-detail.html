@@ -753,6 +753,13 @@ function renderSummary(panel) {
     evalChartData = sortedEval.map(v => ({ label: shortLabel(v), resolved: v.data.eval.resolved || 0, unresolved: v.data.eval.unresolved || 0, empty_patch: v.data.eval.empty_patch || 0, error: v.data.eval.error || 0 }));
   }
 
+  const cumVariants = variants.filter(v => v.data.table && v.data.eval);
+  if (cumVariants.length) {
+    html += '<div class="chart-row">';
+    html += '<div class="chart-box full"><h3>Cumulative Solved Tasks vs Cumulative Requests</h3><div id="chart-cumulative" style="height:500px;"></div></div>';
+    html += '</div>';
+  }
+
   const labels = variants.map(v => shortLabel(v));
   const maxLabelLen = labels.reduce((m, l) => Math.max(m, l.length), 0);
   const leftMargin = Math.max(140, maxLabelLen * 6.8);
@@ -778,6 +785,30 @@ function renderSummary(panel) {
   panel.innerHTML = html;
 
   resetColorIndex();
+
+  if (cumVariants.length) {
+    const cumTraces = cumVariants.map(v => {
+      const status = v.data.eval.instance_status || {};
+      let reqs = 0, solved = 0;
+      const xs = [], ys = [];
+      for (const r of (v.data.table || [])) {
+        reqs += r.api;
+        if (status[r.instance] === 'resolved') solved++;
+        xs.push(reqs);
+        ys.push(solved);
+      }
+      return {
+        type: 'scatter', mode: 'lines', name: shortLabel(v),
+        x: xs, y: ys,
+        line: { color: modelColor(v), width: 2 },
+        hoverinfo: 'x+y+name',
+        hoverlabel: { namelength: -1, align: 'left' }
+      };
+    });
+    const cumLayout = commonLayout(70, 'Cumulative Requests (API calls)');
+    cumLayout.yaxis = Object.assign({}, cumLayout.yaxis, { title: 'Cumulative Solved Tasks' });
+    Plotly.newPlot('chart-cumulative', cumTraces, cumLayout, { responsive: true });
+  }
 
   if (evalChartData) {
     const evalLabels = evalChartData.map(e => e.label);
@@ -1207,7 +1238,7 @@ function resetColorIndex() { colorIndex = 0; }
 // Re-apply theme colors to all Plotly charts
 window.__themeUpdateCharts = function() {
   const tc = getThemeColors();
-  ['chart-tools','chart-rc','chart-rcpct','chart-scatter','eval-stacked','error-reason-chart'].forEach(function(id) {
+  ['chart-cumulative','chart-tools','chart-rc','chart-rcpct','chart-scatter','eval-stacked','error-reason-chart'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el || !el.layout) return;
     Plotly.relayout(el, {
