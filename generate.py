@@ -1,15 +1,32 @@
 #!/usr/bin/env python3
-"""Parse mini-swe-agent benchmark results and generate an interactive HTML comparison report."""
+"""Generate the benchmark dashboards (both pages from one entry point).
 
-import re
+Usage:
+    python generate.py               # generate both pages
+    python generate.py main          # main dashboard only
+    python generate.py detail        # detail report only
+    python generate.py detail --skip-batch   # reuse existing results/
+
+The main dashboard (`benchmark-main.html`) is built from `data.csv` + `text.md`.
+The detail report (`benchmark-detail.html`) is built from `results/`, which is
+regenerated from `data/` trajectories (unless `--skip-batch` is given).
+"""
+
+from __future__ import annotations
+
 import json
+import re
 import shutil
-from pathlib import Path
-import batch
 
-RESULTS_DIR = Path(__file__).parent / "results"
-OUTPUT = Path(__file__).parent / "benchmark-detail.html"
-TEMPLATE = Path(__file__).parent / "template-detail.html"
+import typer
+
+import batch
+import dashboard_lib
+from dashboard_lib import RESULTS_DIR
+
+app = typer.Typer(
+    help="Generate the benchmark dashboards (benchmark-main.html, benchmark-detail.html)."
+)
 
 
 def parse_summary(text: str) -> dict:
@@ -180,19 +197,13 @@ def parse_all_results() -> dict:
     return models
 
 
-def generate_html(data: dict) -> str:
-    json_data = json.dumps(data, indent=2)
-    template = TEMPLATE.read_text(encoding="utf-8")
-    return template.replace("{{JSON_DATA}}", json_data)
-
-
-def main():
-    print(f"Cleaning up {RESULTS_DIR}...")
-    if RESULTS_DIR.exists():
-        shutil.rmtree(RESULTS_DIR)
-
-    print("Regenerating results from data...")
-    batch.main()
+def build_detail(*, skip_batch: bool) -> None:
+    if not skip_batch:
+        print(f"Cleaning up {RESULTS_DIR}...")
+        if RESULTS_DIR.exists():
+            shutil.rmtree(RESULTS_DIR)
+        print("Regenerating results from data...")
+        batch.main()
 
     print(f"Scanning {RESULTS_DIR}...")
     data = parse_all_results()
@@ -200,10 +211,31 @@ def main():
     count = sum(len(v) for v in data.values())
     print(f"Found {len(data)} models, {count} variants")
 
-    html = generate_html(data)
-    OUTPUT.write_text(html, encoding="utf-8")
-    print(f"Report written to {OUTPUT}")
+    json_data = json.dumps(data, indent=2)
+    dashboard_lib.render_html(
+        dashboard_lib.TEMPLATE_DETAIL, dashboard_lib.OUTPUT_DETAIL, JSON_DATA=json_data
+    )
+
+
+@app.command()
+def run(
+    which: str = typer.Argument(
+        "all", help="Pages to generate: 'all', 'main', or 'detail'"
+    ),
+    skip_batch: bool = typer.Option(
+        False,
+        "--skip-batch",
+        help="Reuse existing results/ instead of regenerating from data/ (detail only)",
+    ),
+) -> None:
+    if which not in ("all", "main", "detail"):
+        typer.echo(f"Unknown page '{which}' (choose: all, main, detail)", err=True)
+        raise typer.Exit(code=2)
+    if which in ("all", "main"):
+        dashboard_lib.render_dashboard()
+    if which in ("all", "detail"):
+        build_detail(skip_batch=skip_batch)
 
 
 if __name__ == "__main__":
-    main()
+    app()

@@ -16,6 +16,15 @@ import bleach
 import jinja2
 import markdown
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+DATA_CSV = SCRIPT_DIR / "data.csv"
+TEXT_MD = SCRIPT_DIR / "text.md"
+RESULTS_DIR = SCRIPT_DIR / "results"
+TEMPLATE_MAIN = SCRIPT_DIR / "template-main.html"
+TEMPLATE_DETAIL = SCRIPT_DIR / "template-detail.html"
+OUTPUT_MAIN = SCRIPT_DIR / "benchmark-main.html"
+OUTPUT_DETAIL = SCRIPT_DIR / "benchmark-detail.html"
+
 HEADER_NAMES = (
     "base",
     "model",
@@ -201,14 +210,25 @@ def render_markdown(path: Path) -> str:
     )
 
 
+def render_html(template_path: Path, output_path: Path, **context) -> None:
+    """Render a Jinja2 template with the given context and write the output."""
+    env = jinja2.Environment(autoescape=False)
+    template_src = template_path.read_text(encoding="utf-8")
+    html = env.from_string(template_src).render(**context)
+    if not html.endswith("\n"):
+        html += "\n"
+    output_path.write_text(html, encoding="utf-8")
+    print(f"Report written to {output_path}")
+
+
 def render_dashboard(
     *,
-    csv_path: Path,
-    md_path: Path,
-    template_path: Path,
-    output_path: Path,
+    csv_path: Path = DATA_CSV,
+    md_path: Path = TEXT_MD,
+    template_path: Path = TEMPLATE_MAIN,
+    output_path: Path = OUTPUT_MAIN,
 ) -> None:
-    """Parse CSV + Markdown, render Jinja2 template, write the dashboard HTML."""
+    """Parse CSV + Markdown, render the main dashboard template, write the HTML."""
     records = parse_csv(csv_path)
     valid = [r for r in records if r["score_num"] is not None]
     print(
@@ -217,10 +237,4 @@ def render_dashboard(
 
     md_html = render_markdown(md_path)
     json_str = json.dumps(records, ensure_ascii=False)
-
-    env = jinja2.Environment(autoescape=False)
-    template_src = template_path.read_text(encoding="utf-8")
-    html = env.from_string(template_src).render(md_html=md_html, json_data=json_str)
-
-    output_path.write_text(html, encoding="utf-8")
-    print(f"Dashboard written to {output_path}")
+    render_html(template_path, output_path, md_html=md_html, json_data=json_str)
