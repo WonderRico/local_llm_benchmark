@@ -995,6 +995,18 @@ function initModelFilters() {
   keys.forEach(function(b, i){ visibleModels[b] = true; baseColors[b] = BASE_PALETTE[i % BASE_PALETTE.length]; });
 }
 
+// Apply a model filter from the URL (?filter=...) so deep links can
+// pre-select a subset of models. Case-insensitive substring match on base name.
+function applyUrlFilter() {
+  var f = new URLSearchParams(window.location.search).get("filter");
+  if (!f) return;
+  var q = String(f).toLowerCase();
+  var keys = Object.keys(baseColors);
+  var matched = keys.filter(function(b){ return b.toLowerCase().indexOf(q) !== -1; });
+  if (!matched.length) return; // no match: keep current (all visible) state
+  keys.forEach(function(b){ visibleModels[b] = matched.indexOf(b) !== -1; });
+}
+
 function renderModelFilter() {
   var panel = document.getElementById("bd-filter-panel");
   if (!panel) return;
@@ -1409,6 +1421,7 @@ window.__themeUpdateCharts = function() {
 };
 
 initModelFilters();
+applyUrlFilter();
 renderModelFilter();
 renderTableHead();
 populateFilters();

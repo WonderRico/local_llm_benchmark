@@ -45994,6 +45994,18 @@ function getFilteredVariants() {
   return getAllVariants().filter(v => visibleModels[getModelKey(v)] !== false);
 }
 
+// Apply a model filter from the URL (?filter=...) so deep links can
+// pre-select a subset of models. Case-insensitive substring match on model name.
+function applyUrlFilter() {
+  const f = new URLSearchParams(window.location.search).get('filter');
+  if (!f) return;
+  const q = String(f).toLowerCase();
+  const keys = Object.keys(DATA);
+  const matched = keys.filter(k => k.toLowerCase().indexOf(q) !== -1);
+  if (!matched.length) return; // no match: keep current (all visible) state
+  keys.forEach(k => { visibleModels[k] = matched.indexOf(k) !== -1; });
+}
+
 function renderModelFilter() {
   const panel = document.getElementById('filter-panel');
   if (!panel) return;
@@ -46747,6 +46759,7 @@ window.__themeUpdateCharts = function() {
 };
 
 initModelFilters();
+applyUrlFilter();
 renderAll();
 </script>
 
