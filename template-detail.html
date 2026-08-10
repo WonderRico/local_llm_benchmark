@@ -780,7 +780,7 @@ function renderSummary(panel) {
   }
 
   const agmtVariants = variants.filter(v => v.data.eval && v.data.eval.instance_status && Object.keys(v.data.eval.instance_status).length > 0);
-  const agmtHeight = agmtVariants.length ? Math.max(280, agmtVariants.length * 34 + 40) : 0;
+  const agmtHeight = agmtVariants.length ? barChartHeight(evalVariants.length) : 0;
   if (agmtVariants.length) {
     html += '<div class="chart-row">';
     html += '<div class="chart-box full"><h3>Agreement Matrix (solve patterns)</h3><div id="chart-agreement" style="height:' + agmtHeight + 'px;"></div></div>';
