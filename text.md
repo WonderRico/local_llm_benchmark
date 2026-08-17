@@ -48,6 +48,13 @@ The token generation speed is not relevant here, because it's derived from the b
 
 ## Hall of fame
 
+*(update August 17th 2026)*
+
+Qwen 3.8 27B has been released a few days ago... It's a nice upgrade! It's now the most efficient local model (only in medium reasoning effort)
+
+- **Most efficient local** (lower request count per point scored) (33) : Qwen3.8-27B medium BF16 BF16 (other quants of the same model very close)
+- **Fastest completion** (max concurrency 5) : (43min)  Qwen3.8-27B medium NVFP4 FP8 
+
 *(update August 7th 2026)*
 
 I tested other quants of DSV4F, and got even higher scores (90+). The even more interesting part is that the lower quant of them all got the higher score! But trails behind at efficiency (nb request per point)
@@ -61,7 +68,7 @@ DeepSeek V4 Flash 0731 update came out...
 
 - **Best score overall** : (81) Deepseek v4 flash 0731 (MXPF4)
 - **Best score local** : (81) Deepseek v4 flash 0731 (MXPF4)
-- **Most efficient local** (lower request number per point scored) : Deepseek v4 flash 0731 (MXFP4)
+- **Most efficient local** (lower request count per point scored) : Deepseek v4 flash 0731 (MXFP4)
 
 *(at July 20 2026)*
 
@@ -69,7 +76,7 @@ DeepSeek V4 Flash 0731 update came out...
 - **Best score local** : (79) tie MiniMax-M2.7 Q4_K_M & DeepSeek v4 Flash Q3_K_XL
 - **Best score single GPU** : (76) Qwen3.6 27B BF16 FP8
 - **Worst score** : (56) Gemma-4-26B-A4B-it BF16 FP8
-- **Most efficient local** (lower request number per points scored) : Gemma-4-31B-it 
+- **Most efficient local** (lower request count per points scored) : Gemma-4-31B-it 
 - **Less tokens generated** : Hy3 : 0.62M
 - **Most tokens generated** : tie Ornith-1.0-35B & Gemma-4-26B-A4B-it with 2.2M (almost 4x more)
 
@@ -173,6 +180,18 @@ A finetune version trained to be more efficient and generate less tokens (and le
 ### Qwen3.5 122B-A10B *score=68*
 
 This one was my previous favorite. Its size 122B pack a bunch of knowledge and with only 10B active parameters it was fast. I'd love to see the 3.6 version of this one...
+
+### Qwen3.8 27B family *score=74-81*
+
+The more recent 3.8 version of Qwen 27B model is better!
+
+#### medium reasoning *score=75-81*
+
+In **medium** reasoning mode, it both scores higher than the 3.6 version, AND is very efficient (almost half requests needed, and 66% tokens generated)
+
+#### xhigh reasoning *score=74-81*
+
+The **xhigh** mode is advertised to be the best one for hard tasks. In this benchmark, however the gain is clearly not visible. The score are comparable with the medium version, while using more requests (still a little fewer than 3.6) and generating almost 4 times the tokens...
 
 ### Bigger models via llama.cpp
 

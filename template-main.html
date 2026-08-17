@@ -1003,6 +1003,7 @@ function buildScatter(){
       model_ref: r.model_ref,
       weights_quant: r.weights_quant || "-",
       kv_cache_quant: r.kv_cache_quant || "-",
+      engine: r.engine || "-",
       nb_gpu: r.nb_gpu,
       x: r[xk],
       y: r[yk],
@@ -1026,7 +1027,9 @@ function buildScatter(){
     customdata: pts.map(function(b){return b.idx;}),
     text: pts.map(function(b){
       var sLabel = sk ? (getNumKey(sk).label + ": " + (b.s !== null ? b.s.toFixed(1) : "\u2014")) : "";
-      return b.model_ref
+      var meta = [b.engine, (b.nb_gpu || "\u2014"), b.weights_quant, b.kv_cache_quant].join(" \u00B7 ");
+      return "<b>" + b.model + "</b>"
+        + "<br>" + meta
         + "<br>" + xMeta.label + ": " + b.x.toFixed(1)
         + "<br>" + yMeta.label + ": " + b.y.toFixed(1)
         + "<br>" + sLabel;

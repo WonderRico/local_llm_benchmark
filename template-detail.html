@@ -722,6 +722,8 @@ function getThemeColors() {
   };
 }
 
+const HOVERLABEL = { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 } };
+
 function commonLayout(leftMargin, xTitle) {
   const tc = getThemeColors();
   return {
@@ -730,7 +732,8 @@ function commonLayout(leftMargin, xTitle) {
     margin: { t: 10, r: 20, b: 40, l: leftMargin || 140 },
     xaxis: { gridcolor: tc.grid, title: xTitle || '' },
     yaxis: { gridcolor: tc.grid },
-    legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font } }
+    legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font } },
+    hoverlabel: HOVERLABEL
   };
 }
 
@@ -870,7 +873,8 @@ function renderSummary(panel) {
       font: { color: agmtTc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
       margin: { t: 10, r: 20, b: 60, l: 150 },
       xaxis: { gridcolor: agmtTc.grid, title: 'Tasks (clustered by solve pattern)', type: 'category', tickmode: 'array', tickvals: agmtX.filter((_, i) => i % 10 === 0), ticktext: agmtX.filter((_, i) => i % 10 === 0), tickangle: -90, tickfont: { size: 9 } },
-      yaxis: { gridcolor: agmtTc.grid, title: 'Models', automargin: true }
+      yaxis: { gridcolor: agmtTc.grid, title: 'Models', automargin: true },
+      hoverlabel: HOVERLABEL
     }, { responsive: true });
 
     const agmtN = agmtVariants.length;
@@ -894,7 +898,8 @@ function renderSummary(panel) {
       font: { color: agmtTc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
       margin: { t: 10, r: 20, b: 50, l: 50 },
       xaxis: { gridcolor: agmtTc.grid, title: 'Number of variants that solved the task', tickmode: 'array', tickvals: agmtHistX, ticktext: agmtHistLabels },
-      yaxis: { gridcolor: agmtTc.grid, title: 'Number of tasks' }
+      yaxis: { gridcolor: agmtTc.grid, title: 'Number of tasks' },
+      hoverlabel: HOVERLABEL
     }, { responsive: true });
   }
 
@@ -913,8 +918,8 @@ function renderSummary(panel) {
         type: 'scatter', mode: 'lines', name: shortLabel(v),
         x: xs, y: ys,
         line: { color: modelColor(v), width: 2 },
-        hoverinfo: 'x+y+name',
-        hoverlabel: { namelength: -1, align: 'left' }
+        hoverinfo: 'name',
+        hoverlabel: { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 }, namelength: -1, align: 'left' }
       };
     });
     const cumLayout = commonLayout(70, 'Cumulative Requests (API calls)');
@@ -930,8 +935,8 @@ function renderSummary(panel) {
         type: 'scatter', mode: 'lines', name: shortLabel(v),
         x: counts, y: counts.map((_, i) => (i + 1) / n),
         line: { color: modelColor(v), width: 2 },
-        hoverinfo: 'x+y+name',
-        hoverlabel: { namelength: -1, align: 'left' }
+        hoverinfo: 'name',
+        hoverlabel: { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 }, namelength: -1, align: 'left' }
       };
     });
     const ecdfLayout = commonLayout(70, 'Requests (API calls) per task');
@@ -1023,7 +1028,7 @@ function renderSummary(panel) {
     Plotly.newPlot('chart-scatter', [{
       type: 'scatter', mode: 'markers', x: scatterX, y: scatterY,
       text: scatterVariants.map(v => shortLabel(v)), hoverinfo: 'text',
-      hoverlabel: { bgcolor: stc.stickyBg, bordercolor: stc.accent, font: { size: 12, color: stc.font } },
+      hoverlabel: { ...HOVERLABEL, bordercolor: stc.accent },
       marker: { size: markerSizes, color: scatterVariants.map(v => modelColor(v)), line: { width: 1, color: stc.grid } }
     }], { ...commonLayout(60), margin: { t: 10, r: 20, b: 80, l: 60 },
       xaxis: { ...commonLayout().xaxis, title: getAxisTitle(xAxis), type: 'linear', range: [Math.max(0, xMin - xPad), xMax + xPad] },
@@ -1119,7 +1124,8 @@ function renderFailures(panel) {
     xaxis: { gridcolor: tc.grid, title: 'Count', type: 'linear' },
     yaxis: { gridcolor: tc.grid },
     barmode: 'stack',
-    legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font }, visible: false, clicktolayoutattributes: [{ visible: false }] }
+    legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font }, visible: false, clicktolayoutattributes: [{ visible: false }] },
+    hoverlabel: HOVERLABEL
   }, { responsive: true });
 
   window.toggleErrorReason = function(idx, checked) {
