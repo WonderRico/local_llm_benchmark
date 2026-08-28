@@ -252,6 +252,26 @@
         accent-color: var(--accent);
         flex-shrink: 0;
       }
+      .bd-filter-sidebar label[hidden] {
+        display: none;
+      }
+      .bd-filter-sidebar .bd-model-sub {
+        padding-left: 22px;
+        align-items: flex-start;
+        font-size: 0.76rem;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+      }
+      .bd-filter-sidebar .bd-caret {
+        margin-left: auto;
+        border: 0;
+        background: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.7rem;
+        line-height: 1;
+        padding: 0 2px;
+      }
       .bd-filter-sidebar .bd-color-swatch {
         display: inline-block;
         width: 10px;
@@ -813,6 +833,9 @@
 
       // --- Model filter (sticky left sidebar) ---
       var visibleModels = {};
+      var visibleNames = {};
+      var openBases = {};
+      var baseNames = {};
       var baseColors = {};
       var BASE_PALETTE = ["#8b5cf6","#22c55e","#f97316","#ef4444","#6366f1","#0ea5e9","#facc15","#4ade80","#ec4899","#2dd4bf","#9ca3af","#f87171","#a3e635","#a5f3fc","#fde68a"];
 
@@ -823,23 +846,49 @@
         return "hsl(" + ((300 + n * 137.508) % 360).toFixed(1) + ",72%," + (n % 2 ? 38 : 62) + "%)";
       }
 
+      function nameKey(b, m) { return b + "\n" + m; }
+
       function initModelFilters() {
-        var bases = {};
-        DATA.forEach(function(r){ bases[r.base] = true; });
-        var keys = Object.keys(bases).sort();
-        keys.forEach(function(b, i){ visibleModels[b] = true; baseColors[b] = paletteColor(i); });
+        var byBase = {};
+        VALID.forEach(function(r){
+          if (!byBase[r.base]) byBase[r.base] = {};
+          byBase[r.base][r.model] = true;
+        });
+        Object.keys(byBase).sort().forEach(function(b, i){
+          visibleModels[b] = true;
+          baseColors[b] = paletteColor(i);
+          baseNames[b] = Object.keys(byBase[b]).sort();
+          baseNames[b].forEach(function(m){ visibleNames[nameKey(b, m)] = true; });
+        });
       }
 
       // Apply a model filter from the URL (?filter=...) so deep links can
-      // pre-select a subset of models. Case-insensitive substring match on base name.
+      // pre-select a subset of models. Case-insensitive substring match on base
+      // or model name: a matching base shows all its models, a matching model
+      // shows only itself under its base.
       function applyUrlFilter() {
         var f = new URLSearchParams(window.location.search).get("filter");
         if (!f) return;
         var q = String(f).toLowerCase();
+        var hit = function(s){ return String(s).toLowerCase().indexOf(q) !== -1; };
         var keys = Object.keys(baseColors);
-        var matched = keys.filter(function(b){ return b.toLowerCase().indexOf(q) !== -1; });
-        if (!matched.length) return; // no match: keep current (all visible) state
-        keys.forEach(function(b){ visibleModels[b] = matched.indexOf(b) !== -1; });
+        if (!keys.some(function(b){ return hit(b) || baseNames[b].some(hit); })) return; // no match: keep all visible
+        keys.forEach(function(b){
+          visibleModels[b] = hit(b) || baseNames[b].some(hit);
+          if (!hit(b)) openBases[b] = baseNames[b].some(hit); // matched by model name only: reveal the children
+          baseNames[b].forEach(function(m){ visibleNames[nameKey(b, m)] = hit(b) || hit(m); });
+        });
+      }
+
+      function rowVisible(r) {
+        return visibleModels[r.base] !== false && visibleNames[nameKey(r.base, r.model)] !== false;
+      }
+
+      // Sub-lines show only what the model name adds over its base.
+      function shortName(b, m) {
+        var i = 0;
+        while (i < b.length && m[i] === b[i]) i++;
+        return m.slice(i).replace(/^[-_ .]+/, "") || m;
       }
 
       function renderModelFilter() {
@@ -850,15 +899,39 @@
         keys.forEach(function(b){
           var col = baseColors[b];
           var checked = visibleModels[b] !== false;
-          html += '<label><input type="checkbox" data-base="' + esc(b) + '" class="bd-model-cb"' + (checked ? ' checked' : '') + '><span class="bd-color-swatch" style="background:' + col + ';"></span>' + esc(b) + '</label>';
+          var multi = baseNames[b].length > 1;
+          var open = checked && !!openBases[b];
+          var caret = multi ? '<button class="bd-caret" type="button" aria-expanded="' + (open ? 'true' : 'false') + '" aria-label="Show model names">' + (open ? "\u25BE" : "\u25B8") + '</button>' : '';
+          html += '<label' + (multi ? ' class="bd-model-row" data-toggle-base="' + esc(b) + '"' : '') + ' data-hover-base="' + esc(b) + '"><input type="checkbox" data-base="' + esc(b) + '" class="bd-model-cb"' + (checked ? ' checked' : '') + '><span class="bd-color-swatch" style="background:' + col + ';"></span>' + esc(b) + caret + '</label>';
+          // Single-model bases need no sub-line.
+          if (multi) baseNames[b].forEach(function(m){
+            html += '<label class="bd-model-sub" data-hover-base="' + esc(b) + '" data-hover-model="' + esc(m) + '"' + (open ? '' : ' hidden') + '><input type="checkbox" data-base="' + esc(b) + '" data-model="' + esc(m) + '" class="bd-model-cb"' + (visibleNames[nameKey(b, m)] !== false ? ' checked' : '') + '>' + esc(shortName(b, m)) + '</label>';
+          });
         });
         html += '<div class="bd-btn-group">';
         html += '<button class="bd-btn" id="bd-check-all" type="button">Check all</button>';
         html += '<button class="bd-btn" id="bd-uncheck-all" type="button">Uncheck all</button>';
         html += '</div>';
+        var top = panel.scrollTop;
         panel.innerHTML = html;
+        panel.scrollTop = top;
         panel.querySelectorAll('.bd-model-cb').forEach(function(cb){
           cb.addEventListener('change', function(){ toggleModelFilter(cb); });
+        });
+        // On a base with children, only the checkbox checks: clicking the text or
+        // the caret rolls the children out instead.
+        panel.querySelectorAll('.bd-model-row').forEach(function(l){
+          l.addEventListener('click', function(e){
+            if (e.target.tagName === 'INPUT') return;
+            e.preventDefault();
+            toggleBaseOpen(l.getAttribute('data-toggle-base'));
+          });
+        });
+        // Hovering a row outlines its dots in the scatter plot.
+        panel.querySelectorAll('label[data-hover-base]').forEach(function(l){
+          var hover = {base: l.getAttribute('data-hover-base'), model: l.getAttribute('data-hover-model')};
+          l.addEventListener('mouseenter', function(){ outlineScatter(hover); });
+          l.addEventListener('mouseleave', function(){ outlineScatter(null); });
         });
         var chkAll = document.getElementById('bd-check-all');
         if (chkAll) chkAll.addEventListener('click', function(){ setAllModelFilters(true); });
@@ -867,13 +940,31 @@
       }
 
       function toggleModelFilter(cb) {
-        visibleModels[cb.getAttribute("data-base")] = cb.checked;
+        var b = cb.getAttribute("data-base");
+        var m = cb.getAttribute("data-model");
+        if (m === null) {
+          visibleModels[b] = cb.checked;
+          // Re-checking a base re-enables every model under it; unchecking leaves them as they were.
+          if (cb.checked) baseNames[b].forEach(function(n){ visibleNames[nameKey(b, n)] = true; });
+          renderModelFilter();
+        } else {
+          visibleNames[nameKey(b, m)] = cb.checked;
+        }
         onFilterChange();
       }
 
+      // Children start collapsed; the caret only reveals them, checks still filter.
+      function toggleBaseOpen(b) {
+        openBases[b] = !openBases[b];
+        renderModelFilter();
+      }
+
       function setAllModelFilters(checked) {
-        Object.keys(baseColors).forEach(function(b){ visibleModels[b] = checked; });
-        document.querySelectorAll('.bd-model-cb').forEach(function(cb){ cb.checked = checked; });
+        Object.keys(baseColors).forEach(function(b){
+          visibleModels[b] = checked;
+          baseNames[b].forEach(function(m){ visibleNames[nameKey(b, m)] = checked; });
+        });
+        renderModelFilter();
         onFilterChange();
       }
 
@@ -884,7 +975,7 @@
       }
 
       function getActiveRecords() {
-        return VALID.filter(function(r){ return visibleModels[r.base] !== false; });
+        return VALID.filter(rowVisible);
       }
 
       var sortCol = "score";
@@ -920,7 +1011,7 @@
         var qf = document.getElementById("bd-filter-quant").value;
         var gf = document.getElementById("bd-filter-gpu").value;
         return VALID.filter(function(r){
-          if (visibleModels[r.base] === false) return false;
+          if (!rowVisible(r)) return false;
           if (ef && r.engine !== ef) return false;
           if (qf && r.weights_quant !== qf) return false;
           if (gf && r.nb_gpu !== gf) return false;
@@ -1110,6 +1201,29 @@
       function numKeyHigher(key){var nk = getNumKey(key);return nk ? nk.higherBetter : true;}
       function groupKey(r){return r.model + " " + (r.weights_quant||"-") + "/" + (r.kv_cache_quant||"-");}
 
+      // Hovering a base or a model name in the sidebar outlines its scatter dots.
+      var scatterPts = [];
+      var scatterHover = null;
+
+      function hoverHit(p) {
+        return !!scatterHover && p.base === scatterHover.base && (!scatterHover.model || p.model === scatterHover.model);
+      }
+
+      function scatterLine() {
+        var outline = getThemeColors().font;
+        return {
+          color: scatterPts.map(function(p){ return hoverHit(p) ? outline : (baseColors[p.base] || '#888'); }),
+          width: scatterPts.map(function(p){ return hoverHit(p) ? 4 : 1.5; })
+        };
+      }
+
+      function outlineScatter(hover) {
+        scatterHover = hover;
+        if (!scatterPts.length) return;
+        var line = scatterLine();
+        Plotly.restyle(xyDiv, {'marker.line.color': [line.color], 'marker.line.width': [line.width]});
+      }
+
       function buildScatter(){
         var data = getFiltered();
         var xk = xyState.xKey, yk = xyState.yKey, sk = xyState.sizeKey;
@@ -1133,6 +1247,8 @@
             s: sk && r[sk] !== null ? r[sk] : null
           };
         });
+
+        scatterPts = pts;
 
         var sizeVals = pts.map(function(b){return b.s !== null ? b.s : null;}).filter(function(v){return v !== null;});
         var sizeMin = sizeVals.length ? Math.min.apply(null, sizeVals) : 1;
@@ -1159,7 +1275,7 @@
           }),
           marker: {
             color: pts.map(function(b){return baseColors[b.base] || '#888';}),
-            line: {color: pts.map(function(b){return baseColors[b.base] || '#888';}), width: 1.5},
+            line: scatterLine(),
             size: pts.map(function(b){return bubbleSize(b.s);}),
             sizemode: "raw",
             opacity: 0.85

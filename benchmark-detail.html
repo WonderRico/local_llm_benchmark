@@ -419,6 +419,16 @@
         accent-color: var(--accent);
         flex-shrink: 0;
       }
+      .filter-sidebar label[hidden] {
+        display: none;
+      }
+      .filter-sidebar .model-sub {
+        padding-left: 22px;
+        align-items: flex-start;
+        font-size: 0.76rem;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+      }
       .filter-sidebar .color-swatch {
         display: inline-block;
         width: 10px;
@@ -439,6 +449,17 @@
         text-align: center;
         padding: 5px 10px;
         font-size: 0.78rem;
+      }
+
+      .filter-sidebar .caret {
+        margin-left: auto;
+        border: 0;
+        background: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.7rem;
+        line-height: 1;
+        padding: 0 2px;
       }
 
       /* Status dots */
@@ -84307,55 +84328,134 @@
 
       // --- Model filter (sticky top panel) ---
       const visibleModels = {};
+      const visibleVariants = {};
+      const openBases = {};
+
+      // Hovering a base or a variant in the sidebar outlines its dots in the scatter plot.
+      let scatterHover = null;
+
+      function hoverHit(v) {
+        return !!scatterHover && getModelKey(v) === scatterHover.base &&
+          (!scatterHover.variant || v.variant === scatterHover.variant);
+      }
+
+      function scatterLine(variants, tc) {
+        return {
+          color: variants.map(v => hoverHit(v) ? tc.font : tc.grid),
+          width: variants.map(v => hoverHit(v) ? 4 : 1)
+        };
+      }
+
+      function outlineScatter(hover) {
+        scatterHover = hover;
+        if (window.__scatterOutline) window.__scatterOutline();
+      }
+
+      function variantKey(base, variant) { return base + "\n" + variant; }
+
+      // Sub-lines show only what the row adds over its base.
+      function shortName(base, label) {
+        let i = 0;
+        while (i < base.length && label[i] === base[i]) i++;
+        return label.slice(i).replace(/^[-_ .]+/, "") || label;
+      }
+
+      function shownVariants(base) {
+        return Object.keys(DATA[base]).filter(v => DATA[base][v].summary);
+      }
 
       function initModelFilters() {
-        const models = Object.keys(DATA);
-        models.forEach((model, i) => {
-          visibleModels[model] = true;
-          if (!_modelColors[model]) _modelColors[model] = nthColor(i);
+        Object.keys(DATA).forEach((base, i) => {
+          visibleModels[base] = true;
+          if (!_modelColors[base]) _modelColors[base] = nthColor(i);
+          shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = true; });
         });
       }
 
       function getFilteredVariants() {
-        return getAllVariants().filter(v => visibleModels[getModelKey(v)] !== false);
+        return getAllVariants().filter(v => visibleModels[getModelKey(v)] !== false &&
+          visibleVariants[variantKey(getModelKey(v), v.variant)] !== false);
       }
 
       // Apply a model filter from the URL (?filter=...) so deep links can
-      // pre-select a subset of models. Case-insensitive substring match on model name.
+      // pre-select a subset of models. Case-insensitive substring match on base
+      // or variant name: a matching base shows all its variants, a matching
+      // variant shows only itself under its base.
       function applyUrlFilter() {
         const f = new URLSearchParams(window.location.search).get('filter');
         if (!f) return;
         const q = String(f).toLowerCase();
+        const hit = s => String(s).toLowerCase().indexOf(q) !== -1;
         const keys = Object.keys(DATA);
-        const matched = keys.filter(k => k.toLowerCase().indexOf(q) !== -1);
-        if (!matched.length) return; // no match: keep current (all visible) state
-        keys.forEach(k => { visibleModels[k] = matched.indexOf(k) !== -1; });
+        if (!keys.some(k => hit(k) || shownVariants(k).some(hit))) return; // no match: keep all visible
+        keys.forEach(k => {
+          visibleModels[k] = hit(k) || shownVariants(k).some(hit);
+          if (!hit(k)) openBases[k] = shownVariants(k).some(hit); // matched by variant name only: reveal the children
+          shownVariants(k).forEach(v => { visibleVariants[variantKey(k, v)] = hit(k) || hit(v); });
+        });
       }
 
       function renderModelFilter() {
         const panel = document.getElementById('filter-panel');
         if (!panel) return;
         let html = '<span class="filter-label">Models:</span>';
-        for (const model of Object.keys(DATA)) {
-          const col = _modelColors[model] || '#8b5cf6';
-          const checked = visibleModels[model] !== false;
-          html += '<label><input type="checkbox" data-model="' + esc(model) + '"' + (checked ? ' checked' : '') + ' onchange="toggleModelFilter(this)"><span class="color-swatch" style="background:' + col + ';"></span>' + esc(model) + '</label>';
+        for (const base of Object.keys(DATA)) {
+          const col = _modelColors[base] || '#8b5cf6';
+          const checked = visibleModels[base] !== false;
+          const vs = shownVariants(base);
+          const open = checked && !!openBases[base];
+          const multi = vs.length > 1;
+          const caret = multi ? '<button class="caret" type="button" aria-expanded="' + (open ? 'true' : 'false') + '" aria-label="Show variants">' + (open ? "\u25BE" : "\u25B8") + '</button>' : '';
+          html += '<label' + (multi ? ' class="model-row" data-base="' + esc(base) + '" onclick="toggleBaseRow(event, this)"' : '') + ' data-hover-base="' + esc(base) + '"><input type="checkbox" data-base="' + esc(base) + '"' + (checked ? ' checked' : '') + ' onchange="toggleModelFilter(this)"><span class="color-swatch" style="background:' + col + ';"></span>' + esc(base) + caret + '</label>';
+          // Single-model bases need no sub-line.
+          if (multi) for (const v of vs) {
+            const label = shortName(base, shortLabel(DATA[base][v]));
+            html += '<label class="model-sub" data-hover-base="' + esc(base) + '" data-hover-variant="' + esc(v) + '"' + (open ? '' : ' hidden') + '><input type="checkbox" data-base="' + esc(base) + '" data-variant="' + esc(v) + '"' + (visibleVariants[variantKey(base, v)] !== false ? ' checked' : '') + ' onchange="toggleModelFilter(this)">' + esc(label) + '</label>';
+          }
         }
         html += '<div class="btn-group">';
         html += '<button class="btn" onclick="setAllModelFilters(true)" type="button">Check all</button>';
         html += '<button class="btn" onclick="setAllModelFilters(false)" type="button">Uncheck all</button>';
         html += '</div>';
+        var top = panel.scrollTop;
         panel.innerHTML = html;
+        panel.scrollTop = top; // the panel re-renders on every toggle: keep the scroll position
+        panel.querySelectorAll('label[data-hover-base]').forEach(l => {
+          const hover = {base: l.getAttribute('data-hover-base'), variant: l.getAttribute('data-hover-variant')};
+          l.addEventListener('mouseenter', () => outlineScatter(hover));
+          l.addEventListener('mouseleave', () => outlineScatter(null));
+        });
       }
 
       function toggleModelFilter(cb) {
-        visibleModels[cb.getAttribute('data-model')] = cb.checked;
+        const base = cb.getAttribute('data-base');
+        const variant = cb.getAttribute('data-variant');
+        if (variant === null) {
+          visibleModels[base] = cb.checked;
+          // Re-checking a base re-enables every variant under it; unchecking leaves them as they were.
+          if (cb.checked) shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = true; });
+        } else visibleVariants[variantKey(base, variant)] = cb.checked;
         renderAll();
       }
 
+      // Children start collapsed; the caret only reveals them, checks still filter.
+      function toggleBaseOpen(base) {
+        openBases[base] = !openBases[base];
+        renderModelFilter();
+      }
+
+      // On a base with children, only the checkbox checks: clicking the text or
+      // the caret rolls the children out instead.
+      function toggleBaseRow(ev, label) {
+        if (ev.target.tagName === 'INPUT') return;
+        ev.preventDefault();
+        toggleBaseOpen(label.getAttribute('data-base'));
+      }
+
       function setAllModelFilters(checked) {
-        for (const model of Object.keys(DATA)) {
-          visibleModels[model] = checked;
+        for (const base of Object.keys(DATA)) {
+          visibleModels[base] = checked;
+          shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = checked; });
         }
         renderAll();
       }
@@ -84732,11 +84832,16 @@
             type: 'scatter', mode: 'markers', x: scatterX, y: scatterY,
             text: scatterVariants.map(v => shortLabel(v)), hoverinfo: 'text',
             hoverlabel: { ...HOVERLABEL, bordercolor: stc.accent },
-            marker: { size: markerSizes, color: scatterVariants.map(v => modelColor(v)), line: { width: 1, color: stc.grid } }
+            marker: { size: markerSizes, color: scatterVariants.map(v => modelColor(v)), line: scatterLine(scatterVariants, stc) }
           }], { ...commonLayout(60), margin: { t: 10, r: 20, b: 80, l: 60 },
             xaxis: { ...commonLayout().xaxis, title: getAxisTitle(xAxis), type: 'linear', range: [Math.max(0, xMin - xPad), xMax + xPad] },
             yaxis: { ...commonLayout().yaxis, title: getAxisTitle(yAxis), type: 'linear', range: [Math.max(0, yMin - yPad), yMax + yPad] }
           }, { responsive: true });
+
+          window.__scatterOutline = () => {
+            const line = scatterLine(scatterVariants, stc);
+            Plotly.restyle('chart-scatter', {'marker.line.color': [line.color], 'marker.line.width': [line.width]});
+          };
         }
 
         updateScatterPlot();
