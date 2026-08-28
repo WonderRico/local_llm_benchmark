@@ -75,6 +75,7 @@ Gemma-4-31B-it,Gemma-4-31B-it,31,31,0,18,NVFP4,BF16,vLLM,1,Apache 2.0,ST-gemma-4
 Qwen3.5-122B-A10B,Qwen3.5-122B-A10B,122,10,0,76,NVFP4,BF16,vLLM,1,Apache 2.0,ST-Qwen3.5-122B-A10B-NVFP4_77GB_vLLM_1GPU_96,68,03:45:49,7696,113,223,"1,68",124,5,25,"0,53",218
 ,,,,,,,,,,,,,,,,,,,,,,
 Qwen3.8-Flash-Next,Qwen3.8-Flash-Next-medium,125,6,51,127,NVFP4,FP8,SGLANG,1,Qwen Community License 1.0,ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96,91,01:03:56,2653,29,44,"0,88",229,4,57,"0,15",332
+Qwen3.8-Flash-Next,Qwen3.8-Flash-Next-NVFP4-uncensored,125,6,51,127,NVFP4,FP8,SGLANG,1,Qwen Community License 1.0,ST-Qwen3.8-Flash-Next-NVFP4-uncensored_125GB_SGLANG_1GPU_96,76,00:48:13,2484,33,49,"1,00",346,4,86,"0,11",403
 Qwen3.8-Flash-Next,Qwen3.8-Flash-Next-xhigh,125,6,51,127,NVFP4,FP8,SGLANG,1,Qwen Community License 1.0,ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96,91,01:39:59,3639,40,90,"1,67",278,4,70,"0,23",459
 ,,,,,,,,,,,,,,,,,,,,,,
 MiniMax-M2.7,MiniMax-M2.7,230,10,0,131,Q4_K_M,BF16,llama.cpp,3,Non-commercial MIT,GGUF-MiniMax-M2.7-Q4_K_M_130GB_3GPU_local,79,06:25:00,4079,52,72,"1,10",48,1,48,"0,90",270
