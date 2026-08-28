@@ -30,6 +30,7 @@ HEADER_NAMES = (
     "model",
     "total_params",
     "active_params",
+    "ngram_params",
     "model_size",
     "weights_quant",
     "kv_cache_quant",
@@ -64,6 +65,7 @@ NUMERIC_FIELDS = {
     "score": "score_num",
     "total_params": "total_params_num",
     "active_params": "active_params_num",
+    "ngram_params": "ngram_params_num",
     "model_size": "model_size_num",
     "requests": "requests_num",
     "req_pts": "req_pts_num",
@@ -111,9 +113,9 @@ def parse_csv(path: Path) -> list[dict]:
     for row in rows[data_start:]:
         if not row or not row[0].strip():
             continue
-        if len(row) < 12:
+        if len(row) < 13:
             continue
-        if not _is_score_cell(row[11].strip()):
+        if not _is_score_cell(row[12].strip()):
             continue
         rec: dict = {}
         for ci, name in enumerate(HEADER_NAMES):
@@ -129,11 +131,11 @@ def parse_csv(path: Path) -> list[dict]:
 
 def _find_data_start(rows: list[list[str]]) -> int:
     for idx, row in enumerate(rows):
-        if len(row) < 12:
+        if len(row) < 13:
             continue
         if not row[0].strip():
             continue
-        if _is_score_cell(row[11].strip()):
+        if _is_score_cell(row[12].strip()):
             return idx
     return len(rows)
 
@@ -231,9 +233,7 @@ def render_dashboard(
     """Parse CSV + Markdown, render the main dashboard template, write the HTML."""
     records = parse_csv(csv_path)
     valid = [r for r in records if r["score_num"] is not None]
-    print(
-        f"Parsed {len(records)} records from {csv_path} ({len(valid)} with valid score)"
-    )
+    print(f"Parsed {len(records)} records from {csv_path} ({len(valid)} with valid score)")
 
     md_html = render_markdown(md_path)
     json_str = json.dumps(records, ensure_ascii=False)

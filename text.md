@@ -48,9 +48,17 @@ The token generation speed is not relevant here, because it's derived from the b
 
 ## Hall of fame
 
+*(update August 28th 2026)*
+
+**Qwen3.8-Flash-Next** has just been released, as a technological preview of the new Qwen architecture. And... it's very good ! AND fast ! AND efficient (in medium reasoning) !
+
+- **Most efficient both local and api** (lower request count per point scored) (29) : Qwen3.8-Flash-Next (medium)
+
+It's very close second in overall max score (91 compared to 92) and not far for fastest completion (1h03 compared to 45-ish min)
+
 *(update August 17th 2026)*
 
-Qwen 3.8 27B has been released a few days ago... It's a nice upgrade! It's now the most efficient local model (only in medium reasoning effort)
+**Qwen 3.8 27B** has been released a few days ago... It's a nice upgrade! It's now the most efficient local model (only in medium reasoning effort)
 
 - **Most efficient local** (lower request count per point scored) (33) : Qwen3.8-27B medium BF16 BF16 (other quants of the same model very close)
 - **Fastest completion** (max concurrency 5) : (43min)  Qwen3.8-27B medium NVFP4 FP8 
@@ -64,7 +72,7 @@ I tested other quants of DSV4F, and got even higher scores (90+). The even more 
 
 *(update August 3rd 2026)*
 
-DeepSeek V4 Flash 0731 update came out...
+**DeepSeek V4 Flash 0731** update came out...
 
 - **Best score overall** : (81) Deepseek v4 flash 0731 (MXPF4)
 - **Best score local** : (81) Deepseek v4 flash 0731 (MXPF4)
@@ -87,7 +95,7 @@ DeepSeek V4 Flash 0731 update came out...
 | DSV4F Q2_K_XL | 92    | 50                  |
 | DSV4F Q3_K_XL | 90    | 42                  |
 | DSV4F Q8_K_XL | 90    | 42                  |
-| DSV4F MXFP4   | 81    | 24                  |
+| DSV4F MXFP4   | 81    | 34                  |
 
 The score value doesn't say the whole story. Yes it solved more tasks, a 10 points difference is significant.
 
@@ -97,7 +105,7 @@ Why ? it's still unclear... It's not user error, since I used the exact same set
 
 Some Papers say than the tiny errors added by the quantisation can, sometimes, be beneficial for certain tasks... 
 
-The question "why does MXFP4 take 24 req/pt but score 81, while Q2 takes 50 and scores 92?" seems to reduce to: the k-quants are submitting later. And there's a concrete, code-level reason a "native" model would submit earlier:
+The question "why does MXFP4 take 34 req/pt but score 81, while Q2 takes 50 and scores 92?" seems to reduce to: the k-quants are submitting later. And there's a concrete, code-level reason a "native" model would submit earlier:
 
 MXFP4 produces valid submit commands earlier — it reads the repo, writes a patch, and decides "done" sooner. That's why it has 12 trajectories at ≤10 requests (the k-quants have 3–6) and why its resolved tasks average 26 requests vs 45 for Q2.
 The k-quants' extra requests are spent iterating — more read/edit/test cycles before submitting. On this 100-task Django subset, that extra iteration converts directly into more resolved tasks (92 vs 81). The cost is more requests; the benefit is a higher solve rate.
@@ -192,6 +200,18 @@ In **medium** reasoning mode, it both scores higher than the 3.6 version, AND is
 #### xhigh reasoning *score=74-81*
 
 The **xhigh** mode is advertised to be the best one for hard tasks. In this benchmark, however the gain is clearly not visible. The score are comparable with the medium version, while using more requests (still a little fewer than 3.6) and generating almost 4 times the tokens...
+
+### Qwen3.8-Flash-Next *score=91*
+
+Very good (yet still undertrained) model with a new architecture that will probably become outstanding once fully trained
+
+#### medium reasoning *score=91*
+
+In **medium** reasoning mode, score 91 with the best efficiency of all model tested!
+
+#### xhigh reasoning *score=91*
+
+The **xhigh** mode is still over chatty without real benefit for those tasks. (NB. in both reasoning modes, the exact same tasks are completed successfully)
 
 ### Bigger models via llama.cpp
 
