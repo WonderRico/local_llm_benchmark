@@ -816,11 +816,18 @@
       var baseColors = {};
       var BASE_PALETTE = ["#8b5cf6","#22c55e","#f97316","#ef4444","#6366f1","#0ea5e9","#facc15","#4ade80","#ec4899","#2dd4bf","#9ca3af","#f87171","#a3e635","#a5f3fc","#fde68a"];
 
+      // Past the curated colors, spread hues by the golden angle so any number of models stays distinct.
+      function paletteColor(i){
+        if (i < BASE_PALETTE.length) return BASE_PALETTE[i];
+        var n = i - BASE_PALETTE.length;
+        return "hsl(" + ((300 + n * 137.508) % 360).toFixed(1) + ",72%," + (n % 2 ? 38 : 62) + "%)";
+      }
+
       function initModelFilters() {
         var bases = {};
         DATA.forEach(function(r){ bases[r.base] = true; });
         var keys = Object.keys(bases).sort();
-        keys.forEach(function(b, i){ visibleModels[b] = true; baseColors[b] = BASE_PALETTE[i % BASE_PALETTE.length]; });
+        keys.forEach(function(b, i){ visibleModels[b] = true; baseColors[b] = paletteColor(i); });
       }
 
       // Apply a model filter from the URL (?filter=...) so deep links can
