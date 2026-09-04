@@ -1527,37 +1527,36 @@
         });
 
         let _activeHighlight = null;
-        function highlightColumn(colIndex) {
+        function clearHighlight() {
           if (_activeHighlight) {
             _activeHighlight.forEach(td => td.classList.remove('table-col-highlight'));
+            _activeHighlight = null;
           }
-          const rowCells = panel.querySelectorAll('.sync-table tr');
-          rowCells.forEach(tr => {
-            const children = tr.children;
-            for (let i = 0; i < children.length; i++) {
-              if (i === colIndex) {
-                children[i].classList.add('table-col-highlight');
-              }
-            }
-          });
-          _activeHighlight = [];
-          rowCells.forEach(tr => {
-            if (tr.children[colIndex]) _activeHighlight.push(tr.children[colIndex]);
-          });
         }
-        panel.querySelectorAll('.sync-table td:not([style*="sticky"]), .sync-table th:not([style*="sticky"])').forEach(cell => {
+        function highlight(cells) {
+          _activeHighlight = cells;
+          cells.forEach(td => td.classList.add('table-col-highlight'));
+        }
+        function highlightColumn(colIndex) {
+          highlight([...panel.querySelectorAll('.sync-table tr')]
+            .map(tr => tr.children[colIndex])
+            .filter(Boolean));
+        }
+        // Rows line up across the three sync-tables, so a model row highlights everywhere.
+        function highlightRow(rowIndex) {
+          highlight([...panel.querySelectorAll('.sync-table')]
+            .flatMap(t => [...(t.rows[rowIndex] ? t.rows[rowIndex].children : [])]));
+        }
+        panel.querySelectorAll('.sync-table td, .sync-table th').forEach(cell => {
           cell.addEventListener('click', () => {
+            clearHighlight();
             const col = Array.prototype.indexOf.call(cell.parentNode.children, cell);
-            highlightColumn(col);
+            if (col === 0) highlightRow(cell.parentNode.rowIndex);
+            else highlightColumn(col);
           });
         });
         document.addEventListener('click', (e) => {
-          if (!panel.contains(e.target)) {
-            if (_activeHighlight) {
-              _activeHighlight.forEach(td => td.classList.remove('table-col-highlight'));
-              _activeHighlight = null;
-            }
-          }
+          if (!panel.contains(e.target)) clearHighlight();
         });
       }
 
