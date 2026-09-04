@@ -715,10 +715,19 @@
 <p>The token generation speed is not relevant here, because it's derived from the benchmark total execution duration divided by the output token number. This duration contains all kinds of overheads related to the benchmark and the agentic harness. But the methodology is consistent between all runs, so we can compare the values between each others.</p>
 <h1>Analysis</h1>
 <h2>Hall of fame</h2>
+<p><em>(update Sept 4th 2026)</em></p>
+<p>Support for <strong>Qwen3.8-Flash-Next</strong> for different hardware and engines is still moving. I just tested another configuration, this time for vLLM and... WOW! While it's slower than the previous SGLANG patch I used, it's way better !</p>
+<ul>
+<li><strong>Best score overall</strong> : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM</li>
+<li><strong>Best score local</strong> : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM</li>
+<li><strong>Best score single GPU</strong> : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM</li>
+<li><strong>Fewer number of request</strong> : (2306) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM</li>
+<li><strong>Most efficient both local and api</strong> (lower request count per point scored) (24) : Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM</li>
+</ul>
 <p><em>(update August 28th 2026)</em></p>
 <p><strong>Qwen3.8-Flash-Next</strong> has just been released, as a technological preview of the new Qwen architecture. And... it's very good ! AND fast ! AND efficient (in medium reasoning) !</p>
 <ul>
-<li><strong>Most efficient both local and api</strong> (lower request count per point scored) (29) : Qwen3.8-Flash-Next (medium)</li>
+<li><strong>Most efficient both local and api</strong> (lower request count per point scored) (29) : Qwen3.8-Flash-Next NVFP4 + PLE FP8 (medium) on SGLANG</li>
 </ul>
 <p>It's very close second in overall max score (91 compared to 92) and not far for fastest completion (1h03 compared to 45-ish min)</p>
 <p><em>(update August 17th 2026)</em></p>
@@ -849,11 +858,11 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
 <p>In <strong>medium</strong> reasoning mode, it both scores higher than the 3.6 version, AND is very efficient (almost half requests needed, and 66% tokens generated)</p>
 <h4>xhigh reasoning <em>score=74-81</em></h4>
 <p>The <strong>xhigh</strong> mode is advertised to be the best one for hard tasks. In this benchmark, however the gain is clearly not visible. The score are comparable with the medium version, while using more requests (still a little fewer than 3.6) and generating almost 4 times the tokens...</p>
-<h3>Qwen3.8-Flash-Next <em>score=91</em></h3>
-<p>Very good (yet still undertrained) model with a new architecture that will probably become outstanding once fully trained</p>
-<h4>medium reasoning <em>score=91</em></h4>
-<p>In <strong>medium</strong> reasoning mode, score 91 with the best efficiency of all model tested!</p>
-<h4>xhigh reasoning <em>score=91</em></h4>
+<h3>Qwen3.8-Flash-Next <em>score=98</em></h3>
+<p>Incredibly good (yet still undertrained) model with a new architecture that will probably become outstanding once fully trained</p>
+<h4>medium reasoning <em>score=98</em></h4>
+<p>In <strong>medium</strong> reasoning mode, score 98 with the best efficiency of all model tested!</p>
+<h4>xhigh reasoning <em>score=98</em></h4>
 <p>The <strong>xhigh</strong> mode is still over chatty without real benefit for those tasks. (NB. in both reasoning modes, the exact same tasks are completed successfully)</p>
 <h3>Bigger models via llama.cpp</h3>
 <h4>MiniMax-M2.7 Q4_K_M <em>score=79</em></h4>
