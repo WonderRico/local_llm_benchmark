@@ -29,6 +29,11 @@ class TrajectoryStats:
     api_calls: int = 0
     instance_cost: float = 0.0
 
+    requests: int = 0
+    request_time_seconds: float = 0.0
+    input_tokens: int = 0
+    output_tokens: int = 0
+
     total_messages: int = 0
     system_messages: int = 0
     user_messages: int = 0

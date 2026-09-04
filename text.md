@@ -48,11 +48,21 @@ The token generation speed is not relevant here, because it's derived from the b
 
 ## Hall of fame
 
+*(update Sept 4th 2026)*
+
+Support for **Qwen3.8-Flash-Next** for different hardware and engines is still moving. I just tested another configuration, this time for vLLM and... WOW! While it's slower than the previous SGLANG patch I used, it's way better !
+
+- **Best score overall** : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
+- **Best score local** : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
+- **Best score single GPU** : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
+- **Fewer number of request** : (2306) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
+- **Most efficient both local and api** (lower request count per point scored) (24) : Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
+
 *(update August 28th 2026)*
 
 **Qwen3.8-Flash-Next** has just been released, as a technological preview of the new Qwen architecture. And... it's very good ! AND fast ! AND efficient (in medium reasoning) !
 
-- **Most efficient both local and api** (lower request count per point scored) (29) : Qwen3.8-Flash-Next (medium)
+- **Most efficient both local and api** (lower request count per point scored) (29) : Qwen3.8-Flash-Next NVFP4 + PLE FP8 (medium) on SGLANG
 
 It's very close second in overall max score (91 compared to 92) and not far for fastest completion (1h03 compared to 45-ish min)
 
@@ -201,15 +211,15 @@ In **medium** reasoning mode, it both scores higher than the 3.6 version, AND is
 
 The **xhigh** mode is advertised to be the best one for hard tasks. In this benchmark, however the gain is clearly not visible. The score are comparable with the medium version, while using more requests (still a little fewer than 3.6) and generating almost 4 times the tokens...
 
-### Qwen3.8-Flash-Next *score=91*
+### Qwen3.8-Flash-Next *score=98*
 
-Very good (yet still undertrained) model with a new architecture that will probably become outstanding once fully trained
+Incredibly good (yet still undertrained) model with a new architecture that will probably become outstanding once fully trained
 
-#### medium reasoning *score=91*
+#### medium reasoning *score=98*
 
-In **medium** reasoning mode, score 91 with the best efficiency of all model tested!
+In **medium** reasoning mode, score 98 with the best efficiency of all model tested!
 
-#### xhigh reasoning *score=91*
+#### xhigh reasoning *score=98*
 
 The **xhigh** mode is still over chatty without real benefit for those tasks. (NB. in both reasoning modes, the exact same tasks are completed successfully)
 
@@ -318,4 +328,3 @@ vLLM efficiency for KV cache is even more visible with Gemma4.
 
 - SGLANG seems faster than vLLM for fewer batches
 - With Qwen models, vLLM crashes in TP2 on my 2x4090D after a few minutes, SGLANG is fine. Gemma models ok on vLLM.
-

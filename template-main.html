@@ -773,12 +773,14 @@
       var DISPLAY_COLS = [
         {key:"base",label:"Base"},
         {key:"model",label:"Model"},
+        {key:"reasoning_effort",label:"Effort"},
         {key:"total_params",label:"TP"},
         {key:"active_params",label:"AP"},
         {key:"ngram_params",label:"NG"},
         {key:"model_size",label:"Size"},
         {key:"weights_quant",label:"WQ"},
         {key:"kv_cache_quant",label:"CQ"},
+        {key:"ple_quant",label:"PLE"},
         {key:"engine",label:"Engine"},
         {key:"nb_gpu",label:"Nb GPU"},
         {key:"score",label:"Score"},
@@ -1240,6 +1242,7 @@
             model_ref: r.model_ref,
             weights_quant: r.weights_quant || "-",
             kv_cache_quant: r.kv_cache_quant || "-",
+            reasoning_effort: r.reasoning_effort || "",
             engine: r.engine || "-",
             nb_gpu: r.nb_gpu,
             x: r[xk],
@@ -1266,7 +1269,8 @@
           customdata: pts.map(function(b){return b.idx;}),
           text: pts.map(function(b){
             var sLabel = sk ? (getNumKey(sk).label + ": " + (b.s !== null ? b.s.toFixed(1) : "\u2014")) : "";
-            var meta = [b.engine, (b.nb_gpu || "\u2014"), b.weights_quant, b.kv_cache_quant].join(" \u00B7 ");
+            var meta = [b.engine, (b.nb_gpu || "\u2014"), b.weights_quant, b.kv_cache_quant,
+              (b.reasoning_effort && b.reasoning_effort !== "?" ? "effort: " + b.reasoning_effort : "")].filter(Boolean).join(" \u00B7 ");
             return "<b>" + b.model + "</b>"
               + "<br>" + meta
               + "<br>" + xMeta.label + ": " + b.x.toFixed(1)

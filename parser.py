@@ -55,9 +55,7 @@ def parse_trajectory(path: Path) -> TrajectoryStats:
             submission=info.get("submission"),
             mini_version=info.get("mini_version"),
             model_name=info.get("config", {}).get("model", {}).get("model_name"),
-            environment_image=info.get("config", {})
-            .get("environment", {})
-            .get("image"),
+            environment_image=info.get("config", {}).get("environment", {}).get("image"),
             step_limit=info.get("config", {}).get("agent", {}).get("step_limit"),
             cost_limit=info.get("config", {}).get("agent", {}).get("cost_limit"),
             api_calls=info.get("model_stats", {}).get("api_calls", 0),
@@ -75,11 +73,13 @@ def parse_trajectory(path: Path) -> TrajectoryStats:
     stats.total_messages = len(messages)
     commands: list[str] = []
     tool_calls: list[ToolCall] = []
+    prev_ts: float | None = None
 
     for msg in messages:
         role = msg.get("role", "unknown")
         content = str(msg.get("content", ""))
         stats.total_content_chars += len(content)
+        msg_ts = (msg.get("extra") or {}).get("timestamp")
 
         if role == "system":
             stats.system_messages += 1
@@ -87,6 +87,12 @@ def parse_trajectory(path: Path) -> TrajectoryStats:
             stats.user_messages += 1
         elif role == "assistant":
             stats.assistant_messages += 1
+            usage = msg.get("extra", {}).get("response", {}).get("usage", {})
+            stats.requests += 1
+            stats.input_tokens += usage.get("prompt_tokens", 0) or 0
+            stats.output_tokens += usage.get("completion_tokens", 0) or 0
+            if msg_ts is not None and prev_ts is not None:
+                stats.request_time_seconds += msg_ts - prev_ts
             rc = msg.get("reasoning_content", "")
             if rc:
                 stats.turns_with_reasoning += 1
@@ -128,6 +134,9 @@ def parse_trajectory(path: Path) -> TrajectoryStats:
             stats.exit_messages += 1
         else:
             stats.other_messages += 1
+
+        if msg_ts is not None:
+            prev_ts = msg_ts
 
     if stats.timestamps:
         stats.wall_time_seconds = stats.timestamps[-1] - stats.timestamps[0]

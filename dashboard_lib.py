@@ -25,30 +25,38 @@ TEMPLATE_DETAIL = SCRIPT_DIR / "template-detail.html"
 OUTPUT_MAIN = SCRIPT_DIR / "benchmark-main.html"
 OUTPUT_DETAIL = SCRIPT_DIR / "benchmark-detail.html"
 
-HEADER_NAMES = (
-    "base",
-    "model",
-    "total_params",
-    "active_params",
-    "ngram_params",
-    "model_size",
-    "weights_quant",
-    "kv_cache_quant",
-    "engine",
-    "nb_gpu",
-    "license",
-    "model_ref",
-    "score",
-    "duration",
-    "requests",
-    "req_pts",
-    "tokens_processed_mt",
-    "tokens_generated_mt",
-    "total_tg_s",
-    "parallel_tasks",
-    "tg_s_per_task",
-    "total_cost",
-)
+# Normalised CSV header label -> field name used by the templates.
+HEADER_NAMES = {
+    "base": "base",
+    "model name": "model",
+    "reasoning effort": "reasoning_effort",
+    "total params (b)": "total_params",
+    "active params (b)": "active_params",
+    "n-grams params (b)": "ngram_params",
+    "model size (gb)": "model_size",
+    "weights quantization": "weights_quant",
+    "kv cache quantization": "kv_cache_quant",
+    "ple quantization": "ple_quant",
+    "engine": "engine",
+    "nb gpu": "nb_gpu",
+    "spec": "spec",
+    "license": "license",
+    "model ref": "model_ref",
+    "max kv ktokens": "max_kv_ktokens",
+    "score /100": "score",
+    "duration": "duration",
+    "requests": "requests",
+    "req/pts": "req_pts",
+    "in mtok": "tokens_processed_mt",
+    "out mtok": "tokens_generated_mt",
+    "total tg/s": "total_tg_s",
+    "parallel tasks": "parallel_tasks",
+    "tg/s per task": "tg_s_per_task",
+    "total cost $": "total_cost",
+    "ktok/pt": "ktok_per_pt",
+    "gen tok /req": "gen_tok_per_req",
+    "notes": "notes",
+}
 
 DECIMAL_FIELDS = (
     "score",
@@ -108,18 +116,18 @@ def parse_csv(path: Path) -> list[dict]:
     with open(path, encoding="utf-8", newline="") as f:
         rows = list(csv.reader(f))
 
-    data_start = _find_data_start(rows)
+    header_row = next((i for i, row in enumerate(rows) if "score" in _header_columns(row)), None)
+    if header_row is None:
+        return []
+    cols = _header_columns(rows[header_row])
+
     records: list[dict] = []
-    for row in rows[data_start:]:
+    for row in rows[header_row + 1 :]:
         if not row or not row[0].strip():
             continue
-        if len(row) < 13:
+        if len(row) <= cols["score"] or not _is_score_cell(row[cols["score"]].strip()):
             continue
-        if not _is_score_cell(row[12].strip()):
-            continue
-        rec: dict = {}
-        for ci, name in enumerate(HEADER_NAMES):
-            rec[name] = row[ci].strip() if ci < len(row) else ""
+        rec: dict = {name: (row[ci].strip() if ci < len(row) else "") for name, ci in cols.items()}
         _normalise_record(rec)
         records.append(rec)
 
@@ -129,15 +137,13 @@ def parse_csv(path: Path) -> list[dict]:
     return records
 
 
-def _find_data_start(rows: list[list[str]]) -> int:
-    for idx, row in enumerate(rows):
-        if len(row) < 13:
-            continue
-        if not row[0].strip():
-            continue
-        if _is_score_cell(row[12].strip()):
-            return idx
-    return len(rows)
+def _header_columns(row: list[str]) -> dict[str, int]:
+    """Map field names to their column index, so CSV columns can be reordered freely."""
+    return {
+        field: ci
+        for ci, label in enumerate(row)
+        if (field := HEADER_NAMES.get(re.sub(r"\s+", " ", label).strip().lower()))
+    }
 
 
 def _is_score_cell(s: str) -> bool:
