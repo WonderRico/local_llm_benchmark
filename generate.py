@@ -9,7 +9,8 @@ Usage:
 
 The main dashboard (`benchmark-main.html`) is built from `data.csv` + `text.md`.
 The detail report (`benchmark-detail.html`) is built from `results/`, which is
-regenerated from `data/` trajectories (unless `--skip-batch` is given).
+regenerated from `data/` trajectories (unless `--skip-batch` is given). Each
+trajectory also gets a redacted HTML page under `html_traj/`, mirroring `data/`.
 """
 
 from __future__ import annotations
@@ -17,16 +18,18 @@ from __future__ import annotations
 import json
 import re
 import shutil
-
-import typer
+from pathlib import Path
 
 import batch
 import dashboard_lib
+import typer
 from dashboard_lib import RESULTS_DIR
+from traj_html import HTML_TRAJ_DIR, html_name
 
-app = typer.Typer(
-    help="Generate the benchmark dashboards (benchmark-main.html, benchmark-detail.html)."
-)
+app = typer.Typer(help="Generate the benchmark dashboards (benchmark-main.html, benchmark-detail.html).")
+
+# Trajectory pages stay unlinked unless the report is viewed from the LAN or the serving machine itself.
+TRAJ_HOST_RE = r"^(192\.168\.|localhost$|127\.)"
 
 
 def parse_summary(text: str) -> dict:
@@ -54,9 +57,7 @@ def parse_summary(text: str) -> dict:
             d[f"{key}_min"] = int(m.group(3))
             d[f"{key}_max"] = int(m.group(4))
 
-    m = re.search(
-        r"Wall time:\s*avg=(.*?),\s*median=(.*?),\s*min=(.*?),\s*max=(.*)", text
-    )
+    m = re.search(r"Wall time:\s*avg=(.*?),\s*median=(.*?),\s*min=(.*?),\s*max=(.*)", text)
     if m:
         d["wall_avg"] = m.group(1).strip()
         d["wall_median"] = m.group(2).strip()
@@ -81,9 +82,7 @@ def parse_summary(text: str) -> dict:
 
 def parse_table(text: str) -> list[dict]:
     rows = []
-    pattern = re.compile(
-        r"^(\S+)\s+(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+m\s*\d+s|\d+\.?\d*s)\s+(\d+)\s*$"
-    )
+    pattern = re.compile(r"^(\S+)\s+(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+m\s*\d+s|\d+\.?\d*s)\s+(\d+)\s*$")
     for line in text.split("\n"):
         m = pattern.match(line.strip())
         if m:
@@ -135,9 +134,7 @@ def parse_failures(text: str) -> dict:
             if len(parts) == 2:
                 d["reasons"][parts[0]] = int(parts[1])
 
-    traj_section = re.search(
-        r"Non-zero return codes per trajectory.*?\n((?:[^\n]+\n?)*)", text, re.DOTALL
-    )
+    traj_section = re.search(r"Non-zero return codes per trajectory.*?\n((?:[^\n]+\n?)*)", text, re.DOTALL)
     if traj_section:
         header_skipped = False
         for line in traj_section.group(1).strip().split("\n"):
@@ -146,14 +143,13 @@ def parse_failures(text: str) -> dict:
                 continue
             parts = line.rsplit(None, 1)
             if len(parts) == 2:
-                d["per_trajectory"].append(
-                    {"instance": parts[0], "errors": int(parts[1])}
-                )
+                d["per_trajectory"].append({"instance": parts[0], "errors": int(parts[1])})
 
     return d
 
 
 def parse_all_results() -> dict:
+    """Read results/<model>/<variant>/ into the JSON blob embedded in the detail page."""
     models = {}
     for model_dir in sorted(RESULTS_DIR.iterdir()):
         if not model_dir.is_dir():
@@ -165,7 +161,7 @@ def parse_all_results() -> dict:
                 continue
             variant_name = variant_dir.name
             display_model_name = f"{model_name} ({variant_name})"
-            data = {"model": display_model_name, "variant": variant_name}
+            data: dict = {"model": display_model_name, "variant": variant_name}
 
             summary_file = variant_dir / "summary.txt"
             if summary_file.exists():
@@ -183,6 +179,14 @@ def parse_all_results() -> dict:
             if eval_file.exists():
                 data["eval"] = parse_eval(eval_file.read_text())
 
+            # Hrefs of the human-readable trajectory pages, relative to this page (html_traj/ mirrors data/).
+            data["traj"] = {
+                f.parent.name: (Path(HTML_TRAJ_DIR.name) / f.relative_to(batch.DATA_DIR))
+                .with_name(html_name(f))
+                .as_posix()
+                for f in sorted((batch.DATA_DIR / model_name / variant_name).rglob("*.traj.json"))
+            }
+
             table = data.get("table")
             if table:
                 data["total_tools"] = sum(r["tools"] for r in table)
@@ -197,13 +201,13 @@ def parse_all_results() -> dict:
     return models
 
 
-def build_detail(*, skip_batch: bool) -> None:
+def build_detail(*, skip_batch: bool, skip_traj_html: bool = False) -> None:
     if not skip_batch:
         print(f"Cleaning up {RESULTS_DIR}...")
         if RESULTS_DIR.exists():
             shutil.rmtree(RESULTS_DIR)
         print("Regenerating results from data...")
-        batch.main()
+        batch.main(with_traj_html=not skip_traj_html)
 
     print(f"Scanning {RESULTS_DIR}...")
     data = parse_all_results()
@@ -213,19 +217,25 @@ def build_detail(*, skip_batch: bool) -> None:
 
     json_data = json.dumps(data, indent=2)
     dashboard_lib.render_html(
-        dashboard_lib.TEMPLATE_DETAIL, dashboard_lib.OUTPUT_DETAIL, JSON_DATA=json_data
+        dashboard_lib.TEMPLATE_DETAIL,
+        dashboard_lib.OUTPUT_DETAIL,
+        JSON_DATA=json_data,
+        TRAJ_HOST_RE=json.dumps(TRAJ_HOST_RE),
     )
 
 
 @app.command()
 def run(
-    which: str = typer.Argument(
-        "all", help="Pages to generate: 'all', 'main', or 'detail'"
-    ),
+    which: str = typer.Argument("all", help="Pages to generate: 'all', 'main', or 'detail'"),
     skip_batch: bool = typer.Option(
         False,
         "--skip-batch",
         help="Reuse existing results/ instead of regenerating from data/ (detail only)",
+    ),
+    skip_traj_html: bool = typer.Option(
+        False,
+        "--skip-traj-html",
+        help="Skip writing html_traj/ trajectory pages (detail only)",
     ),
 ) -> None:
     if which not in ("all", "main", "detail"):
@@ -234,7 +244,7 @@ def run(
     if which in ("all", "main"):
         dashboard_lib.render_dashboard()
     if which in ("all", "detail"):
-        build_detail(skip_batch=skip_batch)
+        build_detail(skip_batch=skip_batch, skip_traj_html=skip_traj_html)
 
 
 if __name__ == "__main__":

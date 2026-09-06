@@ -503,6 +503,22 @@
         outline-offset: -1px;
       }
 
+      /* Trajectory page links inside the per-instance tables */
+      .traj-link {
+        color: inherit;
+        display: block;
+        text-decoration: none;
+      }
+      .traj-link:hover {
+        text-decoration: underline;
+      }
+      .section-hint {
+        color: var(--text-secondary);
+        font-size: 0.78rem;
+        font-weight: 400;
+        margin-left: 10px;
+      }
+
       /* Scatter controls */
       .scatter-controls {
         display: flex;
@@ -665,6 +681,7 @@
 
     <script>
       const DATA = {{JSON_DATA}};
+      const TRAJ_LINKS_OK = new RegExp({{TRAJ_HOST_RE}}).test(location.hostname);
 
       // --- Theme toggle ---
       (function() {
@@ -1400,7 +1417,18 @@
           return na - nb;
         });
 
-        let html = '<div class="section-title"><div class="section-dot dot-blue"></div>Per-Instance Table</div>';
+        let html = '<div class="section-title"><div class="section-dot dot-blue"></div>Per-Instance Table';
+        html +=
+          '<span class="section-hint">Click a model row or a value column to highlight it'
+          + (TRAJ_LINKS_OK ? ' · click a value to open its trajectory page' : '')
+          + '</span></div>';
+
+        const trajLink = (v, inst, inner, title) => {
+          const href = TRAJ_LINKS_OK ? (v.data.traj || {})[inst] : undefined;
+          return href
+            ? '<a class="traj-link" href="' + href + '" title="' + esc(title) + '">' + inner + '</a>'
+            : inner;
+        };
 
         const evalVariants = variants.filter(v => v.data.eval);
         if (evalVariants.length) {
@@ -1426,7 +1454,10 @@
             instances.forEach(inst => {
               const st = status[inst];
               if (st) {
-                html += '<td style="text-align:center;"><span class="status-dot ' + statusColors[st] + '"></span></td>';
+                html +=
+                  '<td style="text-align:center;">' +
+                  trajLink(v, inst, '<span class="status-dot ' + statusColors[st] + '"></span>', inst + ' · ' + shortLabel(v)) +
+                  '</td>';
               } else {
                 html += '<td></td>';
               }
@@ -1457,7 +1488,7 @@
           instances.forEach(inst => {
             const row = lookup[inst] && lookup[inst][v.key];
             if (row) {
-              html += '<td style="color:' + toolColor(row.tools) + ';">' + row.tools + '</td>';
+              html += '<td style="color:' + toolColor(row.tools) + ';">' + trajLink(v, inst, row.tools, inst + ' · ' + shortLabel(v)) + '</td>';
             } else {
               html += '<td>-</td>';
             }
@@ -1497,7 +1528,7 @@
           instances.forEach(inst => {
             const row = lookup[inst] && lookup[inst][v.key];
             if (row) {
-              html += '<td style="color:' + rcColor(row.nonzero_rc) + ';">' + row.nonzero_rc + '</td>';
+              html += '<td style="color:' + rcColor(row.nonzero_rc) + ';">' + trajLink(v, inst, row.nonzero_rc, inst + ' · ' + shortLabel(v)) + '</td>';
             } else {
               html += '<td>-</td>';
             }

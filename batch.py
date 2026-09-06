@@ -8,6 +8,7 @@ from pathlib import Path
 from aggregator import aggregate
 from parser import parse_dir
 from render import format_duration, render_aggregate, render_failures, render_table
+from traj_html import HTML_TRAJ_DIR, build_traj_html
 
 DATA_DIR = Path(__file__).parent / "data"
 RESULTS_DIR = Path(__file__).parent / "results"
@@ -28,7 +29,7 @@ def find_variant_dirs(data_dir: Path) -> list[Path]:
     return variants
 
 
-def process_variant(variant_dir: Path, results_root: Path) -> dict | None:
+def process_variant(variant_dir: Path, results_root: Path, *, with_traj_html: bool = True) -> dict | None:
     """Parse all trajectories in a variant and write summary/table/failures."""
     rel = variant_dir.relative_to(DATA_DIR)
     out_dir = results_root / rel
@@ -37,6 +38,9 @@ def process_variant(variant_dir: Path, results_root: Path) -> dict | None:
     trajs = parse_dir(variant_dir, recursive=True)
     if not trajs:
         return None
+
+    if with_traj_html:
+        build_traj_html(variant_dir, HTML_TRAJ_DIR / rel)
 
     # Run span: earliest to latest tool timestamp across the whole variant,
     # not the sum of per-trajectory wall times.
@@ -68,11 +72,11 @@ def process_variant(variant_dir: Path, results_root: Path) -> dict | None:
     return stats
 
 
-def main() -> None:
+def main(*, with_traj_html: bool = True) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     variants = find_variant_dirs(DATA_DIR)
-    stats_rows = [s for vd in variants if (s := process_variant(vd, RESULTS_DIR))]
+    stats_rows = [s for vd in variants if (s := process_variant(vd, RESULTS_DIR, with_traj_html=with_traj_html))]
 
     if stats_rows:
         with STATS_CSV.open("w", newline="") as f:
@@ -80,7 +84,10 @@ def main() -> None:
             writer.writeheader()
             writer.writerows(stats_rows)
 
-    print(f"Processed {len(variants)} variant(s). Results saved to {RESULTS_DIR}, aggregate stats to {STATS_CSV}")
+    print(
+        f"Processed {len(variants)} variant(s). Results saved to {RESULTS_DIR}, "
+        f"trajectory pages to {HTML_TRAJ_DIR}, aggregate stats to {STATS_CSV}"
+    )
 
 
 if __name__ == "__main__":

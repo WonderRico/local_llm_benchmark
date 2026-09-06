@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title><style>{{ css | safe }}</style></head>
+<body>
+<header><div class="wrap">
+<h1><code>{{ title }}</code></h1>
+<div class="meta">{{ model }} · {{ source }} · mini-swe-agent {{ version }} · image {{ image }}</div>
+<div class="chips">{% for chip in chips %}<span class="chip">{{ chip.name }} <b class="{{ chip.css }}">{{ chip.value }}</b></span>{% endfor %}</div>
+<div class="nav">
+  <span>{% if prev %}<a href="{{ prev }}">&larr; previous instance</a>{% endif %}</span>
+  <span>{% if next %}<a href="{{ next }}">next instance &rarr;</a>{% endif %}</span>
+</div>
+</div></header>
+<div class="wrap">
+<h2>Run configuration</h2>
+<details><summary>config (credentials redacted)</summary><pre>{{ config }}</pre></details>
+<h2>Transcript</h2>
+{% for m in messages %}
+<section class="msg r-{{ m.role }}" id="{{ m.anchor }}">
+<div class="head"><span class="role">{{ m.role }}</span><span class="turn">{{ m.turn }}</span><span class="spacer"></span><span class="small">{% for part in m.meta %}{{ " · " if not loop.first }}{% if part.css %}<span class="{{ part.css }}">{{ part.text }}</span>{% else %}{{ part.text }}{% endif %}{% endfor %}</span></div>
+<div class="inner">
+{% for blk in m.blocks %}
+{%- if blk.label %}<div class="small">{{ blk.label }}</div>{% endif %}
+{%- if blk.kind == "cmd" %}<div class="cmd">{{ blk.text }}</div>
+{%- elif blk.kind == "alert" %}<div class="rc bad">{{ blk.text }}</div>
+{%- elif blk.kind == "pre" %}{% if blk.text.strip() %}<pre>{{ blk.text }}</pre>{% endif %}
+{%- elif blk.kind == "fold" %}{% if blk.open %}<details open>{% else %}<details>{% endif %}<summary>{{ blk.summary }}</summary>{% if blk.text.strip() %}<pre>{{ blk.text }}</pre>{% endif %}</details>{% endif %}
+{%- endfor %}
+</div></section>
+{% endfor %}
+<footer>Generated from {{ traj_name }} — credentials redacted.</footer>
+</div></body></html>

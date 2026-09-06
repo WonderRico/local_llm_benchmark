@@ -35,3 +35,4 @@ coverage/
 tmp/
 .agents/
 skills-lock.json
+html_traj/
