@@ -630,6 +630,26 @@
         font-weight: 600;
         color: var(--text-secondary);
       }
+      /* X / Y / Size read as three labelled fields, so each pair is one shrinkable
+         flex item: with the labels and selects as loose items, flex-wrap breaks the
+         row between a label and its own select. `flex-basis` sets the narrowest
+         card width at which all three still sit on one line (~460px); below that
+         they wrap by whole field rather than mid-pair. */
+      .bd-xy-field {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1 1 140px;
+        min-width: 0;
+      }
+      .bd-xy-field label {
+        white-space: nowrap;
+      }
+      .bd-xy-field select {
+        flex: 1;
+        min-width: 0;
+        padding-inline: 8px;
+      }
 
       /* Table */
       .bd-table-wrap {
@@ -781,12 +801,18 @@
           <div class="bd-section bd-scatter-float">
             <div class="bd-section__title">Scatter Graph</div>
             <div class="bd-xy-controls">
-              <label for="bd-x-axis">X :</label>
-              <select id="bd-x-axis"></select>
-              <label for="bd-y-axis">Y :</label>
-              <select id="bd-y-axis"></select>
-              <label for="bd-size-axis">Size :</label>
-              <select id="bd-size-axis"></select>
+              <div class="bd-xy-field">
+                <label for="bd-x-axis">X :</label>
+                <select id="bd-x-axis"></select>
+              </div>
+              <div class="bd-xy-field">
+                <label for="bd-y-axis">Y :</label>
+                <select id="bd-y-axis"></select>
+              </div>
+              <div class="bd-xy-field">
+                <label for="bd-size-axis">Size :</label>
+                <select id="bd-size-axis"></select>
+              </div>
             </div>
             <div id="bd-xy-chart" class="bd-xy-container"></div>
           </div>
