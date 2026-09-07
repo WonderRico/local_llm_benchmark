@@ -20,51 +20,56 @@ TEMPLATE = jinja2.Environment(autoescape=True).from_string(
 )
 
 CSS = """
+/* Same design language as the dashboards: warm paper + ink for light, warm
+   charcoal + tan for night, flat surfaces closed by rules instead of shadows. */
 :root {
-  --bg: #fff; --bg-alt: #f6f7f9; --bg-code: #f3f4f6; --fg: #1a1a2e; --fg-dim: #6b7280;
-  --border: #e3e6ea; --accent: #6c5ce7; --ok: #16803c; --bad: #c62828; --warn: #b26a00;
+  --bg: #eeeae2; --bg-alt: #fff; --bg-code: #f6f3ec; --fg: #202020; --fg-dim: #6f6a60;
+  --border: #ded8cc; --border-strong: #202020; --accent: #8a6a2f; --accent-eyebrow: #b08d58;
+  --ok: #1f7a4d; --bad: #b3261e; --warn: #b4661d; --info: #0e7fbf;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #15151f; --bg-alt: #1e1e2e; --bg-code: #232334; --fg: #e6e6f0; --fg-dim: #9aa0b4;
-    --border: #2e2e42; --accent: #a695ff; --ok: #4ade80; --bad: #ff6b6b; --warn: #f6c453;
-  }
+/* The dashboards own the `dashboard-theme` preference; these pages only read/obey it. */
+:root[data-theme="dark"] {
+  --bg: #171512; --bg-alt: #201d18; --bg-code: #221f19; --fg: #f2efe8; --fg-dim: #a89f8d;
+  --border: #35301f; --border-strong: #f2efe8; --accent: #dfc095; --accent-eyebrow: #dfc095;
+  --ok: #6cc38a; --bad: #ef7a6d; --warn: #e0a35c; --info: #63c8f5;
 }
+.theme-toggle { position: absolute; top: 12px; right: 22px; background: var(--bg-alt); color: var(--fg); border: 1.5px solid var(--border-strong); border-radius: 6px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle svg { width: 15px; height: 15px; }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.7 "Figtree", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: grayscale; -moz-osx-font-smoothing: grayscale; }
 .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px 80px; }
-header { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--border); padding: 14px 0 12px; }
-header .wrap { padding-bottom: 0; }
-h1 { font-size: 1.15rem; margin: 0 0 6px; }
-h1 code { font-size: 1rem; color: var(--accent); }
+header .wrap { padding-bottom: 0; position: relative; }
+h1 { font-size: 1.15rem; font-weight: 600; margin: 0 0 6px; padding-right: 60px; }
+h1 code { font-size: 1rem; color: var(--fg); }
 .meta { color: var(--fg-dim); font-size: 0.82rem; overflow-wrap: anywhere; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.chip { border: 1px solid var(--border); background: var(--bg-alt); border-radius: 999px; padding: 2px 10px; font-size: 0.78rem; }
+.chip { border: 1px solid var(--border); background: var(--bg-alt); border-radius: 3px; padding: 2px 10px; font-size: 0.78rem; }
 .chip b { font-weight: 600; }
 .ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); }
 .nav { margin-top: 10px; font-size: 0.82rem; display: flex; justify-content: space-between; gap: 12px; }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-dim); margin: 26px 0 10px; }
-details { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-alt); margin: 0; }
+a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
+a:hover { color: var(--accent); }
+h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-eyebrow); margin: 26px 0 10px; }
+details { border: 1px solid var(--border); border-radius: 4px; background: var(--bg-alt); margin: 0; }
 summary { cursor: pointer; padding: 8px 12px; font-size: 0.85rem; color: var(--fg-dim); }
-details[open] summary { border-bottom: 1px solid var(--border); }
-pre { margin: 0; padding: 10px 12px; overflow: auto; max-height: 560px; background: var(--bg-code); font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: 0 0 8px 8px; }
-.msg { border: 1px solid var(--border); border-left: 4px solid var(--fg-dim); border-radius: 8px; margin: 0 0 10px; background: var(--bg); scroll-margin-top: 140px; }
-.msg > .head { display: flex; align-items: baseline; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--bg-alt); border-radius: 4px 8px 0 0; }
-.role { font-weight: 650; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+details[open] summary { border-bottom: 2px solid var(--border-strong); }
+pre { margin: 0; padding: 10px 12px; overflow: auto; max-height: 560px; background: var(--bg-code); font: 12.5px/1.5 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: 0 0 4px 4px; }
+.msg { border: 1px solid var(--border); border-left: 4px solid var(--fg-dim); border-radius: 4px; margin: 0 0 10px; background: var(--bg-alt); scroll-margin-top: 140px; }
+.msg > .head { display: flex; align-items: baseline; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--bg-code); border-radius: 4px 4px 0 0; }
+.role { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; }
 .turn { color: var(--fg-dim); font-size: 0.78rem; }
 .head .spacer { flex: 1; }
 .small { color: var(--fg-dim); font-size: 0.76rem; }
 .msg .inner { padding: 10px 12px; display: grid; gap: 8px; }
 .r-assistant { border-left-color: var(--accent); }
 .r-tool { border-left-color: var(--warn); }
-.r-user { border-left-color: #2b6cb0; }
+.r-user { border-left-color: var(--info); }
 .r-system { border-left-color: var(--fg-dim); }
 .r-exit { border-left-color: var(--ok); }
-.cmd { background: var(--bg-code); border-radius: 6px; padding: 8px 10px; font: 12.5px/1.5 ui-monospace, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
-.rc { font-weight: 650; }
-footer { margin-top: 30px; color: var(--fg-dim); font-size: 0.76rem; }
+.cmd { background: var(--bg-code); border: 1px solid var(--border); border-radius: 3px; padding: 8px 10px; font: 12.5px/1.5 "JetBrains Mono", ui-monospace, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rc { font-weight: 600; }
+footer { margin-top: 30px; padding-top: 16px; border-top: 2px solid var(--border-strong); color: var(--fg-dim); font-size: 0.76rem; }
 """
 
 
@@ -255,11 +260,15 @@ def build_traj_html(data_dir: Path, out_root: Path, *, force: bool = False) -> i
     for traj_file in sorted(data_dir.rglob("*.traj.json")):
         groups.setdefault(traj_file.parent.parent, []).append(traj_file)
 
+    # Regenerate when either the trajectory or the page design is newer than the output.
+    template_stamp = max(
+        Path(__file__).stat().st_mtime, (Path(__file__).parent / "template-traj.html").stat().st_mtime
+    )
     written = 0
     for group in groups.values():
         outs = [(out_root / f.relative_to(data_dir)).with_name(html_name(f)) for f in group]
         for index, (src, dst) in enumerate(zip(group, outs)):
-            if not force and dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
+            if not force and dst.exists() and dst.stat().st_mtime >= max(src.stat().st_mtime, template_stamp):
                 continue
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_text(

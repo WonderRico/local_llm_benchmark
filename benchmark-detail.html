@@ -5,64 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Model Benchmark Comparison</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      /* Light theme mirrors e2studio.fr: warm paper ground, ink text, white cards,
+         tan accents, flat surfaces separated by rules instead of shadows.
+         Dark theme keeps the same hue family (warm charcoal + tan), inverted. */
       :root {
-        --bg: #f0f0f0;
-        --bg-header: linear-gradient(135deg, #fff 0%, #f8f7ff 50%, #fff 100%);
-        --bg-card: rgba(255, 255, 255, 0.9);
-        --bg-table-header: #fafafa;
-        --bg-table-row-hover: #fafafa;
+        --font-sans: "Figtree", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Consolas", monospace;
+        --bg: #eeeae2;
+        --bg-header: #eeeae2;
+        --bg-card: #fff;
+        --bg-table-header: #f6f3ec;
+        --bg-table-row-hover: #f6f3ec;
         --bg-sticky: #fff;
-        --bg-highlight: #f0ecff;
-        --bg-btn: #f3f4f6;
-        --bg-btn-hover: #e5e7eb;
-        --bg-select: #f9fafb;
-        --text-primary: #1a1a1a;
-        --text-secondary: #6b7280;
-        --text-tertiary: #374151;
-        --border: #e8e8e8;
-        --border-select: #e0e0e0;
-        --grid: #f0f0f0;
-        --scrollbar-thumb: #d1d5db;
-        --scrollbar-thumb-hover: #9ca3af;
-        --accent: #8b5cf6;
-        --accent-glow: rgba(139, 92, 246, 0.1);
-        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
-        --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
-        --chart-font: #374151;
-        --dot-line-from: #e8e0ff;
+        --bg-highlight: #f5e7cd;
+        --bg-btn: #fff;
+        --bg-btn-hover: #f2eee5;
+        --bg-select: #fff;
+        --text-primary: #202020;
+        --text-secondary: #6f6a60;
+        --text-tertiary: #3b372f;
+        --border: #ded8cc;
+        --border-strong: #202020;
+        --border-select: #cec7b8;
+        --grid: #e6e1d7;
+        --scrollbar-thumb: #cec7b8;
+        --scrollbar-thumb-hover: #a49b8a;
+        --accent: #8a6a2f;
+        --accent-eyebrow: #b08d58;
+        --accent-glow: rgba(138, 106, 47, 0.18);
+        --shadow-card: none;
+        --shadow-card-hover: none;
+        --chart-font: #3b372f;
+        --chart-grid: #e0dacd;
+        /* Status + section markers are theme tokens, not fixed hex, so both
+           themes stay legible on their own ground. */
+        --ok: #1f7a4d;
+        --warn: #b4661d;
+        --err: #b3261e;
+        --muted: #8b8375;
+        --na: #efece4;
+        --dot-orange: #c0562b;
+        --dot-violet: #5a4bb0;
+        --dot-blue: #0e7fbf;
+        --dot-green: #1f7a4d;
+        --dot-red: #b3261e;
+        --dot-lime: #7d9b1f;
+        --dot-pink: #c0357c;
+        --dot-line-from: #dfc095;
         --dot-line-to: transparent;
       }
       [data-theme="dark"] {
-        --bg: #111113;
-        --bg-header: linear-gradient(
-          135deg,
-          #1a1a2e 0%,
-          #16162a 50%,
-          #1a1a2e 100%
-        );
-        --bg-card: rgba(30, 30, 40, 0.9);
-        --bg-table-header: #1e1e2e;
-        --bg-table-row-hover: #1e1e2e;
-        --bg-sticky: #1a1a28;
-        --bg-highlight: #2a2245;
-        --bg-btn: #2a2a3a;
-        --bg-btn-hover: #3a3a4a;
-        --bg-select: #1e1e2e;
-        --text-primary: #e4e4e7;
-        --text-secondary: #a1a1aa;
-        --text-tertiary: #d4d4d8;
-        --border: #2a2a3a;
-        --border-select: #2a2a3a;
-        --grid: #2a2a3a;
-        --scrollbar-thumb: #52525b;
-        --scrollbar-thumb-hover: #71717a;
-        --accent: #a78bfa;
-        --accent-glow: rgba(167, 139, 250, 0.15);
-        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
-        --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
-        --chart-font: #d4d4d8;
-        --dot-line-from: #3b3b5c;
+        --bg: #171512;
+        --bg-header: #171512;
+        --bg-card: #201d18;
+        --bg-table-header: #262219;
+        --bg-table-row-hover: #262219;
+        --bg-sticky: #201d18;
+        --bg-highlight: #3d3016;
+        --bg-btn: #262219;
+        --bg-btn-hover: #322c21;
+        --bg-select: #262219;
+        --text-primary: #f2efe8;
+        --text-secondary: #a89f8d;
+        --text-tertiary: #ded7c8;
+        --border: #35301f;
+        --border-strong: #f2efe8;
+        --border-select: #3f3928;
+        --grid: #322c21;
+        --scrollbar-thumb: #4a4230;
+        --scrollbar-thumb-hover: #6a5f45;
+        --accent: #dfc095;
+        --accent-eyebrow: #dfc095;
+        --accent-glow: rgba(223, 192, 149, 0.22);
+        --shadow-card: none;
+        --shadow-card-hover: none;
+        --chart-font: #ded7c8;
+        --chart-grid: #3a3425;
+        --ok: #6cc38a;
+        --warn: #e0a35c;
+        --err: #ef7a6d;
+        --muted: #8f8874;
+        --na: #2a261f;
+        --dot-orange: #ef8b52;
+        --dot-violet: #a795ff;
+        --dot-blue: #63c8f5;
+        --dot-green: #5ec98a;
+        --dot-red: #ff7a6e;
+        --dot-lime: #c8e85a;
+        --dot-pink: #f27ab5;
+        --dot-line-from: #dfc095;
         --dot-line-to: transparent;
       }
       * {
@@ -71,42 +109,41 @@
         box-sizing: border-box;
       }
       body {
-        font-family:
-          "Inter",
-          "Segoe UI",
-          system-ui,
-          -apple-system,
-          sans-serif;
+        font-family: var(--font-sans);
         background: var(--bg);
         color: var(--text-primary);
-        -webkit-font-smoothing: antialiased;
+        -webkit-font-smoothing: grayscale;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: 16px;
+        line-height: 1.7;
         transition:
           background 0.2s,
           color 0.2s;
       }
 
-      /* Header - HF style gradient */
+      /* Header: flat paper band closed by the reference's 2px ink rule. */
       .header {
         background: var(--bg-header);
-        padding: 48px 32px 40px;
+        padding: 56px 32px 44px;
         text-align: center;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 2px solid var(--border-strong);
         position: relative;
         transition:
           background 0.2s,
           border-color 0.2s;
       }
       .header h1 {
-        font-size: 2.25rem;
+        font-size: 2.4rem;
         color: var(--text-primary);
-        font-weight: 700;
-        letter-spacing: -0.02em;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
         margin-bottom: 8px;
       }
       .header p {
         color: var(--text-secondary);
         font-size: 1.05rem;
-        max-width: 600px;
+        max-width: 640px;
         margin: 0 auto;
       }
       .header-line {
@@ -137,11 +174,11 @@
         );
       }
       .header-line span {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--accent);
+        letter-spacing: 0.12em;
+        color: var(--accent-eyebrow);
       }
 
       /* Theme toggle */
@@ -151,12 +188,12 @@
         right: 24px;
         background: var(--bg-btn);
         color: var(--text-tertiary);
-        border: 1px solid var(--border);
+        border: 1.5px solid var(--border-strong);
         padding: 8px 14px;
-        border-radius: 8px;
+        border-radius: 6px;
         cursor: pointer;
         font-size: 0.82rem;
-        font-weight: 500;
+        font-weight: 600;
         font-family: inherit;
         transition:
           background 0.15s,
@@ -167,7 +204,8 @@
         gap: 6px;
       }
       .theme-toggle:hover {
-        background: var(--bg-btn-hover);
+        background: var(--accent);
+        color: var(--text-primary);
       }
       .theme-toggle svg {
         width: 16px;
@@ -189,46 +227,47 @@
         min-width: 0;
       }
 
-      /* Section titles - HF card-header style */
+      /* Section titles: headings stay ink; the accent sits in the rule-shaped dot. */
       .section-title {
         display: flex;
         align-items: center;
         gap: 10px;
         color: var(--text-primary);
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin: 40px 0 20px;
+        font-size: 1.35rem;
+        font-weight: 600;
+        line-height: 1.35;
+        margin: 44px 0 20px;
         letter-spacing: -0.01em;
       }
       .section-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
+        width: 4px;
+        height: 20px;
+        border-radius: 0;
         flex-shrink: 0;
       }
       .dot-orange {
-        background: #f97316;
+        background: var(--dot-orange);
       }
       .dot-violet {
-        background: #8b5cf6;
+        background: var(--dot-violet);
       }
       .dot-blue {
-        background: #3b82f6;
+        background: var(--dot-blue);
       }
       .dot-green {
-        background: #22c55e;
+        background: var(--dot-green);
       }
       .dot-red {
-        background: #ef4444;
+        background: var(--dot-red);
       }
       .dot-lime {
-        background: #84cc16;
+        background: var(--dot-lime);
       }
       .dot-pink {
-        background: #ec4899;
+        background: var(--dot-pink);
       }
 
-      /* Cards - HF style: rounded-[1.6rem], border, shadow-sm */
+      /* Cards: white surfaces on paper, separated by hairlines, never by shadows. */
       .chart-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -240,27 +279,24 @@
            horizontal scroller would inflate the whole row past the viewport. */
         min-width: 0;
         background: var(--bg-card);
-        border-radius: 1.2rem;
+        border-radius: 12px;
         padding: 20px;
         border: 1px solid var(--border);
-        box-shadow: var(--shadow-card);
-        transition:
-          box-shadow 0.2s,
-          transform 0.2s,
-          background 0.2s,
-          border-color 0.2s;
+        transition: border-color 0.2s;
       }
       .chart-box:hover {
-        box-shadow: var(--shadow-card-hover);
+        border-color: var(--border-select);
       }
       .chart-box.full {
         grid-column: 1 / -1;
       }
       .chart-box h3 {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
+        color: var(--accent-eyebrow);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
         margin-bottom: 12px;
-        font-weight: 500;
+        font-weight: 600;
       }
 
       /* Metric cards */
@@ -272,30 +308,27 @@
       }
       .metric-card {
         background: var(--bg-card);
-        border-radius: 1rem;
+        border-radius: 12px;
         padding: 24px 20px;
         border: 1px solid var(--border);
-        box-shadow: var(--shadow-card);
         text-align: center;
-        transition:
-          box-shadow 0.2s,
-          transform 0.2s,
-          background 0.2s,
-          border-color 0.2s;
+        transition: border-color 0.2s;
       }
       .metric-card:hover {
-        box-shadow: var(--shadow-card-hover);
+        border-color: var(--border-select);
       }
       .metric-card .value {
-        font-size: 2.25rem;
-        font-weight: 700;
-        color: var(--accent);
+        font-size: 2.4rem;
+        font-weight: 600;
+        color: var(--text-primary);
         letter-spacing: -0.02em;
         line-height: 1.1;
       }
       .metric-card .label {
-        font-size: 0.82rem;
-        color: var(--text-secondary);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent-eyebrow);
         margin-top: 6px;
         line-height: 1.4;
       }
@@ -308,7 +341,7 @@
       }
       th {
         background: var(--bg-table-header);
-        color: var(--accent);
+        color: var(--text-primary);
         padding: 10px 12px;
         text-align: left;
         position: sticky;
@@ -316,8 +349,8 @@
         font-weight: 600;
         font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        border-bottom: 2px solid var(--border);
+        letter-spacing: 0.08em;
+        border-bottom: 2px solid var(--border-strong);
       }
       td {
         padding: 7px 12px;
@@ -332,7 +365,7 @@
         background: var(--bg-table-row-hover);
       }
       th a {
-        color: var(--accent);
+        color: inherit;
         text-decoration: none;
       }
       th a:hover {
@@ -343,7 +376,7 @@
       .table-scroll {
         max-height: 600px;
         overflow: auto;
-        border-radius: 1rem;
+        border-radius: 12px;
         border: 1px solid var(--border);
         background: var(--bg-card);
       }
@@ -376,9 +409,8 @@
         flex-shrink: 0;
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 1rem;
+        border-radius: 12px;
         padding: 16px 12px;
-        box-shadow: var(--shadow-card);
         display: flex;
         flex-direction: column;
         gap: 2px;
@@ -396,11 +428,11 @@
         border-radius: 4px;
       }
       .filter-sidebar .filter-label {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 600;
-        color: var(--text-secondary);
+        color: var(--accent-eyebrow);
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.12em;
         padding: 4px 6px 8px;
       }
       .filter-sidebar label {
@@ -436,7 +468,7 @@
         display: inline-block;
         width: 10px;
         height: 10px;
-        border-radius: 3px;
+        border-radius: 0;
         flex-shrink: 0;
       }
       .filter-sidebar .btn-group {
@@ -473,16 +505,16 @@
         border-radius: 50%;
       }
       .status-resolved {
-        background: #22c55e;
+        background: var(--ok);
       }
       .status-unresolved {
-        background: #f97316;
+        background: var(--warn);
       }
       .status-empty {
-        background: #9ca3af;
+        background: var(--muted);
       }
       .status-error {
-        background: #ef4444;
+        background: var(--err);
       }
 
       /* Legend */
@@ -500,7 +532,7 @@
         gap: 6px;
       }
 
-      /* Highlight column */
+      /* Highlight column: the reference's tan swatch, closed by an accent edge. */
       .table-col-highlight {
         background: var(--bg-highlight) !important;
         outline: 2px solid var(--accent);
@@ -531,23 +563,27 @@
         margin-bottom: 12px;
         flex-wrap: wrap;
       }
+      /* Reference form motif: 2px ink border, small radius, tan focus ring. */
       .scatter-controls label {
-        color: var(--text-secondary);
-        font-size: 0.82rem;
+        color: var(--accent-eyebrow);
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
       }
       .scatter-controls select {
         background: var(--bg-select);
         color: var(--text-tertiary);
-        border: 1px solid var(--border-select);
+        border: 1.5px solid var(--border-strong);
         padding: 6px 12px;
-        border-radius: 8px;
+        border-radius: 6px;
         font-size: 0.82rem;
         cursor: pointer;
       }
       .scatter-controls select:focus {
         outline: none;
         border-color: var(--accent);
-        box-shadow: 0 0 0 2px var(--accent-glow);
+        box-shadow: 0 0 0 3px var(--accent-glow);
       }
 
       /* Failure section */
@@ -555,9 +591,10 @@
         margin-bottom: 24px;
       }
       .fail-section h3 {
-        color: var(--text-tertiary);
+        color: var(--text-primary);
+        font-weight: 600;
         margin-bottom: 12px;
-        font-size: 1rem;
+        font-size: 1.05rem;
       }
 
       /* Error reason checkboxes */
@@ -578,7 +615,7 @@
         display: inline-block;
         width: 12px;
         height: 12px;
-        border-radius: 3px;
+        border-radius: 0;
       }
 
       /* Error-reason panel: checkboxes beside the stacked bar chart. */
@@ -597,28 +634,35 @@
         min-width: 0;
       }
 
-      /* Control buttons */
+      /* Buttons follow the reference: accent fill, ink label, square-ish corners. */
       .btn {
-        background: var(--bg-btn);
-        color: var(--text-tertiary);
-        border: 1px solid var(--border-select);
+        background: var(--accent);
+        color: var(--bg);
+        border: 1.5px solid var(--accent);
         padding: 6px 14px;
-        border-radius: 8px;
+        border-radius: 4px;
         cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: 500;
-        transition: background 0.15s;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        transition:
+          background 0.15s,
+          color 0.15s;
       }
       .btn:hover {
-        background: var(--bg-btn-hover);
+        background: var(--bg);
+        color: var(--text-primary);
       }
 
-      /* Sub-section headers */
+      /* Sub-section headers: ink heading closed by the reference's rule. */
       .sub-header {
-        color: var(--text-tertiary);
-        margin: 24px 0 12px;
-        font-size: 1rem;
+        color: var(--text-primary);
+        margin: 28px 0 12px;
+        padding-top: 16px;
+        border-top: 2px solid var(--border-strong);
+        font-size: 1.05rem;
         font-weight: 600;
+        line-height: 1.4;
       }
 
       /* Sticky table cells */
@@ -105311,10 +105355,10 @@
         function setTheme(dark) {
           document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
           btn.innerHTML = (dark ? sunSvg : moonSvg);
-          try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch(e) {}
+          try { localStorage.setItem('dashboard-theme', dark ? 'dark' : 'light'); } catch(e) {}
         }
         const saved = (function() {
-          try { return localStorage.getItem('theme'); } catch(e) { return null; }
+          try { return localStorage.getItem('dashboard-theme') || localStorage.getItem('theme'); } catch(e) { return null; }
         })();
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         setTheme(saved === 'dark' || (!saved && prefersDark));
@@ -105325,28 +105369,45 @@
         });
       })();
 
-      const COLORS = [
-        '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#6366f1',
-        '#0ea5e9', '#facc15', '#4ade80', '#ec4899', '#2dd4bf',
-        '#9ca3af', '#f87171', '#a3e635', '#a5f3fc', '#fde68a'
-      ];
+      /* Curated per theme: the light set stays deep enough to sit on white/paper,
+         the dark set bright enough to read on the warm night ground. Same hue order
+         as the main dashboard, so a model keeps its identity across both pages. */
+      const PALETTES = {
+        light: ["#8a6a2f","#1f7a4d","#c0562b","#b3261e","#5a4bb0","#0e7fbf","#c9a227","#4a9a5c","#c0357c","#1f9e97","#8b8375","#d4703f","#7d9b1f","#3f9fd0","#dcc06a"],
+        dark: ["#dfc095","#5ec98a","#ef8b52","#ff7a6e","#a795ff","#63c8f5","#f2d84a","#7ee0a0","#f27ab5","#5ee6da","#b0a894","#ff9d70","#c8e85a","#8fdcff","#f7e0a0"],
+      };
 
       // Past the curated colors, spread hues by the golden angle so any number of models stays distinct.
-      function nthColor(i) {
-        if (i < COLORS.length) return COLORS[i];
-        const n = i - COLORS.length;
-        return `hsl(${((300 + n * 137.508) % 360).toFixed(1)}, 72%, ${n % 2 ? 38 : 62}%)`;
+      function paletteColor(i, dark) {
+        const p = dark ? PALETTES.dark : PALETTES.light;
+        if (i < p.length) return p[i];
+        const n = i - p.length;
+        const h = ((300 + n * 137.508) % 360).toFixed(1);
+        return dark
+          ? `hsl(${h},68%,${n % 2 ? 53 : 70}%)`
+          : `hsl(${h},55%,${n % 2 ? 31 : 45}%)`;
+      }
+
+      function isDarkTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'dark';
       }
 
       const _modelColors = {};
+      const _baseOrder = {};
       let _modelColorIndex = 0;
       function getModelKey(v) { return v.key.split('/')[0]; }
       function modelColor(v) {
         const mk = getModelKey(v);
-        if (!_modelColors[mk]) _modelColors[mk] = nthColor(_modelColorIndex++);
+        if (_modelColors[mk] === undefined) {
+          const slot = _baseOrder[mk] === undefined ? _modelColorIndex++ : _baseOrder[mk];
+          _modelColors[mk] = paletteColor(slot, isDarkTheme());
+        }
         return _modelColors[mk];
       }
-      function resetModelColors() { Object.keys(_modelColors).forEach(k => delete _modelColors[k]); _modelColorIndex = 0; }
+      // The palette is theme-dependent, so a theme flip re-derives every cached color.
+      function refreshModelColors() {
+        Object.keys(_baseOrder).forEach(b => { _modelColors[b] = paletteColor(_baseOrder[b], isDarkTheme()); });
+      }
 
       // --- Model filter (sticky top panel) ---
       const visibleModels = {};
@@ -105389,7 +105450,8 @@
       function initModelFilters() {
         Object.keys(DATA).forEach((base, i) => {
           visibleModels[base] = true;
-          if (!_modelColors[base]) _modelColors[base] = nthColor(i);
+          _baseOrder[base] = i;
+          _modelColors[base] = paletteColor(i, isDarkTheme());
           shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = true; });
         });
       }
@@ -105422,7 +105484,7 @@
         if (!panel) return;
         let html = '<span class="filter-label">Models:</span>';
         for (const base of Object.keys(DATA)) {
-          const col = _modelColors[base] || '#8b5cf6';
+          const col = _modelColors[base] || paletteColor(0, isDarkTheme());
           const checked = visibleModels[base] !== false;
           const vs = shownVariants(base);
           const open = checked && !!openBases[base];
@@ -105552,7 +105614,7 @@
 
       const _measure = document.createElement('canvas').getContext('2d');
       function widestPx(lines, size) {
-        _measure.font = size + "px 'Inter', 'Segoe UI', system-ui, sans-serif";
+        _measure.font = size + "px " + chartFontFamily;
         return lines.reduce((m, l) => Math.max(m, _measure.measureText(l).width), 0);
       }
 
@@ -105607,16 +105669,41 @@
 
       function getThemeColors() {
         const cs = getComputedStyle(document.documentElement);
+        const v = (n, fb) => cs.getPropertyValue(n).trim() || fb;
         return {
-          font: cs.getPropertyValue('--chart-font').trim() || '#374151',
-          grid: cs.getPropertyValue('--grid').trim() || '#f0f0f0',
-          tableHeader: cs.getPropertyValue('--bg-table-header').trim() || '#fafafa',
-          stickyBg: cs.getPropertyValue('--bg-sticky').trim() || '#fff',
-          accent: cs.getPropertyValue('--accent').trim() || '#8b5cf6'
+          font: v('--chart-font', '#3b372f'),
+          grid: v('--chart-grid', '#e0dacd'),
+          tableHeader: v('--bg-table-header', '#f6f3ec'),
+          stickyBg: v('--bg-sticky', '#fff'),
+          accent: v('--accent', '#8a6a2f'),
+          eyebrow: v('--accent-eyebrow', '#b08d58'),
+          card: v('--bg-card', '#fff'),
+          ok: v('--ok', '#1f7a4d'),
+          warn: v('--warn', '#b4661d'),
+          err: v('--err', '#b3261e'),
+          muted: v('--muted', '#8b8375'),
+          na: v('--na', '#efece4'),
+          fontFamily: v('--font-sans', 'Figtree, Inter, sans-serif'),
+        };
+      }
+      var chartFontFamily = getThemeColors().fontFamily;
+
+      /* Diverging heat ramp for the per-instance tables: green at the low tail,
+         red at the high tail. Built from the theme's status tokens so the numbers
+         stay readable on paper and on the night ground alike. */
+      function heatRamp(tc) {
+        const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+        const lo = rgb(tc.ok), hi = rgb(tc.err);
+        return {
+          muted: tc.muted,
+          ramp: t => 'rgb(' + lo.map((c, i) => Math.round(c + (hi[i] - c) * t)).join(',') + ')',
         };
       }
 
-      const HOVERLABEL = { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 } };
+      // Tooltips sit on the card surface, so they take the theme's ink, not a fixed black.
+      function hoverLabel(tc) {
+        return { bgcolor: tc.card, bordercolor: tc.accent, font: { color: tc.font, size: 12 } };
+      }
       // The modebar only appears on hover, so on touch it sits permanently over the
       // top of the chart. The getter re-reads the width on every render.
       const PLOT_CONFIG = {
@@ -105628,7 +105715,7 @@
         const tc = getThemeColors();
         return {
           paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-          font: { color: tc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+          font: { color: tc.font, family: chartFontFamily },
           margin: { t: isNarrow() ? 30 : 10, r: 20, b: 40, l: leftMargin || 140 },
           // Without this, a one-finger drag inside a tall chart zoom-selects
           // instead of scrolling the page.
@@ -105639,12 +105726,13 @@
           legend: isNarrow()
             ? { orientation: 'h', x: 0, xanchor: 'left', y: 1.02, yanchor: 'bottom', bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font, size: 10 } }
             : { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font } },
-          hoverlabel: HOVERLABEL
+          hoverlabel: hoverLabel(tc)
         };
       }
 
       function renderSummary(panel) {
         const variants = getFilteredVariants();
+        const hoverTraceLabel = Object.assign(hoverLabel(getThemeColors()), { namelength: -1, align: 'left' });
 
         let html = '<div class="section-title"><div class="section-dot dot-violet"></div>Summary</div>';
         html += '<div class="metric-row">';
@@ -105709,7 +105797,6 @@
 
         panel.innerHTML = html;
 
-        resetColorIndex();
 
         if (agmtVariants.length) {
           // Cluster tasks so identical solve-patterns (tuple of per-model statuses) are adjacent.
@@ -105743,14 +105830,14 @@
             const st = (v.data.eval.instance_status || {})[inst];
             return st !== undefined ? agmtStatusName[agmtStatusIdx[st]] : 'N/A';
           }));
-          const agmtColorscale = [
-            [0, '#22c55e'], [0.2, '#22c55e'],
-            [0.2, '#f97316'], [0.4, '#f97316'],
-            [0.4, '#9ca3af'], [0.6, '#9ca3af'],
-            [0.6, '#ef4444'], [0.8, '#ef4444'],
-            [0.8, '#f0f0f0'], [1, '#f0f0f0']
-          ];
           const agmtTc = getThemeColors();
+          const agmtColorscale = [
+            [0, agmtTc.ok], [0.2, agmtTc.ok],
+            [0.2, agmtTc.warn], [0.4, agmtTc.warn],
+            [0.4, agmtTc.muted], [0.6, agmtTc.muted],
+            [0.6, agmtTc.err], [0.8, agmtTc.err],
+            [0.8, agmtTc.na], [1, agmtTc.na]
+          ];
           Plotly.newPlot('chart-agreement', [{
             type: 'heatmap',
             z: agmtZ,
@@ -105763,11 +105850,11 @@
             hovertemplate: '%{y}<br><b>%{x}</b> : %{text}<extra></extra>'
           }], {
             paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: agmtTc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+            font: { color: agmtTc.font, family: chartFontFamily },
             margin: { t: 10, r: 20, b: 60, l: agmtAxis.margin },
             xaxis: { gridcolor: agmtTc.grid, title: 'Tasks (clustered by solve pattern)', type: 'category', tickmode: 'array', tickvals: agmtX.filter((_, i) => i % 10 === 0), ticktext: agmtX.filter((_, i) => i % 10 === 0), tickangle: -90, tickfont: { size: 9 } },
             yaxis: { gridcolor: agmtTc.grid, title: 'Models', tickfont: { size: agmtAxis.tick } },
-            hoverlabel: HOVERLABEL,
+            hoverlabel: hoverLabel(agmtTc),
             dragmode: false,
           }, PLOT_CONFIG);
 
@@ -105785,15 +105872,15 @@
             y: agmtHist,
             text: agmtHist,
             textposition: 'outside',
-            marker: { color: agmtHistX.map(i => i === agmtN ? '#22c55e' : '#8b5cf6') },
+            marker: { color: agmtHistX.map(i => i === agmtN ? agmtTc.ok : agmtTc.accent) },
             hovertemplate: '%{x} variant(s) solved: %{y} task(s)<extra></extra>'
           }], {
             paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: agmtTc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+            font: { color: agmtTc.font, family: chartFontFamily },
             margin: { t: 10, r: 20, b: 50, l: 50 },
             xaxis: { gridcolor: agmtTc.grid, title: 'Number of variants that solved the task', tickmode: 'array', tickvals: agmtHistX, ticktext: agmtHistLabels },
             yaxis: { gridcolor: agmtTc.grid, title: 'Number of tasks' },
-            hoverlabel: HOVERLABEL,
+            hoverlabel: hoverLabel(agmtTc),
             dragmode: isNarrow() ? false : 'zoom',
           }, PLOT_CONFIG);
         }
@@ -105814,7 +105901,7 @@
               x: xs, y: ys,
               line: { color: modelColor(v), width: 2 },
               hoverinfo: 'name',
-              hoverlabel: { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 }, namelength: -1, align: 'left' }
+              hoverlabel: hoverTraceLabel
             };
           });
           const cumLayout = Object.assign(commonLayout(70, 'Cumulative Requests (API calls)'),
@@ -105833,7 +105920,7 @@
               x: counts, y: counts.map((_, i) => (i + 1) / n),
               line: { color: modelColor(v), width: 2 },
               hoverinfo: 'name',
-              hoverlabel: { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 }, namelength: -1, align: 'left' }
+              hoverlabel: hoverTraceLabel
             };
           });
           const ecdfLayout = Object.assign(commonLayout(70, 'Requests (API calls) per task'),
@@ -105845,11 +105932,12 @@
         if (evalChartData) {
           const axis = barAxis('eval-stacked', evalChartData.map(e => e.label));
           const evalLabels = axis.labels;
+          const est = getThemeColors();
           Plotly.newPlot('eval-stacked', [
-            { type: 'bar', orientation: 'h', name: 'Resolved', y: evalLabels, x: evalChartData.map(e => e.resolved), marker: { color: '#22c55e' } },
-            { type: 'bar', orientation: 'h', name: 'Unresolved', y: evalLabels, x: evalChartData.map(e => e.unresolved), marker: { color: '#f97316' } },
-            { type: 'bar', orientation: 'h', name: 'Empty Patch', y: evalLabels, x: evalChartData.map(e => e.empty_patch), marker: { color: '#9ca3af' } },
-            { type: 'bar', orientation: 'h', name: 'Error', y: evalLabels, x: evalChartData.map(e => e.error), marker: { color: '#ef4444' } }
+            { type: 'bar', orientation: 'h', name: 'Resolved', y: evalLabels, x: evalChartData.map(e => e.resolved), marker: { color: est.ok } },
+            { type: 'bar', orientation: 'h', name: 'Unresolved', y: evalLabels, x: evalChartData.map(e => e.unresolved), marker: { color: est.warn } },
+            { type: 'bar', orientation: 'h', name: 'Empty Patch', y: evalLabels, x: evalChartData.map(e => e.empty_patch), marker: { color: est.muted } },
+            { type: 'bar', orientation: 'h', name: 'Error', y: evalLabels, x: evalChartData.map(e => e.error), marker: { color: est.err } }
           ], { ...commonLayout(axis.margin, '', axis.tick), barmode: 'stack' }, PLOT_CONFIG);
         }
 
@@ -105928,7 +106016,7 @@
           Plotly.newPlot('chart-scatter', [{
             type: 'scatter', mode: 'markers', x: scatterX, y: scatterY,
             text: scatterVariants.map(v => shortLabel(v)), hoverinfo: 'text',
-            hoverlabel: { ...HOVERLABEL, bordercolor: stc.accent },
+            hoverlabel: hoverLabel(stc),
             marker: { size: markerSizes, color: scatterVariants.map(v => modelColor(v)), line: scatterLine(scatterVariants, stc) }
           }], { ...commonLayout(60), margin: { t: 10, r: 20, b: 80, l: 60 },
             xaxis: { ...commonLayout().xaxis, title: getAxisTitle(xAxis), type: 'linear', range: [Math.max(0, xMin - xPad), xMax + xPad] },
@@ -105995,7 +106083,8 @@
         // chart's real width.
         const reasonAxis = barAxis('error-reason-chart', variantTotals.map(vt => shortLabel(vt.v)));
 
-        const reasonColors = ['#f97316', '#8b5cf6', '#22c55e', '#ef4444', '#6366f1', '#0ea5e9', '#facc15', '#4ade80', '#ec4899', '#2dd4bf', '#9ca3af', '#f87171', '#a3e635', '#a5f3fc', '#fde68a'];
+        // Failure reasons share the model palette: same hues, same theme rules.
+        const reasonColors = Array.from({ length: 15 }, (_, i) => paletteColor(i, isDarkTheme()));
 
         const checkboxesEl = document.getElementById('error-reason-checkboxes');
         sortedReasons.forEach(([reason], idx) => {
@@ -106019,13 +106108,13 @@
         const tc = getThemeColors();
         Plotly.newPlot('error-reason-chart', traces, {
           paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-          font: { color: tc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
+          font: { color: tc.font, family: chartFontFamily },
           margin: { t: 10, r: 20, b: 40, l: reasonAxis.margin },
           xaxis: { gridcolor: tc.grid, title: 'Count', type: 'linear' },
           yaxis: { gridcolor: tc.grid, tickfont: { size: reasonAxis.tick } },
           barmode: 'stack',
           legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font }, visible: false, clicktolayoutattributes: [{ visible: false }] },
-          hoverlabel: HOVERLABEL,
+          hoverlabel: hoverLabel(tc),
           dragmode: isNarrow() ? false : 'zoom',
         }, PLOT_CONFIG);
 
@@ -106093,13 +106182,10 @@
         const top20Idx = Math.ceil(sorted.length * 0.8);
         const bottomThreshold = bottom20Idx > 0 ? sorted[bottom20Idx - 1] : sorted[0];
         const topThreshold = top20Idx < sorted.length ? sorted[top20Idx] : sorted[sorted.length - 1];
+        const toolHeat = heatRamp(getThemeColors());
         function toolColor(val) {
-          if (val >= bottomThreshold && val <= topThreshold) return '#374151';
-          const t = allToolValues.length > 1 ? (val - toolMin) / (toolMax - toolMin) : 0;
-          const r = Math.round(34 + (239 - 34) * t);
-          const g = Math.round(137 + (116 - 137) * t);
-          const b = Math.round(220 + (22 - 220) * t);
-          return 'rgb(' + r + ',' + g + ',' + b + ')';
+          if (val >= bottomThreshold && val <= topThreshold) return toolHeat.muted;
+          return toolHeat.ramp(allToolValues.length > 1 ? (val - toolMin) / (toolMax - toolMin) : 0);
         }
 
         const instances = Array.from(allInstances).sort((a, b) => {
@@ -106196,13 +106282,10 @@
         const rcTop20Idx = Math.ceil(rcSorted.length * 0.8);
         const rcBottomThreshold = rcBottom20Idx > 0 ? rcSorted[rcBottom20Idx - 1] : rcSorted[0];
         const rcTopThreshold = rcTop20Idx < rcSorted.length ? rcSorted[rcTop20Idx] : rcSorted[rcSorted.length - 1];
+        const rcHeat = heatRamp(getThemeColors());
         function rcColor(val) {
-          if (val >= rcBottomThreshold && val <= rcTopThreshold) return '#374151';
-          const t = allRcValues.length > 1 ? (val - rcMin) / (rcMax - rcMin) : 0;
-          const r = Math.round(34 + (239 - 34) * t);
-          const g = Math.round(137 + (116 - 137) * t);
-          const b = Math.round(220 + (22 - 220) * t);
-          return 'rgb(' + r + ',' + g + ',' + b + ')';
+          if (val >= rcBottomThreshold && val <= rcTopThreshold) return rcHeat.muted;
+          return rcHeat.ramp(allRcValues.length > 1 ? (val - rcMin) / (rcMax - rcMin) : 0);
         }
 
         html += '<div class="sub-header">Non-Zero Return Codes</div>';
@@ -106282,23 +106365,13 @@
         });
       }
 
-      function resetColorIndex() { colorIndex = 0; }
-
-      // Re-apply theme colors to all Plotly charts
+      /* Model colors, marker colors, tooltip ink, and the chart font all come from
+         the theme, so a flip re-renders rather than patching layouts: filter state
+         survives (renderAll re-reads it) and nothing keeps a stale color. */
       window.__themeUpdateCharts = function() {
-        const tc = getThemeColors();
-        ['chart-cumulative','chart-ecdf','chart-tools','chart-rc','chart-rcpct','chart-scatter','eval-stacked','error-reason-chart','chart-agreement','chart-agreement-hist'].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (!el || !el.layout) return;
-          Plotly.relayout(el, {
-            'font.color': tc.font,
-            'xaxis.gridcolor': tc.grid,
-            'xaxis.tickfont.color': tc.font,
-            'yaxis.gridcolor': tc.grid,
-            'yaxis.tickfont.color': tc.font
-          });
-          Plotly.restyle(el, { 'textfont.color': tc.font });
-        });
+        chartFontFamily = getThemeColors().fontFamily;
+        refreshModelColors();
+        renderAll();
       };
 
       // Gutters and heights are derived from the viewport, so a rotation needs a

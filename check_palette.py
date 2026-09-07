@@ -1,24 +1,48 @@
 #!/usr/bin/env python3
-"""Check that model colors never repeat: python3 check_palette.py [n_models]."""
+"""Check that model colors never repeat (per theme): python3 check_palette.py [n_models]."""
 
 import json
 import subprocess
 import sys
 from pathlib import Path
 
-TEMPLATES = {"template-main.html": "paletteColor", "template-detail.html": "nthColor"}
+TEMPLATES = ["template-main.html", "template-detail.html"]
 
+# Slice the palette declaration + color function out of the template's script: the code is
+# plain JS, so it runs as-is instead of being re-typed here (which drifts from the template).
 JS = """
-const src = require('fs').readFileSync(process.argv[2], 'utf8');
-const [fnName, n] = [process.argv[3], +process.argv[4]];
-const palette = src.match(/(var BASE_PALETTE|const COLORS) = \\[[\\s\\S]*?\\];/)[0];
-const fn = src.match(new RegExp('function ' + fnName + '\\\\(i\\\\)\\\\s*\\\\{[\\\\s\\\\S]*?\\\\n\\\\s*\\\\}'))[0];
-const colors = new Function(palette + '\\n' + fn + '\\nreturn Array.from({length: ' + n + '}, (_, i) => ' + fnName + '(i));')();
-process.stdout.write(JSON.stringify(colors));
+const file = process.argv[2];
+const src = require('fs').readFileSync(file, 'utf8');
+const n = Number(process.argv[3]);
+if (!Number.isInteger(n) || n < 1) throw new Error('bad model count: ' + process.argv[3]);
+
+const decl = src.indexOf('PALETTES = {');
+if (decl < 0) throw new Error('PALETTES not found in ' + file);
+const declStart = Math.max(src.lastIndexOf('var PALETTES', decl), src.lastIndexOf('const PALETTES', decl));
+const fnStart = src.indexOf('function paletteColor(i, dark)', decl);
+if (fnStart < 0) throw new Error('paletteColor(i, dark) not found in ' + file);
+let depth = 0, end = -1;
+for (let i = src.indexOf('{', fnStart); i < src.length; i++) {
+  if (src[i] === '{') depth++;
+  else if (src[i] === '}' && --depth === 0) { end = i + 1; break; }
+}
+if (end < 0) throw new Error('unbalanced paletteColor in ' + file);
+
+const make = new Function(
+  'n',
+  src.slice(declStart, end) + '\\nreturn (dark) => Array.from({length: n}, (_, i) => paletteColor(i, dark));'
+)(n);
+const out = {light: make(false), dark: make(true)};
+for (const [theme, colors] of Object.entries(out)) {
+  if (colors.length !== n || colors.some((c) => typeof c !== 'string' || !c)) {
+    throw new Error(theme + ': expected ' + n + ' colors, got ' + JSON.stringify(colors.slice(0, 20)));
+  }
+}
+process.stdout.write(JSON.stringify(out));
 """
 
-for name, fn_name in TEMPLATES.items():
-    colors = json.loads(
+for name in TEMPLATES:
+    themes = json.loads(
         subprocess.run(
             [
                 "node",
@@ -26,7 +50,6 @@ for name, fn_name in TEMPLATES.items():
                 JS,
                 "",
                 str(Path(__file__).parent / name),
-                fn_name,
                 sys.argv[1] if len(sys.argv) > 1 else "60",
             ],
             check=True,
@@ -34,5 +57,7 @@ for name, fn_name in TEMPLATES.items():
             text=True,
         ).stdout
     )
-    assert len(colors) == len(set(colors)), f"{name}: duplicate color in {colors}"
-    print(f"{name}: {len(colors)} colors, {len(set(colors))} distinct")
+    assert len(themes) == 2, f"{name}: expected light + dark palettes, got {themes}"
+    for theme, colors in themes.items():
+        assert len(colors) == len(set(colors)), f"{name} [{theme}]: duplicate color in {colors}"
+        print(f"{name} [{theme}]: {len(colors)} colors, {len(set(colors))} distinct")

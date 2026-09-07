@@ -5,73 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LLM Benchmark Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      /* Light theme mirrors e2studio.fr: warm paper ground, ink text, white cards,
+         tan accents, flat surfaces separated by rules instead of shadows.
+         Dark theme keeps the same hue family (warm charcoal + tan), inverted. */
       :root {
-        --bg: #f0f0f0;
-        --bg-header: linear-gradient(135deg, #fff 0%, #f8f7ff 50%, #fff 100%);
-        --bg-card: rgba(255, 255, 255, 0.9);
-        --bg-table-header: #fafafa;
-        --bg-table-row-hover: #fafafa;
+        --font-sans: "Figtree", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Consolas", monospace;
+        --bg: #eeeae2;
+        --bg-header: #eeeae2;
+        --bg-card: #fff;
+        --bg-table-header: #f6f3ec;
+        --bg-table-row-hover: #f6f3ec;
         --bg-sticky: #fff;
-        --bg-btn: #f3f4f6;
-        --bg-btn-hover: #e5e7eb;
-        --bg-select: #f9fafb;
-        --text-primary: #1a1a1a;
-        --text-secondary: #6b7280;
-        --text-tertiary: #374151;
-        --border: #e8e8e8;
-        --border-select: #e0e0e0;
-        --grid: #f0f0f0;
-        --scrollbar-thumb: #d1d5db;
-        --scrollbar-thumb-hover: #9ca3af;
-        --accent: #8b5cf6;
-        --accent-glow: rgba(139, 92, 246, 0.1);
-        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
-        --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
-        --chart-font: #374151;
-        --chart-grid: #f0f0f0;
-        --dot-line-from: #e8e0ff;
+        --bg-btn: #fff;
+        --bg-btn-hover: #f2eee5;
+        --bg-select: #fff;
+        --text-primary: #202020;
+        --text-secondary: #6f6a60;
+        --text-tertiary: #3b372f;
+        --border: #ded8cc;
+        --border-strong: #202020;
+        --border-select: #cec7b8;
+        --grid: #e6e1d7;
+        --scrollbar-thumb: #cec7b8;
+        --scrollbar-thumb-hover: #a49b8a;
+        --accent: #8a6a2f;
+        --accent-eyebrow: #b08d58;
+        --accent-glow: rgba(138, 106, 47, 0.18);
+        --ok: #1f7a4d;
+        --bad: #b3261e;
+        --chart-font: #3b372f;
+        --shadow-card: none;
+        --shadow-card-hover: none;
+        --chart-grid: #e0dacd;
+        --dot-line-from: #dfc095;
         --dot-line-to: transparent;
-        --bd-row-even: #fafafa;
-        --bd-row-hover: #f5f5f5;
-        --bd-highlight: #f0ecff;
-        --bd-highlight-outline: #8b5cf6;
+        --bd-row-even: #faf8f3;
+        --bd-row-hover: #f3ede0;
+        --bd-highlight: #f5e7cd;
+        --bd-highlight-outline: #8a6a2f;
       }
       [data-theme="dark"] {
-        --bg: #111113;
-        --bg-header: linear-gradient(
-          135deg,
-          #1a1a2e 0%,
-          #16162a 50%,
-          #1a1a2e 100%
-        );
-        --bg-card: rgba(30, 30, 40, 0.9);
-        --bg-table-header: #1e1e2e;
-        --bg-table-row-hover: #1e1e2e;
-        --bg-sticky: #1a1a28;
-        --bg-btn: #2a2a3a;
-        --bg-btn-hover: #3a3a4a;
-        --bg-select: #1e1e2e;
-        --text-primary: #e4e4e7;
-        --text-secondary: #a1a1aa;
-        --text-tertiary: #d4d4d8;
-        --border: #2a2a3a;
-        --border-select: #2a2a3a;
-        --grid: #2a2a3a;
-        --scrollbar-thumb: #52525b;
-        --scrollbar-thumb-hover: #71717a;
-        --accent: #a78bfa;
-        --accent-glow: rgba(167, 139, 250, 0.15);
-        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
-        --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
-        --chart-font: #d4d4d8;
-        --chart-grid: #2a2a3a;
-        --dot-line-from: #3b3b5c;
+        --bg: #171512;
+        --bg-header: #171512;
+        --bg-card: #201d18;
+        --bg-table-header: #262219;
+        --bg-table-row-hover: #262219;
+        --bg-sticky: #201d18;
+        --bg-btn: #262219;
+        --bg-btn-hover: #322c21;
+        --bg-select: #262219;
+        --text-primary: #f2efe8;
+        --text-secondary: #a89f8d;
+        --text-tertiary: #ded7c8;
+        --border: #35301f;
+        --border-strong: #f2efe8;
+        --border-select: #3f3928;
+        --grid: #322c21;
+        --scrollbar-thumb: #4a4230;
+        --scrollbar-thumb-hover: #6a5f45;
+        --accent: #dfc095;
+        --accent-eyebrow: #dfc095;
+        --accent-glow: rgba(223, 192, 149, 0.22);
+        --ok: #6cc38a;
+        --bad: #ef7a6d;
+        --chart-font: #ded7c8;
+        --shadow-card: none;
+        --shadow-card-hover: none;
+        --chart-grid: #3a3425;
+        --dot-line-from: #dfc095;
         --dot-line-to: transparent;
-        --bd-row-even: #1a2332;
-        --bd-row-hover: #263550;
-        --bd-highlight: #4d3d1a;
-        --bd-highlight-outline: #f59e0b;
+        --bd-row-even: #221f19;
+        --bd-row-hover: #2d2718;
+        --bd-highlight: #3d3016;
+        --bd-highlight-outline: #dfc095;
       }
       * {
         margin: 0;
@@ -79,37 +93,33 @@
         box-sizing: border-box;
       }
       body {
-        font-family:
-          "Inter",
-          "Segoe UI",
-          system-ui,
-          -apple-system,
-          sans-serif;
+        font-family: var(--font-sans);
         background: var(--bg);
         color: var(--text-primary);
-        -webkit-font-smoothing: antialiased;
-        transition:
-          background 0.2s,
-          color 0.2s;
+        -webkit-font-smoothing: grayscale;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: 16px;
+        line-height: 1.7;
         margin: 0;
         padding: 0;
       }
 
-      /* Header - HF style gradient */
+      /* Header: flat paper band closed by the reference's 2px ink rule. */
       .bd-header {
         background: var(--bg-header);
-        padding: 48px 32px 40px;
+        padding: 56px 32px 44px;
         text-align: center;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 2px solid var(--border-strong);
         transition:
           background 0.2s,
           border-color 0.2s;
       }
       .bd-header h1 {
-        font-size: 2rem;
+        font-size: 2.25rem;
         color: var(--text-primary);
-        font-weight: 700;
-        letter-spacing: -0.02em;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
         margin-bottom: 8px;
       }
       .bd-header-line {
@@ -140,13 +150,18 @@
         );
       }
       .bd-header-line span {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--accent);
+        letter-spacing: 0.12em;
+        color: var(--accent-eyebrow);
       }
       .bd-header a {
+        color: var(--text-primary);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .bd-header a:hover {
         color: var(--accent);
       }
 
@@ -158,12 +173,12 @@
         z-index: 100;
         background: var(--bg-btn);
         color: var(--text-tertiary);
-        border: 1px solid var(--border);
+        border: 1.5px solid var(--border-strong);
         padding: 8px 14px;
-        border-radius: 8px;
+        border-radius: 6px;
         cursor: pointer;
         font-size: 0.82rem;
-        font-weight: 500;
+        font-weight: 600;
         font-family: inherit;
         transition:
           background 0.15s,
@@ -205,7 +220,7 @@
         flex-shrink: 0;
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 1rem;
+        border-radius: 12px;
         padding: 16px 12px;
         box-shadow: var(--shadow-card);
         display: flex;
@@ -229,11 +244,11 @@
         border-radius: 4px;
       }
       .bd-filter-sidebar .bd-filter-label {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 600;
-        color: var(--text-secondary);
+        color: var(--accent-eyebrow);
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.12em;
         padding: 4px 6px 8px;
       }
       .bd-filter-sidebar label {
@@ -293,30 +308,34 @@
       .bd-filter-sidebar .bd-btn {
         width: 100%;
         text-align: center;
-        padding: 5px 10px;
+        padding: 6px 10px;
         font-size: 0.78rem;
         background: var(--bg-btn);
         color: var(--text-tertiary);
-        border: 1px solid var(--border-select);
+        border: 1.5px solid var(--border-strong);
         border-radius: 6px;
         cursor: pointer;
         font-family: inherit;
-        font-weight: 500;
-        transition: background 0.15s;
+        font-weight: 600;
+        transition:
+          background 0.15s,
+          color 0.15s;
       }
       .bd-filter-sidebar .bd-btn:hover {
-        background: var(--bg-btn-hover);
+        background: var(--accent);
+        color: var(--text-primary);
       }
 
-      /* Section titles */
+      /* Section titles: reference headings stay ink; the accent is the rule, not the text. */
       .bd-section__title {
-        font-size: 1.2rem;
-        font-weight: 700;
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.35;
         margin: 0 0 16px;
-        color: var(--accent);
+        color: var(--text-primary);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
       }
       .bd-section__title::before {
         content: "";
@@ -324,7 +343,6 @@
         width: 4px;
         height: 20px;
         background: var(--accent);
-        border-radius: 2px;
       }
 
       /* Headline totals */
@@ -335,7 +353,8 @@
       }
       .bd-stat {
         border: 1px solid var(--border);
-        border-radius: 0.75rem;
+        border-left: 3px solid var(--accent);
+        border-radius: 6px;
         padding: 12px 16px;
         background: var(--bg-table-header);
       }
@@ -343,14 +362,15 @@
         font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-secondary);
+        letter-spacing: 0.12em;
+        color: var(--accent-eyebrow);
         margin-bottom: 4px;
       }
       .bd-stat__value {
-        font-size: 1.45rem;
-        font-weight: 700;
-        color: var(--accent);
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.2;
+        color: var(--text-primary);
         letter-spacing: -0.01em;
         white-space: nowrap;
       }
@@ -372,52 +392,48 @@
       .bd-section {
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 1rem;
+        border-radius: 12px;
         padding: 24px;
-        box-shadow: var(--shadow-card);
-        transition:
-          box-shadow 0.2s,
-          transform 0.2s,
-          background 0.2s,
-          border-color 0.2s;
+        transition: border-color 0.2s;
       }
       .bd-section:hover {
-        box-shadow: var(--shadow-card-hover);
+        border-color: var(--border-select);
       }
       .bd-intro {
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 1.2rem;
+        border-radius: 12px;
         padding: 28px 32px;
-        box-shadow: var(--shadow-card);
-        transition:
-          box-shadow 0.2s,
-          background 0.2s,
-          border-color 0.2s;
         line-height: 1.7;
       }
-      .bd-intro:hover {
-        box-shadow: var(--shadow-card-hover);
-      }
       .bd-intro h1 {
-        font-size: 3rem;
+        font-size: 2.25rem;
+        font-weight: 600;
+        line-height: 1.25;
         margin: 0 0 16px;
-        color: var(--accent);
+        color: var(--text-primary);
       }
       .bd-intro h2 {
-        font-size: 2.2rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.35;
         margin: 0 0 12px;
-        color: var(--accent);
+        color: var(--text-primary);
       }
       .bd-intro h3 {
-        font-size: 1.6rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.35;
         margin: 16px 0 8px;
-        color: var(--accent);
+        color: var(--text-primary);
       }
       .bd-intro h4 {
-        font-size: 1.15rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
         margin: 16px 0 8px;
-        color: var(--text-tertiary);
+        color: var(--accent-eyebrow);
       }
       .bd-intro p {
         margin: 0 0 12px;
@@ -432,20 +448,26 @@
         color: var(--text-tertiary);
       }
       .bd-intro a {
+        color: var(--text-primary);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .bd-intro a:hover {
         color: var(--accent);
       }
       .bd-intro blockquote {
-        border-left: 3px solid var(--accent);
+        border-left: 2px solid var(--accent);
         padding-left: 16px;
         margin: 12px 0;
         color: var(--text-secondary);
       }
       .bd-intro code {
         background: var(--bg-table-row-hover);
-        padding: 2px 6px;
-        border-radius: 4px;
+        border: 1px solid var(--border);
+        padding: 1px 5px;
+        border-radius: 3px;
         font-size: 0.82rem;
-        font-family: "JetBrains Mono", "Consolas", monospace;
+        font-family: var(--font-mono);
       }
 
       /* Markdown tables */
@@ -468,10 +490,15 @@
         padding: 8px 12px;
         text-align: left;
       }
+      /* Reference tables: 2px ink rule under the head, ink uppercase labels. */
       .bd-intro th {
         background: var(--bg-table-header);
+        border-bottom: 2px solid var(--border-strong);
         font-weight: 600;
-        color: var(--accent);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-primary);
       }
       .bd-intro,
       .bd-section {
@@ -558,13 +585,13 @@
           font-size: 1.75rem;
         }
         .bd-intro h2 {
-          font-size: 1.35rem;
+          font-size: 1.3rem;
         }
         .bd-intro h3 {
           font-size: 1.1rem;
         }
         .bd-intro h4 {
-          font-size: 1rem;
+          font-size: 0.85rem;
         }
         .bd-filter-sidebar input[type="checkbox"] {
           width: 20px;
@@ -586,12 +613,13 @@
         margin-bottom: 12px;
         align-items: center;
       }
+      /* Reference form motif: 2px ink border, 5px radius, tan focus ring. */
       .bd-table-controls input[type="text"] {
         flex: 1;
         min-width: 200px;
         padding: 8px 12px;
-        border: 1px solid var(--border-select);
-        border-radius: 8px;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 6px;
         font-size: 0.85rem;
         font-family: inherit;
         outline: none;
@@ -603,13 +631,13 @@
       }
       .bd-table-controls input[type="text"]:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 2px var(--accent-glow);
+        box-shadow: 0 0 0 3px var(--accent-glow);
       }
       .bd-table-controls select,
       .bd-xy-controls select {
         padding: 8px 12px;
-        border: 1px solid var(--border-select);
-        border-radius: 8px;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 6px;
         font-size: 0.85rem;
         font-family: inherit;
         background: var(--bg-select);
@@ -622,13 +650,15 @@
       .bd-table-controls select:focus,
       .bd-xy-controls select:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 2px var(--accent-glow);
+        box-shadow: 0 0 0 3px var(--accent-glow);
       }
       .bd-table-controls label,
       .bd-xy-controls label {
-        font-size: 0.82rem;
+        font-size: 0.72rem;
         font-weight: 600;
-        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent-eyebrow);
       }
       /* X / Y / Size read as three labelled fields, so each pair is one shrinkable
          flex item: with the labels and selects as loose items, flex-wrap breaks the
@@ -655,7 +685,7 @@
       .bd-table-wrap {
         overflow-x: auto;
         border: 1px solid var(--border);
-        border-radius: 1rem;
+        border-radius: 12px;
         background: var(--bg-card);
       }
       .bd-table-wrap::-webkit-scrollbar {
@@ -684,12 +714,12 @@
         cursor: pointer;
         user-select: none;
         white-space: nowrap;
-        border-bottom: 2px solid var(--border);
+        border-bottom: 2px solid var(--border-strong);
         font-weight: 600;
-        color: var(--accent);
+        color: var(--text-primary);
         font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
         transition: background 0.15s;
       }
       .bd-table thead th:hover {
@@ -726,6 +756,9 @@
       .bd-table tbody tr {
         border-bottom: 1px solid var(--grid);
         transition: background 0.2s;
+      }
+      .bd-table tbody tr:last-child {
+        border-bottom: 0;
       }
       .bd-table tbody tr.bd-row-highlight {
         background: var(--bd-highlight) !important;
@@ -1212,14 +1245,19 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
 
       function getThemeColors() {
         const cs = getComputedStyle(document.documentElement);
+        const v = (n, fb) => cs.getPropertyValue(n).trim() || fb;
         return {
-          font: cs.getPropertyValue('--chart-font').trim() || '#374151',
-          grid: cs.getPropertyValue('--chart-grid').trim() || '#f0f0f0',
-          accent: cs.getPropertyValue('--accent').trim() || '#8b5cf6',
-          card: cs.getPropertyValue('--bg-card').trim() || 'rgba(255,255,255,0.9)',
-          bg: cs.getPropertyValue('--bg').trim() || '#f0f0f0',
+          font: v('--chart-font', '#3b372f'),
+          grid: v('--chart-grid', '#e0dacd'),
+          accent: v('--accent', '#8a6a2f'),
+          eyebrow: v('--accent-eyebrow', '#b08d58'),
+          muted: v('--text-secondary', '#6f6a60'),
+          card: v('--bg-card', '#fff'),
+          bg: v('--bg', '#eeeae2'),
+          fontFamily: v('--font-sans', 'Figtree, Inter, sans-serif'),
         };
       }
+      var chartFontFamily = getThemeColors().fontFamily;
 
       // --- Data ---
       var DATA = [{"base": "Gemma-4-26B-A4B-it", "model": "Gemma-4-26B-A4B-it", "reasoning_effort": "?", "total_params": "26", "active_params": "4", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-26B-A4B-it_48GB_vLLM_2GPU_48", "max_kv_ktokens": "", "score": "57", "duration": "02:20:04", "requests": "6258", "req_pts": "110", "tokens_processed_mt": "195", "tokens_generated_mt": "2,20", "total_tg_s": "262", "parallel_tasks": "5", "tg_s_per_task": "52", "total_cost": "0,33", "ktok_per_pt": "38,60", "gen_tok_per_req": "352", "notes": "", "score_num": 57.0, "duration_s": 8404, "total_params_num": 26.0, "active_params_num": 4.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 6258.0, "req_pts_num": 110.0, "tokens_processed_num": 195.0, "tokens_generated_num": 2.2, "total_tg_s_num": 262.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 52.0, "total_cost_num": 0.33, "__idx": 0}, {"base": "Gemma-4-26B-A4B-it", "model": "Gemma-4-26B-A4B-it", "reasoning_effort": "?", "total_params": "26", "active_params": "4", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-26B-A4B-it_48GB_vLLM_1GPU_96 no mtp", "max_kv_ktokens": "", "score": "56", "duration": "04:24:25", "requests": "6953", "req_pts": "124", "tokens_processed_mt": "227", "tokens_generated_mt": "2,27", "total_tg_s": "143", "parallel_tasks": "5", "tg_s_per_task": "29", "total_cost": "0,62", "ktok_per_pt": "40,54", "gen_tok_per_req": "326", "notes": "", "score_num": 56.0, "duration_s": 15865, "total_params_num": 26.0, "active_params_num": 4.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 6953.0, "req_pts_num": 124.0, "tokens_processed_num": 227.0, "tokens_generated_num": 2.27, "total_tg_s_num": 143.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 29.0, "total_cost_num": 0.62, "__idx": 1}, {"base": "Qwen3.5-35B-A3B", "model": "Qwen3.5-35B-A3B", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "65", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.5-35B-A3B_66GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "68", "duration": "01:10:07", "requests": "7551", "req_pts": "111", "tokens_processed_mt": "224", "tokens_generated_mt": "1,73", "total_tg_s": "411", "parallel_tasks": "5", "tg_s_per_task": "82", "total_cost": "0,16", "ktok_per_pt": "25,44", "gen_tok_per_req": "229", "notes": "", "score_num": 68.0, "duration_s": 4207, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 65.0, "requests_num": 7551.0, "req_pts_num": 111.0, "tokens_processed_num": 224.0, "tokens_generated_num": 1.73, "total_tg_s_num": 411.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 82.0, "total_cost_num": 0.16, "__idx": 2}, {"base": "Qwen3.5-35B-A3B", "model": "Ornith-1.0-35B", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "65", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Ornith-1.0-35B_65GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "75", "duration": "02:00:40", "requests": "8323", "req_pts": "111", "tokens_processed_mt": "284", "tokens_generated_mt": "2,20", "total_tg_s": "304", "parallel_tasks": "5", "tg_s_per_task": "61", "total_cost": "0,28", "ktok_per_pt": "29,33", "gen_tok_per_req": "264", "notes": "", "score_num": 75.0, "duration_s": 7240, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 65.0, "requests_num": 8323.0, "req_pts_num": 111.0, "tokens_processed_num": 284.0, "tokens_generated_num": 2.2, "total_tg_s_num": 304.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 61.0, "total_cost_num": 0.28, "__idx": 3}, {"base": "Qwen3.5-35B-A3B", "model": "Ornith-1.5-35B", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "66", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Ornith-1.5-35B-A3B_66GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "80", "duration": "04:03:52", "requests": "5715", "req_pts": "71", "tokens_processed_mt": "227", "tokens_generated_mt": "4,14", "total_tg_s": "283", "parallel_tasks": "5", "tg_s_per_task": "57", "total_cost": "0,57", "ktok_per_pt": "51,75", "gen_tok_per_req": "", "notes": "", "score_num": 80.0, "duration_s": 14632, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 66.0, "requests_num": 5715.0, "req_pts_num": 71.0, "tokens_processed_num": 227.0, "tokens_generated_num": 4.14, "total_tg_s_num": 283.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 57.0, "total_cost_num": 0.57, "__idx": 4}, {"base": "Qwen3.5-35B-A3B", "model": "GRM-3.2-Sky", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "65", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-GRM-3.2-Sky_65GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "71", "duration": "02:05:24", "requests": "8729", "req_pts": "123", "tokens_processed_mt": "318", "tokens_generated_mt": "2,34", "total_tg_s": "311", "parallel_tasks": "5", "tg_s_per_task": "62", "total_cost": "0,29", "ktok_per_pt": "32,96", "gen_tok_per_req": "268", "notes": "", "score_num": 71.0, "duration_s": 7524, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 65.0, "requests_num": 8729.0, "req_pts_num": 123.0, "tokens_processed_num": 318.0, "tokens_generated_num": 2.34, "total_tg_s_num": 311.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 62.0, "total_cost_num": 0.29, "__idx": 5}, {"base": "Qwen3.6-35B-A3B", "model": "Qwen3.6-35B-A3B", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "37", "weights_quant": "FP8", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-35B-A3B-FP8_34GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "57", "duration": "00:51:54", "requests": "6004", "req_pts": "105", "tokens_processed_mt": "153", "tokens_generated_mt": "1,50", "total_tg_s": "482", "parallel_tasks": "5", "tg_s_per_task": "96", "total_cost": "0,12", "ktok_per_pt": "26,32", "gen_tok_per_req": "250", "notes": "", "score_num": 57.0, "duration_s": 3114, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 37.0, "requests_num": 6004.0, "req_pts_num": 105.0, "tokens_processed_num": 153.0, "tokens_generated_num": 1.5, "total_tg_s_num": 482.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 96.0, "total_cost_num": 0.12, "__idx": 6}, {"base": "Qwen3.6-35B-A3B", "model": "Qwen3.6-35B-A3B", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "67", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-35B-A3B_66GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "66", "duration": "01:07:44", "requests": "6700", "req_pts": "102", "tokens_processed_mt": "199", "tokens_generated_mt": "1,70", "total_tg_s": "418", "parallel_tasks": "5", "tg_s_per_task": "84", "total_cost": "0,16", "ktok_per_pt": "25,76", "gen_tok_per_req": "254", "notes": "", "score_num": 66.0, "duration_s": 4064, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 67.0, "requests_num": 6700.0, "req_pts_num": 102.0, "tokens_processed_num": 199.0, "tokens_generated_num": 1.7, "total_tg_s_num": 418.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 84.0, "total_cost_num": 0.16, "__idx": 7}, {"base": "Qwen3.6-35B-A3B", "model": "Qwen3.6-35B-A3B", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "67", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-35B-A3B_66GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "66", "duration": "01:04:48", "requests": "6276", "req_pts": "95", "tokens_processed_mt": "169", "tokens_generated_mt": "1,58", "total_tg_s": "406", "parallel_tasks": "5", "tg_s_per_task": "81", "total_cost": "0,15", "ktok_per_pt": "23,94", "gen_tok_per_req": "252", "notes": "", "score_num": 66.0, "duration_s": 3888, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 67.0, "requests_num": 6276.0, "req_pts_num": 95.0, "tokens_processed_num": 169.0, "tokens_generated_num": 1.58, "total_tg_s_num": 406.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 81.0, "total_cost_num": 0.15, "__idx": 8}, {"base": "Qwen3.6-35B-A3B", "model": "KAT-Coder-V2.5-Dev", "reasoning_effort": "?", "total_params": "35", "active_params": "3", "ngram_params": "0", "model_size": "67", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-KAT-Coder-V2.5-Dev_64GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "64", "duration": "01:22:18", "requests": "3526", "req_pts": "55", "tokens_processed_mt": "114", "tokens_generated_mt": "1,57", "total_tg_s": "318", "parallel_tasks": "5", "tg_s_per_task": "64", "total_cost": "0,19", "ktok_per_pt": "24,53", "gen_tok_per_req": "445", "notes": "", "score_num": 64.0, "duration_s": 4938, "total_params_num": 35.0, "active_params_num": 3.0, "ngram_params_num": 0.0, "model_size_num": 67.0, "requests_num": 3526.0, "req_pts_num": 55.0, "tokens_processed_num": 114.0, "tokens_generated_num": 1.57, "total_tg_s_num": 318.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 64.0, "total_cost_num": 0.19, "__idx": 9}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-FP8_28GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "68", "duration": "01:24:24", "requests": "5029", "req_pts": "74", "tokens_processed_mt": "112", "tokens_generated_mt": "1,40", "total_tg_s": "276", "parallel_tasks": "5", "tg_s_per_task": "55", "total_cost": "0,20", "ktok_per_pt": "20,59", "gen_tok_per_req": "278", "notes": "", "score_num": 68.0, "duration_s": 5064, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 5029.0, "req_pts_num": 74.0, "tokens_processed_num": 112.0, "tokens_generated_num": 1.4, "total_tg_s_num": 276.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 55.0, "total_cost_num": 0.2, "__idx": 10}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-FP8_28GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "68", "duration": "01:44:20", "requests": "5377", "req_pts": "79", "tokens_processed_mt": "141", "tokens_generated_mt": "1,60", "total_tg_s": "256", "parallel_tasks": "5", "tg_s_per_task": "51", "total_cost": "0,24", "ktok_per_pt": "23,53", "gen_tok_per_req": "298", "notes": "", "score_num": 68.0, "duration_s": 6260, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 5377.0, "req_pts_num": 79.0, "tokens_processed_num": 141.0, "tokens_generated_num": 1.6, "total_tg_s_num": 256.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 51.0, "total_cost_num": 0.24, "__idx": 11}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-FP8_28GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "72", "duration": "01:38:11", "requests": "5314", "req_pts": "74", "tokens_processed_mt": "132", "tokens_generated_mt": "1,58", "total_tg_s": "268", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "0,23", "ktok_per_pt": "21,94", "gen_tok_per_req": "297", "notes": "", "score_num": 72.0, "duration_s": 5891, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 5314.0, "req_pts_num": 74.0, "tokens_processed_num": 132.0, "tokens_generated_num": 1.58, "total_tg_s_num": 268.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 0.23, "__idx": 12}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B-heretic-v2", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-heretic-v2_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "70", "duration": "01:55:51", "requests": "5355", "req_pts": "77", "tokens_processed_mt": "139", "tokens_generated_mt": "1,57", "total_tg_s": "226", "parallel_tasks": "5", "tg_s_per_task": "45", "total_cost": "0,27", "ktok_per_pt": "22,43", "gen_tok_per_req": "293", "notes": "", "score_num": 70.0, "duration_s": 6951, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5355.0, "req_pts_num": 77.0, "tokens_processed_num": 139.0, "tokens_generated_num": 1.57, "total_tg_s_num": 226.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 45.0, "total_cost_num": 0.27, "__idx": 13}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B-heretic-v2", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-heretic-v2_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "70", "duration": "01:53:00", "requests": "5367", "req_pts": "77", "tokens_processed_mt": "136", "tokens_generated_mt": "1,62", "total_tg_s": "239", "parallel_tasks": "5", "tg_s_per_task": "48", "total_cost": "0,26", "ktok_per_pt": "23,14", "gen_tok_per_req": "302", "notes": "", "score_num": 70.0, "duration_s": 6780, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5367.0, "req_pts_num": 77.0, "tokens_processed_num": 136.0, "tokens_generated_num": 1.62, "total_tg_s_num": 239.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 48.0, "total_cost_num": 0.26, "__idx": 14}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B-heretic-v2", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B-heretic-v2_51GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "73", "duration": "02:10:32", "requests": "5455", "req_pts": "75", "tokens_processed_mt": "143", "tokens_generated_mt": "1,66", "total_tg_s": "212", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,30", "ktok_per_pt": "22,74", "gen_tok_per_req": "304", "notes": "", "score_num": 73.0, "duration_s": 7832, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5455.0, "req_pts_num": 75.0, "tokens_processed_num": 143.0, "tokens_generated_num": 1.66, "total_tg_s_num": 212.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.3, "__idx": 15}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:56:28", "requests": "5240", "req_pts": "76", "tokens_processed_mt": "130", "tokens_generated_mt": "1,50", "total_tg_s": "215", "parallel_tasks": "5", "tg_s_per_task": "43", "total_cost": "0,27", "ktok_per_pt": "21,74", "gen_tok_per_req": "286", "notes": "", "score_num": 69.0, "duration_s": 6988, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5240.0, "req_pts_num": 76.0, "tokens_processed_num": 130.0, "tokens_generated_num": 1.5, "total_tg_s_num": 215.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 43.0, "total_cost_num": 0.27, "__idx": 16}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "75", "duration": "02:25:28", "requests": "5248", "req_pts": "70", "tokens_processed_mt": "126", "tokens_generated_mt": "1,53", "total_tg_s": "175", "parallel_tasks": "5", "tg_s_per_task": "35", "total_cost": "0,34", "ktok_per_pt": "20,40", "gen_tok_per_req": "292", "notes": "", "score_num": 75.0, "duration_s": 8728, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5248.0, "req_pts_num": 70.0, "tokens_processed_num": 126.0, "tokens_generated_num": 1.53, "total_tg_s_num": 175.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 35.0, "total_cost_num": 0.34, "__idx": 17}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:49:12", "requests": "5248", "req_pts": "76", "tokens_processed_mt": "120", "tokens_generated_mt": "1,52", "total_tg_s": "232", "parallel_tasks": "5", "tg_s_per_task": "46", "total_cost": "0,25", "ktok_per_pt": "22,03", "gen_tok_per_req": "290", "notes": "", "score_num": 69.0, "duration_s": 6552, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5248.0, "req_pts_num": 76.0, "tokens_processed_num": 120.0, "tokens_generated_num": 1.52, "total_tg_s_num": 232.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 46.0, "total_cost_num": 0.25, "__idx": 18}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:39:53", "requests": "5153", "req_pts": "75", "tokens_processed_mt": "123", "tokens_generated_mt": "1,38", "total_tg_s": "230", "parallel_tasks": "5", "tg_s_per_task": "46", "total_cost": "0,23", "ktok_per_pt": "20,00", "gen_tok_per_req": "268", "notes": "", "score_num": 69.0, "duration_s": 5993, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5153.0, "req_pts_num": 75.0, "tokens_processed_num": 123.0, "tokens_generated_num": 1.38, "total_tg_s_num": 230.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 46.0, "total_cost_num": 0.23, "__idx": 19}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:40:45", "requests": "5099", "req_pts": "74", "tokens_processed_mt": "122", "tokens_generated_mt": "1,41", "total_tg_s": "233", "parallel_tasks": "5", "tg_s_per_task": "47", "total_cost": "0,24", "ktok_per_pt": "20,43", "gen_tok_per_req": "277", "notes": "", "score_num": 69.0, "duration_s": 6045, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5099.0, "req_pts_num": 74.0, "tokens_processed_num": 122.0, "tokens_generated_num": 1.41, "total_tg_s_num": 233.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 47.0, "total_cost_num": 0.24, "__idx": 20}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "75", "duration": "02:00:55", "requests": "5364", "req_pts": "72", "tokens_processed_mt": "129", "tokens_generated_mt": "1,52", "total_tg_s": "210", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,28", "ktok_per_pt": "20,27", "gen_tok_per_req": "283", "notes": "", "score_num": 75.0, "duration_s": 7255, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5364.0, "req_pts_num": 72.0, "tokens_processed_num": 129.0, "tokens_generated_num": 1.52, "total_tg_s_num": 210.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.28, "__idx": 21}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "74", "duration": "02:04:17", "requests": "5289", "req_pts": "71", "tokens_processed_mt": "129", "tokens_generated_mt": "1,57", "total_tg_s": "211", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,29", "ktok_per_pt": "21,22", "gen_tok_per_req": "297", "notes": "", "score_num": 74.0, "duration_s": 7457, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5289.0, "req_pts_num": 71.0, "tokens_processed_num": 129.0, "tokens_generated_num": 1.57, "total_tg_s_num": 211.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.29, "__idx": 22}, {"base": "Qwen3.6-27B", "model": "Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.6-27B_51GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "76", "duration": "02:29:58", "requests": "5154", "req_pts": "68", "tokens_processed_mt": "113", "tokens_generated_mt": "1,4", "total_tg_s": "156", "parallel_tasks": "5", "tg_s_per_task": "31", "total_cost": "0,35", "ktok_per_pt": "18,42", "gen_tok_per_req": "272", "notes": "", "score_num": 76.0, "duration_s": 8998, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 5154.0, "req_pts_num": 68.0, "tokens_processed_num": 113.0, "tokens_generated_num": 1.4, "total_tg_s_num": 156.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 31.0, "total_cost_num": 0.35, "__idx": 23}, {"base": "Qwen3.6-27B", "model": "ThinkingCap-Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-ThinkingCap-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:40:17", "requests": "4657", "req_pts": "67", "tokens_processed_mt": "106", "tokens_generated_mt": "1,3", "total_tg_s": "216", "parallel_tasks": "5", "tg_s_per_task": "43", "total_cost": "0,23", "ktok_per_pt": "18,84", "gen_tok_per_req": "279", "notes": "", "score_num": 69.0, "duration_s": 6017, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 4657.0, "req_pts_num": 67.0, "tokens_processed_num": 106.0, "tokens_generated_num": 1.3, "total_tg_s_num": 216.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 43.0, "total_cost_num": 0.23, "__idx": 24}, {"base": "Qwen3.6-27B", "model": "ThinkingCap-Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-ThinkingCap-Qwen3.6-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:19:55", "requests": "4331", "req_pts": "63", "tokens_processed_mt": "86", "tokens_generated_mt": "1,11", "total_tg_s": "231", "parallel_tasks": "5", "tg_s_per_task": "46", "total_cost": "0,19", "ktok_per_pt": "16,09", "gen_tok_per_req": "256", "notes": "", "score_num": 69.0, "duration_s": 4795, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 4331.0, "req_pts_num": 63.0, "tokens_processed_num": 86.0, "tokens_generated_num": 1.11, "total_tg_s_num": 231.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 46.0, "total_cost_num": 0.19, "__idx": 25}, {"base": "Qwen3.6-27B", "model": "ThinkingCap-Qwen3.6-27B", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-ThinkingCap-Qwen3.6-27B_51GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "66", "duration": "01:30:22", "requests": "4420", "req_pts": "67", "tokens_processed_mt": "87", "tokens_generated_mt": "1,18", "total_tg_s": "218", "parallel_tasks": "5", "tg_s_per_task": "44", "total_cost": "0,21", "ktok_per_pt": "17,88", "gen_tok_per_req": "267", "notes": "", "score_num": 66.0, "duration_s": 5422, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 4420.0, "req_pts_num": 67.0, "tokens_processed_num": 87.0, "tokens_generated_num": 1.18, "total_tg_s_num": 218.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 44.0, "total_cost_num": 0.21, "__idx": 26}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "81", "duration": "01:23:10", "requests": "2700", "req_pts": "33", "tokens_processed_mt": "50", "tokens_generated_mt": "1,04", "total_tg_s": "208", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,19", "ktok_per_pt": "12,84", "gen_tok_per_req": "385", "notes": "", "score_num": 81.0, "duration_s": 4990, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 2700.0, "req_pts_num": 33.0, "tokens_processed_num": 50.0, "tokens_generated_num": 1.04, "total_tg_s_num": 208.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.19, "__idx": 27}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B_51GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "77", "duration": "01:53:24", "requests": "2671", "req_pts": "35", "tokens_processed_mt": "44", "tokens_generated_mt": "0,97", "total_tg_s": "143", "parallel_tasks": "5", "tg_s_per_task": "29", "total_cost": "0,26", "ktok_per_pt": "12,60", "gen_tok_per_req": "363", "notes": "", "score_num": 77.0, "duration_s": 6804, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 2671.0, "req_pts_num": 35.0, "tokens_processed_num": 44.0, "tokens_generated_num": 0.97, "total_tg_s_num": 143.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 29.0, "total_cost_num": 0.26, "__idx": 28}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-FP8", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "28", "weights_quant": "FP8", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-FP8_28GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "78", "duration": "00:59:37", "requests": "2853", "req_pts": "37", "tokens_processed_mt": "53", "tokens_generated_mt": "1,09", "total_tg_s": "305", "parallel_tasks": "5", "tg_s_per_task": "61", "total_cost": "0,14", "ktok_per_pt": "13,97", "gen_tok_per_req": "382", "notes": "", "score_num": 78.0, "duration_s": 3577, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 28.0, "requests_num": 2853.0, "req_pts_num": 37.0, "tokens_processed_num": 53.0, "tokens_generated_num": 1.09, "total_tg_s_num": 305.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 61.0, "total_cost_num": 0.14, "__idx": 29}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-FP8", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "28", "weights_quant": "FP8", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-FP8_28GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "75", "duration": "01:29:41", "requests": "2761", "req_pts": "37", "tokens_processed_mt": "52", "tokens_generated_mt": "1,00", "total_tg_s": "186", "parallel_tasks": "5", "tg_s_per_task": "37", "total_cost": "0,21", "ktok_per_pt": "13,33", "gen_tok_per_req": "362", "notes": "", "score_num": 75.0, "duration_s": 5381, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 28.0, "requests_num": 2761.0, "req_pts_num": 37.0, "tokens_processed_num": 52.0, "tokens_generated_num": 1.0, "total_tg_s_num": 186.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 37.0, "total_cost_num": 0.21, "__idx": 30}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-FP8", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "28", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-FP8_28GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "76", "duration": "01:04:08", "requests": "2652", "req_pts": "35", "tokens_processed_mt": "43", "tokens_generated_mt": "1,00", "total_tg_s": "260", "parallel_tasks": "5", "tg_s_per_task": "52", "total_cost": "0,15", "ktok_per_pt": "13,16", "gen_tok_per_req": "377", "notes": "", "score_num": 76.0, "duration_s": 3848, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 28.0, "requests_num": 2652.0, "req_pts_num": 35.0, "tokens_processed_num": 43.0, "tokens_generated_num": 1.0, "total_tg_s_num": 260.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 52.0, "total_cost_num": 0.15, "__idx": 31}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-FP8", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "28", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-FP8_28GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "75", "duration": "01:17:52", "requests": "2842", "req_pts": "38", "tokens_processed_mt": "52", "tokens_generated_mt": "1,14", "total_tg_s": "244", "parallel_tasks": "5", "tg_s_per_task": "49", "total_cost": "0,18", "ktok_per_pt": "15,20", "gen_tok_per_req": "401", "notes": "", "score_num": 75.0, "duration_s": 4672, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 28.0, "requests_num": 2842.0, "req_pts_num": 38.0, "tokens_processed_num": 52.0, "tokens_generated_num": 1.14, "total_tg_s_num": 244.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 49.0, "total_cost_num": 0.18, "__idx": 32}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-NVFP4", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "20", "weights_quant": "NVFP4", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-NVFP4_20GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "76", "duration": "00:43:20", "requests": "2962", "req_pts": "39", "tokens_processed_mt": "61", "tokens_generated_mt": "1,02", "total_tg_s": "392", "parallel_tasks": "5", "tg_s_per_task": "78", "total_cost": "0,10", "ktok_per_pt": "13,42", "gen_tok_per_req": "344", "notes": "", "score_num": 76.0, "duration_s": 2600, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 20.0, "requests_num": 2962.0, "req_pts_num": 39.0, "tokens_processed_num": 61.0, "tokens_generated_num": 1.02, "total_tg_s_num": 392.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 78.0, "total_cost_num": 0.1, "__idx": 33}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-NVFP4", "reasoning_effort": "xhigh", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "20", "weights_quant": "NVFP4", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-NVFP4_20GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "76", "duration": "02:57:34", "requests": "4787", "req_pts": "63", "tokens_processed_mt": "220", "tokens_generated_mt": "4,03", "total_tg_s": "378", "parallel_tasks": "5", "tg_s_per_task": "76", "total_cost": "0,41", "ktok_per_pt": "53,03", "gen_tok_per_req": "842", "notes": "", "score_num": 76.0, "duration_s": 10654, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 20.0, "requests_num": 4787.0, "req_pts_num": 63.0, "tokens_processed_num": 220.0, "tokens_generated_num": 4.03, "total_tg_s_num": 378.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 76.0, "total_cost_num": 0.41, "__idx": 34}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-FP8", "reasoning_effort": "xhigh", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "28", "weights_quant": "FP8", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-FP8_28GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "74", "duration": "03:34:05", "requests": "4734", "req_pts": "64", "tokens_processed_mt": "197", "tokens_generated_mt": "3,66", "total_tg_s": "285", "parallel_tasks": "5", "tg_s_per_task": "57", "total_cost": "0,50", "ktok_per_pt": "49,46", "gen_tok_per_req": "773", "notes": "", "score_num": 74.0, "duration_s": 12845, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 28.0, "requests_num": 4734.0, "req_pts_num": 64.0, "tokens_processed_num": 197.0, "tokens_generated_num": 3.66, "total_tg_s_num": 285.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 57.0, "total_cost_num": 0.5, "__idx": 35}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-FP8", "reasoning_effort": "xhigh", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "28", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-FP8_28GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "78", "duration": "03:32:06", "requests": "4554", "req_pts": "58", "tokens_processed_mt": "199", "tokens_generated_mt": "3,67", "total_tg_s": "288", "parallel_tasks": "5", "tg_s_per_task": "58", "total_cost": "0,49", "ktok_per_pt": "47,05", "gen_tok_per_req": "806", "notes": "", "score_num": 78.0, "duration_s": 12726, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 28.0, "requests_num": 4554.0, "req_pts_num": 58.0, "tokens_processed_num": 199.0, "tokens_generated_num": 3.67, "total_tg_s_num": 288.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 58.0, "total_cost_num": 0.49, "__idx": 36}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B", "reasoning_effort": "xhigh", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B_51GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "75", "duration": "06:17:06", "requests": "4738", "req_pts": "63", "tokens_processed_mt": "201", "tokens_generated_mt": "3,91", "total_tg_s": "173", "parallel_tasks": "5", "tg_s_per_task": "35", "total_cost": "0,88", "ktok_per_pt": "52,13", "gen_tok_per_req": "825", "notes": "", "score_num": 75.0, "duration_s": 22626, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 4738.0, "req_pts_num": 63.0, "tokens_processed_num": 201.0, "tokens_generated_num": 3.91, "total_tg_s_num": 173.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 35.0, "total_cost_num": 0.88, "__idx": 37}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B", "reasoning_effort": "xhigh", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "52", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B_51GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "81", "duration": "10:13:13", "requests": "4610", "req_pts": "57", "tokens_processed_mt": "196", "tokens_generated_mt": "3,67", "total_tg_s": "100", "parallel_tasks": "5", "tg_s_per_task": "20", "total_cost": "1,43", "ktok_per_pt": "45,31", "gen_tok_per_req": "796", "notes": "", "score_num": 81.0, "duration_s": 36793, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 52.0, "requests_num": 4610.0, "req_pts_num": 57.0, "tokens_processed_num": 196.0, "tokens_generated_num": 3.67, "total_tg_s_num": 100.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 20.0, "total_cost_num": 1.43, "__idx": 38}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-NVFP4", "reasoning_effort": "medium", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "20", "weights_quant": "NVFP4", "kv_cache_quant": "INT8", "ple_quant": "n/a", "engine": "NINFER", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "NINFER-Qwen3.8-27B-nvfp4_20GB_1GPU_96", "max_kv_ktokens": "", "score": "81", "duration": "02:14:08", "requests": "4178", "req_pts": "52", "tokens_processed_mt": "144", "tokens_generated_mt": "3,08", "total_tg_s": "383", "parallel_tasks": "5", "tg_s_per_task": "77", "total_cost": "0,31", "ktok_per_pt": "38,02", "gen_tok_per_req": "737", "notes": "", "score_num": 81.0, "duration_s": 8048, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 20.0, "requests_num": 4178.0, "req_pts_num": 52.0, "tokens_processed_num": 144.0, "tokens_generated_num": 3.08, "total_tg_s_num": 383.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 77.0, "total_cost_num": 0.31, "__idx": 39}, {"base": "Qwen3.8-27B", "model": "Huihui-Qwen3.8-27B-abliterated-FP8", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "28", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Huihui-Qwen3.8-27B-abliterated-FP8_28GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "80", "duration": "01:33:01", "requests": "3134", "req_pts": "39", "tokens_processed_mt": "70", "tokens_generated_mt": "1,24", "total_tg_s": "222", "parallel_tasks": "5", "tg_s_per_task": "44", "total_cost": "0,22", "ktok_per_pt": "15,50", "gen_tok_per_req": "396", "notes": "", "score_num": 80.0, "duration_s": 5581, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 28.0, "requests_num": 3134.0, "req_pts_num": 39.0, "tokens_processed_num": 70.0, "tokens_generated_num": 1.24, "total_tg_s_num": 222.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 44.0, "total_cost_num": 0.22, "__idx": 40}, {"base": "Qwen3.8-27B", "model": "Qwen3.8-27B-heretic-ara-INT8-W8A16-MTP", "reasoning_effort": "?", "total_params": "27", "active_params": "27", "ngram_params": "0", "model_size": "29", "weights_quant": "INT8-W8A16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.8-27B-heretic-ara-INT8-W8A16-MTP_29GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "80", "duration": "02:00:57", "requests": "3018", "req_pts": "38", "tokens_processed_mt": "81", "tokens_generated_mt": "1,59", "total_tg_s": "219", "parallel_tasks": "5", "tg_s_per_task": "44", "total_cost": "0,28", "ktok_per_pt": "19,88", "gen_tok_per_req": "527", "notes": "", "score_num": 80.0, "duration_s": 7257, "total_params_num": 27.0, "active_params_num": 27.0, "ngram_params_num": 0.0, "model_size_num": 29.0, "requests_num": 3018.0, "req_pts_num": 38.0, "tokens_processed_num": 81.0, "tokens_generated_num": 1.59, "total_tg_s_num": 219.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 44.0, "total_cost_num": 0.28, "__idx": 41}, {"base": "Muse-Glimmer-30B", "model": "Muse-Glimmer-30B", "reasoning_effort": "?", "total_params": "30", "active_params": "30", "ngram_params": "0", "model_size": "55", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Muse-Glimmer-30B_55GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "74", "duration": "01:53:30", "requests": "8526", "req_pts": "115", "tokens_processed_mt": "253", "tokens_generated_mt": "1,96", "total_tg_s": "288", "parallel_tasks": "5", "tg_s_per_task": "58", "total_cost": "0,26", "ktok_per_pt": "26,49", "gen_tok_per_req": "230", "notes": "", "score_num": 74.0, "duration_s": 6810, "total_params_num": 30.0, "active_params_num": 30.0, "ngram_params_num": 0.0, "model_size_num": 55.0, "requests_num": 8526.0, "req_pts_num": 115.0, "tokens_processed_num": 253.0, "tokens_generated_num": 1.96, "total_tg_s_num": 288.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 58.0, "total_cost_num": 0.26, "__idx": 42}, {"base": "Muse-Glimmer-30B", "model": "Muse-Glimmer-30B", "reasoning_effort": "?", "total_params": "30", "active_params": "30", "ngram_params": "0", "model_size": "55", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Muse-Glimmer-30B_55GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "73", "duration": "02:04:30", "requests": "8939", "req_pts": "122", "tokens_processed_mt": "283", "tokens_generated_mt": "2,02", "total_tg_s": "270", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "0,29", "ktok_per_pt": "27,67", "gen_tok_per_req": "226", "notes": "", "score_num": 73.0, "duration_s": 7470, "total_params_num": 30.0, "active_params_num": 30.0, "ngram_params_num": 0.0, "model_size_num": 55.0, "requests_num": 8939.0, "req_pts_num": 122.0, "tokens_processed_num": 283.0, "tokens_generated_num": 2.02, "total_tg_s_num": 270.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 0.29, "__idx": 43}, {"base": "Muse-Glimmer-30B", "model": "Muse-Glimmer-30B", "reasoning_effort": "?", "total_params": "30", "active_params": "30", "ngram_params": "0", "model_size": "55", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Muse-Glimmer-30B_55GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "74", "duration": "01:48:16", "requests": "8826", "req_pts": "119", "tokens_processed_mt": "261", "tokens_generated_mt": "2,00", "total_tg_s": "308", "parallel_tasks": "5", "tg_s_per_task": "62", "total_cost": "0,25", "ktok_per_pt": "27,03", "gen_tok_per_req": "227", "notes": "", "score_num": 74.0, "duration_s": 6496, "total_params_num": 30.0, "active_params_num": 30.0, "ngram_params_num": 0.0, "model_size_num": 55.0, "requests_num": 8826.0, "req_pts_num": 119.0, "tokens_processed_num": 261.0, "tokens_generated_num": 2.0, "total_tg_s_num": 308.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 62.0, "total_cost_num": 0.25, "__idx": 44}, {"base": "Muse-Glimmer-30B", "model": "Muse-Glimmer-30B-heretic", "reasoning_effort": "?", "total_params": "30", "active_params": "30", "ngram_params": "0", "model_size": "55", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Muse-Glimmer-30B-heretic_55GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "75", "duration": "01:45:13", "requests": "9502", "req_pts": "127", "tokens_processed_mt": "303", "tokens_generated_mt": "1,97", "total_tg_s": "312", "parallel_tasks": "5", "tg_s_per_task": "62", "total_cost": "0,25", "ktok_per_pt": "26,27", "gen_tok_per_req": "207", "notes": "", "score_num": 75.0, "duration_s": 6313, "total_params_num": 30.0, "active_params_num": 30.0, "ngram_params_num": 0.0, "model_size_num": 55.0, "requests_num": 9502.0, "req_pts_num": 127.0, "tokens_processed_num": 303.0, "tokens_generated_num": 1.97, "total_tg_s_num": 312.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 62.0, "total_cost_num": 0.25, "__idx": 45}, {"base": "Muse-Glimmer-30B", "model": "Muse-Glimmer-30B-heretic", "reasoning_effort": "?", "total_params": "30", "active_params": "30", "ngram_params": "0", "model_size": "55", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Muse-Glimmer-30B-heretic_55GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "74", "duration": "01:41:55", "requests": "9249", "req_pts": "125", "tokens_processed_mt": "289", "tokens_generated_mt": "1,89", "total_tg_s": "309", "parallel_tasks": "5", "tg_s_per_task": "62", "total_cost": "0,24", "ktok_per_pt": "25,54", "gen_tok_per_req": "204", "notes": "", "score_num": 74.0, "duration_s": 6115, "total_params_num": 30.0, "active_params_num": 30.0, "ngram_params_num": 0.0, "model_size_num": 55.0, "requests_num": 9249.0, "req_pts_num": 125.0, "tokens_processed_num": 289.0, "tokens_generated_num": 1.89, "total_tg_s_num": 309.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 62.0, "total_cost_num": 0.24, "__idx": 46}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "58", "weights_quant": "BF16", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it_58GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:19:30", "requests": "3424", "req_pts": "50", "tokens_processed_mt": "51", "tokens_generated_mt": "0,90", "total_tg_s": "189", "parallel_tasks": "5", "tg_s_per_task": "38", "total_cost": "0,19", "ktok_per_pt": "13,04", "gen_tok_per_req": "263", "notes": "", "score_num": 69.0, "duration_s": 4770, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 58.0, "requests_num": 3424.0, "req_pts_num": 50.0, "tokens_processed_num": 51.0, "tokens_generated_num": 0.9, "total_tg_s_num": 189.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 38.0, "total_cost_num": 0.19, "__idx": 47}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "58", "weights_quant": "BF16", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it_58GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "69", "duration": "01:24:55", "requests": "3545", "req_pts": "51", "tokens_processed_mt": "61", "tokens_generated_mt": "1,06", "total_tg_s": "208", "parallel_tasks": "5", "tg_s_per_task": "42", "total_cost": "0,20", "ktok_per_pt": "15,36", "gen_tok_per_req": "299", "notes": "", "score_num": 69.0, "duration_s": 5095, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 58.0, "requests_num": 3545.0, "req_pts_num": 51.0, "tokens_processed_num": 61.0, "tokens_generated_num": 1.06, "total_tg_s_num": 208.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 42.0, "total_cost_num": 0.2, "__idx": 48}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "71", "duration": "00:58:24", "requests": "3546", "req_pts": "50", "tokens_processed_mt": "56", "tokens_generated_mt": "0,95", "total_tg_s": "271", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "0,14", "ktok_per_pt": "13,38", "gen_tok_per_req": "268", "notes": "", "score_num": 71.0, "duration_s": 3504, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 3546.0, "req_pts_num": 50.0, "tokens_processed_num": 56.0, "tokens_generated_num": 0.95, "total_tg_s_num": 271.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 0.14, "__idx": 49}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "71", "duration": "00:56:33", "requests": "3815", "req_pts": "54", "tokens_processed_mt": "67", "tokens_generated_mt": "1,03", "total_tg_s": "304", "parallel_tasks": "5", "tg_s_per_task": "61", "total_cost": "0,13", "ktok_per_pt": "14,51", "gen_tok_per_req": "270", "notes": "", "score_num": 71.0, "duration_s": 3393, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 3815.0, "req_pts_num": 54.0, "tokens_processed_num": 67.0, "tokens_generated_num": 1.03, "total_tg_s_num": 304.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 61.0, "total_cost_num": 0.13, "__idx": 50}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "71", "duration": "01:01:16", "requests": "3823", "req_pts": "54", "tokens_processed_mt": "66", "tokens_generated_mt": "1,02", "total_tg_s": "277", "parallel_tasks": "5", "tg_s_per_task": "55", "total_cost": "0,14", "ktok_per_pt": "14,37", "gen_tok_per_req": "267", "notes": "", "score_num": 71.0, "duration_s": 3676, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 3823.0, "req_pts_num": 54.0, "tokens_processed_num": 66.0, "tokens_generated_num": 1.02, "total_tg_s_num": 277.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 55.0, "total_cost_num": 0.14, "__idx": 51}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_SGLANG_1GPU_96", "max_kv_ktokens": "", "score": "71", "duration": "01:22:05", "requests": "3250", "req_pts": "46", "tokens_processed_mt": "47", "tokens_generated_mt": "1,02", "total_tg_s": "207", "parallel_tasks": "5", "tg_s_per_task": "41", "total_cost": "0,19", "ktok_per_pt": "14,37", "gen_tok_per_req": "314", "notes": "", "score_num": 71.0, "duration_s": 4925, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 3250.0, "req_pts_num": 46.0, "tokens_processed_num": 47.0, "tokens_generated_num": 1.02, "total_tg_s_num": 207.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 41.0, "total_cost_num": 0.19, "__idx": 52}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "31", "weights_quant": "FP8", "kv_cache_quant": "FP8", "ple_quant": "n/a", "engine": "SGLANG", "nb_gpu": "2", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-FP8-dynamic_31GB_SGLANG_2GPU_48", "max_kv_ktokens": "", "score": "72", "duration": "01:15:42", "requests": "3250", "req_pts": "45", "tokens_processed_mt": "50", "tokens_generated_mt": "0,97", "total_tg_s": "214", "parallel_tasks": "5", "tg_s_per_task": "43", "total_cost": "0,18", "ktok_per_pt": "13,47", "gen_tok_per_req": "298", "notes": "", "score_num": 72.0, "duration_s": 4542, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 31.0, "requests_num": 3250.0, "req_pts_num": 45.0, "tokens_processed_num": 50.0, "tokens_generated_num": 0.97, "total_tg_s_num": 214.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 43.0, "total_cost_num": 0.18, "__idx": 53}, {"base": "Gemma-4-31B-it", "model": "Gemma-4-31B-it", "reasoning_effort": "?", "total_params": "31", "active_params": "31", "ngram_params": "0", "model_size": "18", "weights_quant": "NVFP4", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-gemma-4-31B-it-NVFP4-turbo_18GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "70", "duration": "01:02:16", "requests": "3318", "req_pts": "47", "tokens_processed_mt": "53", "tokens_generated_mt": "1,00", "total_tg_s": "268", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "0,15", "ktok_per_pt": "14,29", "gen_tok_per_req": "301", "notes": "", "score_num": 70.0, "duration_s": 3736, "total_params_num": 31.0, "active_params_num": 31.0, "ngram_params_num": 0.0, "model_size_num": 18.0, "requests_num": 3318.0, "req_pts_num": 47.0, "tokens_processed_num": 53.0, "tokens_generated_num": 1.0, "total_tg_s_num": 268.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 0.15, "__idx": 54}, {"base": "Qwen3.5-122B-A10B", "model": "Qwen3.5-122B-A10B", "reasoning_effort": "?", "total_params": "122", "active_params": "10", "ngram_params": "0", "model_size": "76", "weights_quant": "NVFP4", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "vLLM", "nb_gpu": "1", "spec": "", "license": "Apache 2.0", "model_ref": "ST-Qwen3.5-122B-A10B-NVFP4_77GB_vLLM_1GPU_96", "max_kv_ktokens": "", "score": "68", "duration": "03:45:49", "requests": "7696", "req_pts": "113", "tokens_processed_mt": "223", "tokens_generated_mt": "1,68", "total_tg_s": "124", "parallel_tasks": "5", "tg_s_per_task": "25", "total_cost": "0,53", "ktok_per_pt": "24,71", "gen_tok_per_req": "218", "notes": "", "score_num": 68.0, "duration_s": 13549, "total_params_num": 122.0, "active_params_num": 10.0, "ngram_params_num": 0.0, "model_size_num": 76.0, "requests_num": 7696.0, "req_pts_num": 113.0, "tokens_processed_num": 223.0, "tokens_generated_num": 1.68, "total_tg_s_num": 124.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 25.0, "total_cost_num": 0.53, "__idx": 55}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "NVFP4", "kv_cache_quant": "FP8", "ple_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96", "max_kv_ktokens": "530", "score": "91", "duration": "01:03:56", "requests": "2653", "req_pts": "29", "tokens_processed_mt": "44", "tokens_generated_mt": "0,88", "total_tg_s": "229", "parallel_tasks": "4", "tg_s_per_task": "57", "total_cost": "0,15", "ktok_per_pt": "9,67", "gen_tok_per_req": "332", "notes": "patch sglang", "score_num": 91.0, "duration_s": 3836, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 2653.0, "req_pts_num": 29.0, "tokens_processed_num": 44.0, "tokens_generated_num": 0.88, "total_tg_s_num": 229.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 57.0, "total_cost_num": 0.15, "__idx": 56}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next ct_sharp", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "NVFP4", "kv_cache_quant": "FP8", "ple_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96", "max_kv_ktokens": "530", "score": "89", "duration": "00:54:31", "requests": "2903", "req_pts": "33", "tokens_processed_mt": "50", "tokens_generated_mt": "0,97", "total_tg_s": "297", "parallel_tasks": "4", "tg_s_per_task": "74", "total_cost": "0,13", "ktok_per_pt": "10,90", "gen_tok_per_req": "334", "notes": "patch sglang", "score_num": 89.0, "duration_s": 3271, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 2903.0, "req_pts_num": 33.0, "tokens_processed_num": 50.0, "tokens_generated_num": 0.97, "total_tg_s_num": 297.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 74.0, "total_cost_num": 0.13, "__idx": 57}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next ct_frogerric", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "NVFP4", "kv_cache_quant": "FP8", "ple_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96", "max_kv_ktokens": "530", "score": "89", "duration": "01:23:42", "requests": "3017", "req_pts": "34", "tokens_processed_mt": "50", "tokens_generated_mt": "0,96", "total_tg_s": "191", "parallel_tasks": "4", "tg_s_per_task": "48", "total_cost": "0,20", "ktok_per_pt": "10,79", "gen_tok_per_req": "318", "notes": "patch sglang", "score_num": 89.0, "duration_s": 5022, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 3017.0, "req_pts_num": 34.0, "tokens_processed_num": 50.0, "tokens_generated_num": 0.96, "total_tg_s_num": 191.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 48.0, "total_cost_num": 0.2, "__idx": 58}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "NVFP4", "kv_cache_quant": "BF16", "ple_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96", "max_kv_ktokens": "273", "score": "89", "duration": "00:59:03", "requests": "2552", "req_pts": "29", "tokens_processed_mt": "34", "tokens_generated_mt": "0,82", "total_tg_s": "231", "parallel_tasks": "3", "tg_s_per_task": "77", "total_cost": "0,14", "ktok_per_pt": "9,21", "gen_tok_per_req": "321", "notes": "patch sglang", "score_num": 89.0, "duration_s": 3543, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 2552.0, "req_pts_num": 29.0, "tokens_processed_num": 34.0, "tokens_generated_num": 0.82, "total_tg_s_num": 231.0, "parallel_tasks_num": 3.0, "tg_s_per_task_num": 77.0, "total_cost_num": 0.14, "__idx": 59}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "NVFP4", "kv_cache_quant": "BF16", "ple_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96", "max_kv_ktokens": "273", "score": "89", "duration": "01:08:05", "requests": "2785", "req_pts": "31", "tokens_processed_mt": "44", "tokens_generated_mt": "0,87", "total_tg_s": "213", "parallel_tasks": "2", "tg_s_per_task": "106", "total_cost": "0,16", "ktok_per_pt": "9,78", "gen_tok_per_req": "312", "notes": "patch sglang", "score_num": 89.0, "duration_s": 4085, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 2785.0, "req_pts_num": 31.0, "tokens_processed_num": 44.0, "tokens_generated_num": 0.87, "total_tg_s_num": 213.0, "parallel_tasks_num": 2.0, "tg_s_per_task_num": 106.0, "total_cost_num": 0.16, "__idx": 60}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "AWQ-W4A16", "kv_cache_quant": "BF16", "ple_quant": "INT4", "engine": "vLLM", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-AWQ-W4A16-PLE-quant_227GB_vLLM_1GPU_96", "max_kv_ktokens": "409", "score": "98", "duration": "01:08:02", "requests": "2306", "req_pts": "24", "tokens_processed_mt": "31", "tokens_generated_mt": "0,79", "total_tg_s": "194", "parallel_tasks": "4", "tg_s_per_task": "48", "total_cost": "0,16", "ktok_per_pt": "8,06", "gen_tok_per_req": "343", "notes": "patch vllm", "score_num": 98.0, "duration_s": 4082, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 2306.0, "req_pts_num": 24.0, "tokens_processed_num": 31.0, "tokens_generated_num": 0.79, "total_tg_s_num": 194.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 48.0, "total_cost_num": 0.16, "__idx": 61}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "AWQ-W4A16", "kv_cache_quant": "BF16", "ple_quant": "INT4", "engine": "vLLM", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-AWQ-W4A16-PLE-quant_227GB_vLLM_1GPU_96", "max_kv_ktokens": "409", "score": "98", "duration": "01:03:04", "requests": "2134", "req_pts": "22", "tokens_processed_mt": "25", "tokens_generated_mt": "0,69", "total_tg_s": "182", "parallel_tasks": "4", "tg_s_per_task": "46", "total_cost": "0,15", "ktok_per_pt": "7,04", "gen_tok_per_req": "323", "notes": "patch vllm", "score_num": 98.0, "duration_s": 3784, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 2134.0, "req_pts_num": 22.0, "tokens_processed_num": 25.0, "tokens_generated_num": 0.69, "total_tg_s_num": 182.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 46.0, "total_cost_num": 0.15, "__idx": 62}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "xhigh", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "AWQ-W4A16", "kv_cache_quant": "BF16", "ple_quant": "INT4", "engine": "vLLM", "nb_gpu": "2", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-AWQ-W4A16-PLE-quant_227GB_vLLM_2GPU_48", "max_kv_ktokens": "280", "score": "96", "duration": "03:33:46", "requests": "3537", "req_pts": "37", "tokens_processed_mt": "78", "tokens_generated_mt": "1,47", "total_tg_s": "115", "parallel_tasks": "2", "tg_s_per_task": "57", "total_cost": "0,50", "ktok_per_pt": "15,31", "gen_tok_per_req": "416", "notes": "patch vllm", "score_num": 96.0, "duration_s": 12826, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 3537.0, "req_pts_num": 37.0, "tokens_processed_num": 78.0, "tokens_generated_num": 1.47, "total_tg_s_num": 115.0, "parallel_tasks_num": 2.0, "tg_s_per_task_num": 57.0, "total_cost_num": 0.5, "__idx": 63}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "xhigh", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "AWQ-W4A16", "kv_cache_quant": "BF16", "ple_quant": "INT4", "engine": "vLLM", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-AWQ-W4A16-PLE-quant_227GB_vLLM_1GPU_96", "max_kv_ktokens": "409", "score": "98", "duration": "02:16:51", "requests": "3670", "req_pts": "37", "tokens_processed_mt": "89", "tokens_generated_mt": "1,53", "total_tg_s": "186", "parallel_tasks": "4", "tg_s_per_task": "47", "total_cost": "0,32", "ktok_per_pt": "15,61", "gen_tok_per_req": "417", "notes": "patch vllm", "score_num": 98.0, "duration_s": 8211, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 3670.0, "req_pts_num": 37.0, "tokens_processed_num": 89.0, "tokens_generated_num": 1.53, "total_tg_s_num": 186.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 47.0, "total_cost_num": 0.32, "__idx": 64}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next-uncensored", "reasoning_effort": "medium", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "NVFP4", "kv_cache_quant": "FP8", "ple_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-NVFP4-uncensored_125GB_SGLANG_1GPU_96", "max_kv_ktokens": "530", "score": "76", "duration": "00:48:13", "requests": "2484", "req_pts": "33", "tokens_processed_mt": "49", "tokens_generated_mt": "1,00", "total_tg_s": "346", "parallel_tasks": "4", "tg_s_per_task": "86", "total_cost": "0,11", "ktok_per_pt": "13,16", "gen_tok_per_req": "403", "notes": "patch sglang", "score_num": 76.0, "duration_s": 2893, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 2484.0, "req_pts_num": 33.0, "tokens_processed_num": 49.0, "tokens_generated_num": 1.0, "total_tg_s_num": 346.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 86.0, "total_cost_num": 0.11, "__idx": 65}, {"base": "Qwen3.8-Flash-Next", "model": "Qwen3.8-Flash-Next", "reasoning_effort": "xhigh", "total_params": "125", "active_params": "6", "ngram_params": "51", "model_size": "127", "weights_quant": "NVFP4", "kv_cache_quant": "FP8", "ple_quant": "FP8", "engine": "SGLANG", "nb_gpu": "1", "spec": "MTP", "license": "Qwen Community License 1.0", "model_ref": "ST-Qwen3.8-Flash-Next-NVFP4_127GB_SGLANG_1GPU_96", "max_kv_ktokens": "530", "score": "91", "duration": "01:39:59", "requests": "3639", "req_pts": "40", "tokens_processed_mt": "90", "tokens_generated_mt": "1,67", "total_tg_s": "278", "parallel_tasks": "4", "tg_s_per_task": "70", "total_cost": "0,23", "ktok_per_pt": "18,35", "gen_tok_per_req": "459", "notes": "patch sglang", "score_num": 91.0, "duration_s": 5999, "total_params_num": 125.0, "active_params_num": 6.0, "ngram_params_num": 51.0, "model_size_num": 127.0, "requests_num": 3639.0, "req_pts_num": 40.0, "tokens_processed_num": 90.0, "tokens_generated_num": 1.67, "total_tg_s_num": 278.0, "parallel_tasks_num": 4.0, "tg_s_per_task_num": 70.0, "total_cost_num": 0.23, "__idx": 66}, {"base": "MiniMax-M2.7", "model": "MiniMax-M2.7", "reasoning_effort": "?", "total_params": "230", "active_params": "10", "ngram_params": "0", "model_size": "131", "weights_quant": "Q4_K_M", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "Non-commercial MIT", "model_ref": "GGUF-MiniMax-M2.7-Q4_K_M_130GB_3GPU_local", "max_kv_ktokens": "", "score": "79", "duration": "06:25:00", "requests": "4079", "req_pts": "52", "tokens_processed_mt": "72", "tokens_generated_mt": "1,10", "total_tg_s": "48", "parallel_tasks": "1", "tg_s_per_task": "48", "total_cost": "0,90", "ktok_per_pt": "13,92", "gen_tok_per_req": "270", "notes": "", "score_num": 79.0, "duration_s": 23100, "total_params_num": 230.0, "active_params_num": 10.0, "ngram_params_num": 0.0, "model_size_num": 131.0, "requests_num": 4079.0, "req_pts_num": 52.0, "tokens_processed_num": 72.0, "tokens_generated_num": 1.1, "total_tg_s_num": 48.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 48.0, "total_cost_num": 0.9, "__idx": 67}, {"base": "MiniMax-M2.7", "model": "MiniMax-M2.7", "reasoning_effort": "?", "total_params": "230", "active_params": "10", "ngram_params": "0", "model_size": "131", "weights_quant": "Q4_K_M", "kv_cache_quant": "Q8_0", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "Non-commercial MIT", "model_ref": "GGUF-MiniMax-M2.7-Q4_K_M_130GB_3GPU_local", "max_kv_ktokens": "", "score": "79", "duration": "07:18:49", "requests": "3935", "req_pts": "50", "tokens_processed_mt": "68", "tokens_generated_mt": "1,14", "total_tg_s": "43", "parallel_tasks": "1", "tg_s_per_task": "43", "total_cost": "1,02", "ktok_per_pt": "14,43", "gen_tok_per_req": "290", "notes": "", "score_num": 79.0, "duration_s": 26329, "total_params_num": 230.0, "active_params_num": 10.0, "ngram_params_num": 0.0, "model_size_num": 131.0, "requests_num": 3935.0, "req_pts_num": 50.0, "tokens_processed_num": 68.0, "tokens_generated_num": 1.14, "total_tg_s_num": 43.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 43.0, "total_cost_num": 1.02, "__idx": 68}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "145", "weights_quant": "MXFP4", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-0731-MXFP4_145GB_3GPU_local", "max_kv_ktokens": "", "score": "81", "duration": "04:44:12", "requests": "2714", "req_pts": "34", "tokens_processed_mt": "62", "tokens_generated_mt": "1,07", "total_tg_s": "63", "parallel_tasks": "1", "tg_s_per_task": "63", "total_cost": "0,66", "ktok_per_pt": "13,21", "gen_tok_per_req": "394", "notes": "", "score_num": 81.0, "duration_s": 17052, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 145.0, "requests_num": 2714.0, "req_pts_num": 34.0, "tokens_processed_num": 62.0, "tokens_generated_num": 1.07, "total_tg_s_num": 63.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 63.0, "total_cost_num": 0.66, "__idx": 69}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "145", "weights_quant": "MXFP4", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-0731-MXFP4_145GB_3GPU_local", "max_kv_ktokens": "", "score": "81", "duration": "04:33:35", "requests": "2747", "req_pts": "34", "tokens_processed_mt": "56", "tokens_generated_mt": "1,02", "total_tg_s": "62", "parallel_tasks": "1", "tg_s_per_task": "62", "total_cost": "0,64", "ktok_per_pt": "12,59", "gen_tok_per_req": "371", "notes": "", "score_num": 81.0, "duration_s": 16415, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 145.0, "requests_num": 2747.0, "req_pts_num": 34.0, "tokens_processed_num": 56.0, "tokens_generated_num": 1.02, "total_tg_s_num": 62.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 62.0, "total_cost_num": 0.64, "__idx": 70}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107 HuiHui abliterated", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "145", "weights_quant": "MXFP4", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-Huihui-DeepSeek-V4-Flash-0731-abliterated-MXFP4_145GB_3GPU_local", "max_kv_ktokens": "", "score": "80", "duration": "05:25:44", "requests": "2925", "req_pts": "37", "tokens_processed_mt": "66", "tokens_generated_mt": "1,27", "total_tg_s": "65", "parallel_tasks": "1", "tg_s_per_task": "65", "total_cost": "0,76", "ktok_per_pt": "15,88", "gen_tok_per_req": "434", "notes": "", "score_num": 80.0, "duration_s": 19544, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 145.0, "requests_num": 2925.0, "req_pts_num": 37.0, "tokens_processed_num": 66.0, "tokens_generated_num": 1.27, "total_tg_s_num": 65.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 65.0, "total_cost_num": 0.76, "__idx": 71}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107HuiHui abliterated", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "145", "weights_quant": "MXFP4", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-Huihui-DeepSeek-V4-Flash-0731-abliterated-MXFP4_145GB_3GPU_local", "max_kv_ktokens": "", "score": "80", "duration": "06:39:20", "requests": "3195", "req_pts": "40", "tokens_processed_mt": "84", "tokens_generated_mt": "1,51", "total_tg_s": "63", "parallel_tasks": "1", "tg_s_per_task": "63", "total_cost": "0,93", "ktok_per_pt": "18,88", "gen_tok_per_req": "473", "notes": "", "score_num": 80.0, "duration_s": 23960, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 145.0, "requests_num": 3195.0, "req_pts_num": 40.0, "tokens_processed_num": 84.0, "tokens_generated_num": 1.51, "total_tg_s_num": 63.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 63.0, "total_cost_num": 0.93, "__idx": 72}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "90", "weights_quant": "Q2_K_XL", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-0731-Q2_K_XL_90GB_3GPU_local", "max_kv_ktokens": "", "score": "92", "duration": "06:48:37", "requests": "4606", "req_pts": "50", "tokens_processed_mt": "138", "tokens_generated_mt": "1,49", "total_tg_s": "61", "parallel_tasks": "1", "tg_s_per_task": "61", "total_cost": "0,95", "ktok_per_pt": "16,20", "gen_tok_per_req": "323", "notes": "", "score_num": 92.0, "duration_s": 24517, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 90.0, "requests_num": 4606.0, "req_pts_num": 50.0, "tokens_processed_num": 138.0, "tokens_generated_num": 1.49, "total_tg_s_num": 61.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 61.0, "total_cost_num": 0.95, "__idx": 73}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "90", "weights_quant": "Q2_K_XL", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-0731-Q2_K_XL_90GB_3GPU_local", "max_kv_ktokens": "", "score": "92", "duration": "09:07:25", "requests": "4649", "req_pts": "51", "tokens_processed_mt": "135", "tokens_generated_mt": "1,47", "total_tg_s": "45", "parallel_tasks": "1", "tg_s_per_task": "45", "total_cost": "1,28", "ktok_per_pt": "15,98", "gen_tok_per_req": "316", "notes": "", "score_num": 92.0, "duration_s": 32845, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 90.0, "requests_num": 4649.0, "req_pts_num": 51.0, "tokens_processed_num": 135.0, "tokens_generated_num": 1.47, "total_tg_s_num": 45.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 45.0, "total_cost_num": 1.28, "__idx": 74}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "119", "weights_quant": "Q3_K_XL", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-0731-Q3_K_XL_119GB_3GPU_local", "max_kv_ktokens": "", "score": "90", "duration": "05:50:00", "requests": "3793", "req_pts": "42", "tokens_processed_mt": "98", "tokens_generated_mt": "1,34", "total_tg_s": "64", "parallel_tasks": "1", "tg_s_per_task": "64", "total_cost": "0,82", "ktok_per_pt": "14,89", "gen_tok_per_req": "353", "notes": "", "score_num": 90.0, "duration_s": 21000, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 119.0, "requests_num": 3793.0, "req_pts_num": 42.0, "tokens_processed_num": 98.0, "tokens_generated_num": 1.34, "total_tg_s_num": 64.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 64.0, "total_cost_num": 0.82, "__idx": 75}, {"base": "Deepseek v4 flash", "model": "Deepseek v4 flash 3107", "reasoning_effort": "high", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "150", "weights_quant": "Q8_K_XL", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-0731-Q8_K_XL_150GB_3GPU_local", "max_kv_ktokens": "", "score": "90", "duration": "06:25:20", "requests": "3748", "req_pts": "42", "tokens_processed_mt": "92", "tokens_generated_mt": "1,3", "total_tg_s": "56", "parallel_tasks": "1", "tg_s_per_task": "56", "total_cost": "0,90", "ktok_per_pt": "14,44", "gen_tok_per_req": "347", "notes": "", "score_num": 90.0, "duration_s": 23120, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 150.0, "requests_num": 3748.0, "req_pts_num": 42.0, "tokens_processed_num": 92.0, "tokens_generated_num": 1.3, "total_tg_s_num": 56.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 56.0, "total_cost_num": 0.9, "__idx": 76}, {"base": "Deepseek v4 flash", "model": "DeepSeek-V4-Flash-Vision-Exp", "reasoning_effort": "medium", "total_params": "284", "active_params": "13", "ngram_params": "0", "model_size": "120", "weights_quant": "Q3_K_XL", "kv_cache_quant": "BF16", "ple_quant": "n/a", "engine": "llama.cpp", "nb_gpu": "3", "spec": "", "license": "MIT", "model_ref": "GGUF-DeepSeek-V4-Flash-Vision-Exp-UD-Q3_K_XL_120GB_3GPU_local", "max_kv_ktokens": "", "score": "81", "duration": "10:25:39", "requests": "4219", "req_pts": "52", "tokens_processed_mt": "143", "tokens_generated_mt": "2,3", "total_tg_s": "61", "parallel_tasks": "1", "tg_s_per_task": "61", "total_cost": "1,46", "ktok_per_pt": "28,40", "gen_tok_per_req": "545", "notes": "", "score_num": 81.0, "duration_s": 37539, "total_params_num": 284.0, "active_params_num": 13.0, "ngram_params_num": 0.0, "model_size_num": 120.0, "requests_num": 4219.0, "req_pts_num": 52.0, "tokens_processed_num": 143.0, "tokens_generated_num": 2.3, "total_tg_s_num": 61.0, "parallel_tasks_num": 1.0, "tg_s_per_task_num": 61.0, "total_cost_num": 1.46, "__idx": 77}, {"base": "Hy3", "model": "Hy3", "reasoning_effort": "?", "total_params": "295", "active_params": "21", "ngram_params": "0", "model_size": "?", "weights_quant": "?", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "Apache 2.0", "model_ref": "openrouter/tencent/hy3:free", "max_kv_ktokens": "", "score": "70", "duration": "01:14:45", "requests": "2516", "req_pts": "36", "tokens_processed_mt": "41", "tokens_generated_mt": "0,82", "total_tg_s": "183", "parallel_tasks": "5", "tg_s_per_task": "37", "total_cost": "", "ktok_per_pt": "11,71", "gen_tok_per_req": "326", "notes": "", "score_num": 70.0, "duration_s": 4485, "total_params_num": 295.0, "active_params_num": 21.0, "ngram_params_num": 0.0, "model_size_num": null, "requests_num": 2516.0, "req_pts_num": 36.0, "tokens_processed_num": 41.0, "tokens_generated_num": 0.82, "total_tg_s_num": 183.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 37.0, "total_cost_num": null, "__idx": 78}, {"base": "Hy3", "model": "Hy3", "reasoning_effort": "?", "total_params": "295", "active_params": "21", "ngram_params": "0", "model_size": "?", "weights_quant": "?", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "Apache 2.0", "model_ref": "openrouter/tencent/hy3:free", "max_kv_ktokens": "", "score": "70", "duration": "01:09:26", "requests": "2676", "req_pts": "38", "tokens_processed_mt": "40", "tokens_generated_mt": "0,62", "total_tg_s": "149", "parallel_tasks": "5", "tg_s_per_task": "30", "total_cost": "", "ktok_per_pt": "8,86", "gen_tok_per_req": "232", "notes": "", "score_num": 70.0, "duration_s": 4166, "total_params_num": 295.0, "active_params_num": 21.0, "ngram_params_num": 0.0, "model_size_num": null, "requests_num": 2676.0, "req_pts_num": 38.0, "tokens_processed_num": 40.0, "tokens_generated_num": 0.62, "total_tg_s_num": 149.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 30.0, "total_cost_num": null, "__idx": 79}, {"base": "MiMo-V2.5", "model": "MiMo-V2.5", "reasoning_effort": "?", "total_params": "310", "active_params": "15", "ngram_params": "0", "model_size": "310", "weights_quant": "FP8", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "MIT", "model_ref": "openrouter/xiaomi/mimo-v2.5", "max_kv_ktokens": "", "score": "70", "duration": "02:00:32", "requests": "4308", "req_pts": "62", "tokens_processed_mt": "136", "tokens_generated_mt": "2,07", "total_tg_s": "286", "parallel_tasks": "5", "tg_s_per_task": "57", "total_cost": "2,20", "ktok_per_pt": "29,57", "gen_tok_per_req": "481", "notes": "", "score_num": 70.0, "duration_s": 7232, "total_params_num": 310.0, "active_params_num": 15.0, "ngram_params_num": 0.0, "model_size_num": 310.0, "requests_num": 4308.0, "req_pts_num": 62.0, "tokens_processed_num": 136.0, "tokens_generated_num": 2.07, "total_tg_s_num": 286.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 57.0, "total_cost_num": 2.2, "__idx": 80}, {"base": "GLM 5.2", "model": "GLM 5.2", "reasoning_effort": "?", "total_params": "753", "active_params": "40", "ngram_params": "0", "model_size": "756", "weights_quant": "FP8", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "MIT", "model_ref": "openrouter/z-ai/glm-5.2", "max_kv_ktokens": "", "score": "80", "duration": "02:22:57", "requests": "3463", "req_pts": "43", "tokens_processed_mt": "74", "tokens_generated_mt": "1,03", "total_tg_s": "120", "parallel_tasks": "5", "tg_s_per_task": "24", "total_cost": "18,50", "ktok_per_pt": "12,88", "gen_tok_per_req": "297", "notes": "", "score_num": 80.0, "duration_s": 8577, "total_params_num": 753.0, "active_params_num": 40.0, "ngram_params_num": 0.0, "model_size_num": 756.0, "requests_num": 3463.0, "req_pts_num": 43.0, "tokens_processed_num": 74.0, "tokens_generated_num": 1.03, "total_tg_s_num": 120.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 24.0, "total_cost_num": 18.5, "__idx": 81}, {"base": "GLM 5.2", "model": "GLM 5.2", "reasoning_effort": "?", "total_params": "753", "active_params": "40", "ngram_params": "0", "model_size": "756", "weights_quant": "FP8", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "MIT", "model_ref": "openrouter/z-ai/glm-5.2", "max_kv_ktokens": "", "score": "80", "duration": "02:03:07", "requests": "3261", "req_pts": "41", "tokens_processed_mt": "62", "tokens_generated_mt": "0,99", "total_tg_s": "134", "parallel_tasks": "5", "tg_s_per_task": "27", "total_cost": "7,44", "ktok_per_pt": "12,38", "gen_tok_per_req": "304", "notes": "", "score_num": 80.0, "duration_s": 7387, "total_params_num": 753.0, "active_params_num": 40.0, "ngram_params_num": 0.0, "model_size_num": 756.0, "requests_num": 3261.0, "req_pts_num": 41.0, "tokens_processed_num": 62.0, "tokens_generated_num": 0.99, "total_tg_s_num": 134.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 27.0, "total_cost_num": 7.44, "__idx": 82}, {"base": "Deepseek v4 pro", "model": "Deepseek v4 pro", "reasoning_effort": "?", "total_params": "1600", "active_params": "49", "ngram_params": "0", "model_size": "865", "weights_quant": "FP8", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "MIT", "model_ref": "openrouter/deepseek/deepseek-v4-pro", "max_kv_ktokens": "", "score": "80", "duration": "01:19:50", "requests": "4024", "req_pts": "50", "tokens_processed_mt": "112", "tokens_generated_mt": "1,4", "total_tg_s": "292", "parallel_tasks": "5", "tg_s_per_task": "58", "total_cost": "2,45", "ktok_per_pt": "17,50", "gen_tok_per_req": "348", "notes": "", "score_num": 80.0, "duration_s": 4790, "total_params_num": 1600.0, "active_params_num": 49.0, "ngram_params_num": 0.0, "model_size_num": 865.0, "requests_num": 4024.0, "req_pts_num": 50.0, "tokens_processed_num": 112.0, "tokens_generated_num": 1.4, "total_tg_s_num": 292.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 58.0, "total_cost_num": 2.45, "__idx": 83}, {"base": "Deepseek v4 pro", "model": "Deepseek v4 pro", "reasoning_effort": "?", "total_params": "1600", "active_params": "49", "ngram_params": "0", "model_size": "865", "weights_quant": "FP8", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "MIT", "model_ref": "openrouter/deepseek/deepseek-v4-pro", "max_kv_ktokens": "", "score": "80", "duration": "01:29:00", "requests": "4084", "req_pts": "51", "tokens_processed_mt": "113", "tokens_generated_mt": "1,45", "total_tg_s": "272", "parallel_tasks": "5", "tg_s_per_task": "54", "total_cost": "2,38", "ktok_per_pt": "18,13", "gen_tok_per_req": "355", "notes": "", "score_num": 80.0, "duration_s": 5340, "total_params_num": 1600.0, "active_params_num": 49.0, "ngram_params_num": 0.0, "model_size_num": 865.0, "requests_num": 4084.0, "req_pts_num": 51.0, "tokens_processed_num": 113.0, "tokens_generated_num": 1.45, "total_tg_s_num": 272.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 54.0, "total_cost_num": 2.38, "__idx": 84}, {"base": "Qwen 3.7 max", "model": "Qwen 3.7 max", "reasoning_effort": "?", "total_params": "?", "active_params": "?", "ngram_params": "?", "model_size": "?", "weights_quant": "?", "kv_cache_quant": "?", "ple_quant": "n/a", "engine": "API", "nb_gpu": "n/a", "spec": "", "license": "proprietary", "model_ref": "openrouter/qwen/qwen3.7-max", "max_kv_ktokens": "", "score": "70", "duration": "02:36:27", "requests": "5599", "req_pts": "80", "tokens_processed_mt": "123", "tokens_generated_mt": "1,8", "total_tg_s": "192", "parallel_tasks": "5", "tg_s_per_task": "38", "total_cost": "60,70", "ktok_per_pt": "25,71", "gen_tok_per_req": "321", "notes": "", "score_num": 70.0, "duration_s": 9387, "total_params_num": null, "active_params_num": null, "ngram_params_num": null, "model_size_num": null, "requests_num": 5599.0, "req_pts_num": 80.0, "tokens_processed_num": 123.0, "tokens_generated_num": 1.8, "total_tg_s_num": 192.0, "parallel_tasks_num": 5.0, "tg_s_per_task_num": 38.0, "total_cost_num": 60.7, "__idx": 85}];
@@ -1305,7 +1343,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
         var seconds = sumNums(VALID, "duration_s");
         var hours = seconds / 3600;
         var stats = [
-          {label: "Models tested", value: fmtNum(VALID.length),
+          {label: "Total runs", value: fmtNum(VALID.length),
            sub: distinct(VALID, function(r){ return nameKey(r.base, r.model); }) + " models \u00B7 "
              + distinct(VALID, function(r){ return r.base; }) + " families"},
           {label: "Tasks", value: fmtNum(VALID.length * TASKS_PER_RUN), sub: "each run \u00D7 " + TASKS_PER_RUN + " tasks"},
@@ -1331,13 +1369,28 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
       var openBases = {};
       var baseNames = {};
       var baseColors = {};
-      var BASE_PALETTE = ["#8b5cf6","#22c55e","#f97316","#ef4444","#6366f1","#0ea5e9","#facc15","#4ade80","#ec4899","#2dd4bf","#9ca3af","#f87171","#a3e635","#a5f3fc","#fde68a"];
+      var baseOrder = {};
+      /* Curated per theme: the light set stays deep enough to sit on white/paper,
+         the dark set bright enough to read on the warm night ground. Same hue order
+         in both, so a model keeps its identity when the theme flips. */
+      var PALETTES = {
+        light: ["#8a6a2f","#1f7a4d","#c0562b","#b3261e","#5a4bb0","#0e7fbf","#c9a227","#4a9a5c","#c0357c","#1f9e97","#8b8375","#d4703f","#7d9b1f","#3f9fd0","#dcc06a"],
+        dark: ["#dfc095","#5ec98a","#ef8b52","#ff7a6e","#a795ff","#63c8f5","#f2d84a","#7ee0a0","#f27ab5","#5ee6da","#b0a894","#ff9d70","#c8e85a","#8fdcff","#f7e0a0"],
+      };
 
       // Past the curated colors, spread hues by the golden angle so any number of models stays distinct.
-      function paletteColor(i){
-        if (i < BASE_PALETTE.length) return BASE_PALETTE[i];
-        var n = i - BASE_PALETTE.length;
-        return "hsl(" + ((300 + n * 137.508) % 360).toFixed(1) + ",72%," + (n % 2 ? 38 : 62) + "%)";
+      function paletteColor(i, dark){
+        var p = dark ? PALETTES.dark : PALETTES.light;
+        if (i < p.length) return p[i];
+        var n = i - p.length;
+        var h = ((300 + n * 137.508) % 360).toFixed(1);
+        return dark
+          ? "hsl(" + h + ",68%," + (n % 2 ? 53 : 70) + "%)"
+          : "hsl(" + h + ",55%," + (n % 2 ? 31 : 45) + "%)";
+      }
+
+      function isDarkTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'dark';
       }
 
       function nameKey(b, m) { return b + "\n" + m; }
@@ -1350,7 +1403,8 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
         });
         Object.keys(byBase).sort().forEach(function(b, i){
           visibleModels[b] = true;
-          baseColors[b] = paletteColor(i);
+          baseOrder[b] = i;
+          baseColors[b] = paletteColor(i, isDarkTheme());
           baseNames[b] = Object.keys(byBase[b]).sort();
           baseNames[b].forEach(function(m){ visibleNames[nameKey(b, m)] = true; });
         });
@@ -1518,12 +1572,14 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
         });
       }
 
+      /* Heat tint rides the theme's own good/bad tokens, so it stays legible on
+         paper and on the night ground instead of a fixed green/red. */
       function cellBg(nc, val, lo, hi){
         if (lo === null || hi === null || lo === hi) return "";
         var t = (val - lo) / (hi - lo);
-        var g = Math.round(255 * (nc.higherBetter ? t : 1 - t));
-        var r2 = Math.round(255 * (nc.higherBetter ? 1 - t : t));
-        return "rgba(" + r2 + "," + g + ",40,0.35)";
+        var pct = Math.round((nc.higherBetter ? t : 1 - t) * 40);
+        if (pct < 4) return "";
+        return "color-mix(in srgb, var(" + (nc.higherBetter ? "--ok" : "--bad") + ") " + pct + "%, transparent)";
       }
 
       function renderTableBody(){
@@ -1626,7 +1682,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
 
       var _measure = document.createElement('canvas').getContext('2d');
       function widestPx(lines, size) {
-        _measure.font = size + "px 'Inter', 'Segoe UI', system-ui, sans-serif";
+        _measure.font = size + "px " + chartFontFamily;
         return lines.reduce(function (m, l) {
           return Math.max(m, _measure.measureText(l).width);
         }, 0);
@@ -1704,7 +1760,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
         var mins = agg.map(function(a){return a.min;});
         var maxs = agg.map(function(a){return a.max;});
         var gpuVals = agg.map(function(a){return a.gpu || "\u2014";});
-        var colors = agg.map(function(a){return baseColors[a.base] || '#888';});
+        var colors = agg.map(function(a){return baseColors[a.base] || tc.muted;});
 
         var loErr = avgVals.map(function(a, i){return a - mins[i];});
         var hiErr = maxs.map(function(m, i){return m - avgVals[i];});
@@ -1740,7 +1796,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
           height: Math.max(300, agg.length * axis.rowH),
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
-          font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", color: tc.font }
+          font: { family: tc.fontFamily, color: tc.font }
         };
         // The modebar only appears on hover, so on touch it sits permanently over
         // the top of the chart, where a phone has no room for it.
@@ -1787,7 +1843,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
       function scatterLine() {
         var outline = getThemeColors().font;
         return {
-          color: scatterPts.map(function(p){ return hoverHit(p) ? outline : (baseColors[p.base] || '#888'); }),
+          color: scatterPts.map(function(p){ return hoverHit(p) ? outline : (baseColors[p.base] || getThemeColors().muted); }),
           width: scatterPts.map(function(p){ return hoverHit(p) ? 4 : 1.5; })
         };
       }
@@ -1851,7 +1907,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
               + "<br>" + sLabel;
           }),
           marker: {
-            color: pts.map(function(b){return baseColors[b.base] || '#888';}),
+            color: pts.map(function(b){return baseColors[b.base] || tc.muted;}),
             line: scatterLine(),
             size: pts.map(function(b){return bubbleSize(b.s);}),
             sizemode: "raw",
@@ -1876,7 +1932,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
           },
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
-          font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", size: 12, color: tc.font },
+          font: { family: tc.fontFamily, size: 12, color: tc.font },
           margin: { l: 60, r: 20, t: 30, b: 50 },
           hovermode: "closest",
           dragmode: isNarrow() ? false : "zoom"
@@ -1952,8 +2008,15 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
       }
 
       // Theme-aware chart updates
+      /* Curated colors are per-theme, so a flip re-derives every model's color and
+         repaints the swatches and charts; the table tint reads live CSS vars. */
       window.__themeUpdateCharts = function() {
-        var tc = getThemeColors();
+        var dark = isDarkTheme();
+        chartFontFamily = getThemeColors().fontFamily;
+        Object.keys(baseOrder).forEach(function(b){
+          baseColors[b] = paletteColor(baseOrder[b], dark);
+        });
+        renderModelFilter();
         buildMetricChart();
         buildScatter();
       };
@@ -2038,11 +2101,9 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
         right: 16px;
         z-index: 9999;
         background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 10px;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 6px;
         padding: 10px 14px;
-        box-shadow: var(--shadow-card-hover);
-        backdrop-filter: blur(6px);
         display: flex;
         flex-direction: column;
         gap: 6px;
@@ -2073,9 +2134,10 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
         white-space: nowrap;
       }
       .footer-sticky a {
-        color: var(--accent);
-        text-decoration: none;
-        font-weight: 500;
+        color: var(--text-primary);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        font-weight: 600;
         word-break: break-all;
       }
       .footer-sticky a:hover {
