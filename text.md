@@ -8,7 +8,7 @@ This is just my (a random guy) own data and observations based on my own tests w
 
 The scores are from a subset of a public benchmark [sweVerified](https://www.swebench.com/verified.html) covering the **first 100 tasks of the django set**. (Processing all 500 tasks for each model would be too long on my hardware...) This is a benchmark of **agentic AI dev** tasks. A code repo is provided alongside a task and the agent is autonomous until achieved. The agent in question is the lightweight [mini-swe-agent](https://github.com/swe-agent/mini-swe-agent)
 
-If you want to dig even deeper in each of the benchmark traces and see more details, you can do so : [Focus on model efficiency](./benchmark-detail.html)
+If you want to dig even deeper in each of the benchmark traces and see more details, you can do so : [tool calling fine detail analysis](./benchmark-detail.html)
 
 The main goal here is to **compare different local models** and the **impact of different configuration of the same model.** (quantization, inference engine, hardware, finetunes, etc...)
 
@@ -158,7 +158,7 @@ is a finetune of the older Qwen3.5-35B-A3B, and has a very good score for its ca
 - The model makes more mistakes, incorrect tool calls, and generating code bugs that it must later fix
 - while still being a little better than the original model, since it scored higher (+7).
 
-Trying to understand, let's see the details in [Focus on model efficiency](./benchmark-detail.html) 
+Trying to understand, let's see the details in [tool calling fine detail analysis](./benchmark-detail.html) 
 
 - the model generated a lot more of tool calls (8327 vs 7546)
 - but generated less tool call errors (Non-zero return codes) in total (489 vs 739)

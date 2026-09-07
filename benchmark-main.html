@@ -146,6 +146,9 @@
         letter-spacing: 0.08em;
         color: var(--accent);
       }
+      .bd-header a {
+        color: var(--accent);
+      }
 
       /* Theme toggle */
       .theme-toggle {
@@ -720,6 +723,9 @@
         Comparing paid API models and localy run open weights models with
         multiple variants
       </p>
+      <p>
+        Check also the <a href="./benchmark-detail.html">tool calling fine detail analysis</a> 
+      </p>
     </div>
 
     <div class="bd-wrapper">
@@ -744,7 +750,7 @@
 <h2>Disclaimer</h2>
 <p>This is just my (a random guy) own data and observations based on my own tests with limited time and resources. It may contains errors and mistakes, but also provide some interesting facts and insights...</p>
 <p>The scores are from a subset of a public benchmark <a href="https://www.swebench.com/verified.html">sweVerified</a> covering the <strong>first 100 tasks of the django set</strong>. (Processing all 500 tasks for each model would be too long on my hardware...) This is a benchmark of <strong>agentic AI dev</strong> tasks. A code repo is provided alongside a task and the agent is autonomous until achieved. The agent in question is the lightweight <a href="https://github.com/swe-agent/mini-swe-agent">mini-swe-agent</a></p>
-<p>If you want to dig even deeper in each of the benchmark traces and see more details, you can do so : <a href="./benchmark-detail.html">Focus on model efficiency</a></p>
+<p>If you want to dig even deeper in each of the benchmark traces and see more details, you can do so : <a href="./benchmark-detail.html">tool calling fine detail analysis</a></p>
 <p>The main goal here is to <strong>compare different local models</strong> and the <strong>impact of different configuration of the same model.</strong> (quantization, inference engine, hardware, finetunes, etc...)</p>
 <p>The second goal is to provide some pointers to compare locally run open weights models to paid subscriptions SOTA models.</p>
 <h2>Some technical information:</h2>
@@ -882,7 +888,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
 <li>The model makes more mistakes, incorrect tool calls, and generating code bugs that it must later fix</li>
 <li>while still being a little better than the original model, since it scored higher (+7).</li>
 </ul>
-<p>Trying to understand, let's see the details in <a href="./benchmark-detail.html">Focus on model efficiency</a> </p>
+<p>Trying to understand, let's see the details in <a href="./benchmark-detail.html">tool calling fine detail analysis</a> </p>
 <ul>
 <li>the model generated a lot more of tool calls (8327 vs 7546)</li>
 <li>but generated less tool call errors (Non-zero return codes) in total (489 vs 739)</li>
