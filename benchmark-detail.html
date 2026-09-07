@@ -236,6 +236,9 @@
         margin-bottom: 20px;
       }
       .chart-box {
+        /* Grid items default to min-width:auto, so a chart that keeps its own
+           horizontal scroller would inflate the whole row past the viewport. */
+        min-width: 0;
         background: var(--bg-card);
         border-radius: 1.2rem;
         padding: 20px;
@@ -486,6 +489,7 @@
       .legend {
         margin-top: 12px;
         display: flex;
+        flex-wrap: wrap;
         gap: 20px;
         font-size: 0.82rem;
         color: var(--text-secondary);
@@ -577,6 +581,22 @@
         border-radius: 3px;
       }
 
+      /* Error-reason panel: checkboxes beside the stacked bar chart. */
+      .fail-reasons {
+        display: flex;
+        gap: 20px;
+      }
+      .error-reason-checkboxes {
+        min-width: 180px;
+        padding-right: 12px;
+        overflow-y: auto;
+        max-height: 500px;
+      }
+      .error-reason-chart {
+        flex: 1;
+        min-width: 0;
+      }
+
       /* Control buttons */
       .btn {
         background: var(--bg-btn);
@@ -624,20 +644,34 @@
         .chart-row {
           grid-template-columns: 1fr;
         }
+        .header {
+          padding: 56px 16px 28px;
+        }
         .header h1 {
-          font-size: 1.75rem;
+          font-size: 1.5rem;
+        }
+        .header p {
+          font-size: 0.92rem;
+        }
+        .theme-toggle {
+          top: 10px;
+          right: 12px;
+          padding: 6px 10px;
         }
         .content {
           padding: 24px 16px 48px;
           flex-direction: column;
+          /* Required: in column direction `flex-start` (from the base rule) would
+             size .content-main to max-content and blow the page width out. */
+          align-items: stretch;
         }
         .filter-sidebar {
           position: static;
           width: 100%;
           flex-direction: row;
           flex-wrap: wrap;
-          max-height: none;
-          overflow-y: visible;
+          max-height: 260px;
+          overflow-y: auto;
           padding: 12px 16px;
           gap: 4px;
         }
@@ -653,6 +687,83 @@
         }
         .filter-sidebar .btn {
           width: auto;
+        }
+        .chart-box {
+          padding: 14px;
+        }
+        /* The agreement matrix is genuinely wide (one column per task), so it keeps
+           its own horizontal scroller. The bar charts instead wrap their y-axis
+           labels (see barAxis) so they fit the viewport without scrolling. */
+        .chart-scroll-x {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        #chart-agreement {
+          min-width: 900px;
+        }
+        .metric-card .value {
+          font-size: 1.75rem;
+        }
+        .section-title {
+          font-size: 1.1rem;
+          flex-wrap: wrap;
+          margin: 32px 0 16px;
+        }
+        .section-hint {
+          margin-left: 0;
+          flex-basis: 100%;
+        }
+        .fail-reasons {
+          flex-direction: column;
+        }
+        .error-reason-checkboxes {
+          min-width: 0;
+          max-height: 200px;
+          padding-right: 0;
+        }
+        .error-reason-chart {
+          flex: none;
+        }
+        .table-scroll th,
+        .table-scroll td {
+          padding: 5px 6px;
+        }
+        /* A nested vertical scroller traps touch scrolling; let the tables grow
+           and the page scroll, keeping only the horizontal scroll for columns. */
+        .table-scroll {
+          max-height: none;
+        }
+        .model-col {
+          min-width: 132px;
+          width: 132px;
+          max-width: 132px;
+          white-space: normal;
+          /* `anywhere` also shrinks the column's min-content width to one
+             character; `break-word` wraps without touching intrinsic sizing. */
+          overflow-wrap: break-word;
+        }
+        /* A 10px caret is untappable; `filter-sidebar` owns the base size, so the
+           touch target has to be widened with the same specificity. */
+        .filter-sidebar .caret {
+          min-width: 30px;
+          min-height: 30px;
+          font-size: 0.9rem;
+        }
+        /* iOS Safari zooms the whole page when a focused control is under 16px. */
+        .scatter-controls select {
+          font-size: 16px;
+        }
+        .filter-sidebar input[type="checkbox"] {
+          width: 20px;
+          height: 20px;
+        }
+      }
+      /* Touch devices cannot use the modebar's drag-zoom, and it covers the
+         plot. Narrow desktop windows keep it: there the zoom button still
+         switches the drag mode back on. */
+      @media (hover: none) and (pointer: coarse) {
+        .js-plotly-plot .modebar {
+          display: none;
         }
       }
     </style>
@@ -88811,6 +88922,1472 @@
       "total_api": 3017,
       "total_nonzero_rc": 235
     },
+    "medium-none_WQNFP4_CQFP8": {
+      "model": "Qwen3.8-Flash-Next (medium-none_WQNFP4_CQFP8)",
+      "variant": "medium-none_WQNFP4_CQFP8",
+      "summary": {
+        "total_trajectories": 100,
+        "submitted": 100,
+        "other_exits": 0,
+        "submissions_with_diff": 100,
+        "api_avg": 25.9,
+        "api_median": 24.0,
+        "api_min": 7,
+        "api_max": 73,
+        "tools_avg": 28.0,
+        "tools_median": 26.0,
+        "tools_min": 7,
+        "tools_max": 80,
+        "wall_avg": "2m 5s",
+        "wall_median": "1m 27s",
+        "wall_min": "16.1s",
+        "wall_max": "13m 27s",
+        "nonzero_rc_avg": 3.3,
+        "nonzero_rc_median": 3.0,
+        "exit_statuses": {
+          "Submitted": 100,
+          "Qwen3.8-Flash-Next (medium-none_WQNFP4_CQFP8)": 100
+        }
+      },
+      "table": [
+        {
+          "instance": "django__django-10097",
+          "exit": "Submitted",
+          "api": 26,
+          "tools": 26,
+          "messages": 54,
+          "wall_time": "1m 57s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-10554",
+          "exit": "Submitted",
+          "api": 40,
+          "tools": 42,
+          "messages": 84,
+          "wall_time": "3m 32s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-10880",
+          "exit": "Submitted",
+          "api": 19,
+          "tools": 19,
+          "messages": 40,
+          "wall_time": "49.4s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-10914",
+          "exit": "Submitted",
+          "api": 36,
+          "tools": 43,
+          "messages": 81,
+          "wall_time": "2m 43s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-10973",
+          "exit": "Submitted",
+          "api": 8,
+          "tools": 9,
+          "messages": 19,
+          "wall_time": "37.1s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-10999",
+          "exit": "Submitted",
+          "api": 17,
+          "tools": 17,
+          "messages": 36,
+          "wall_time": "1m 16s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11066",
+          "exit": "Submitted",
+          "api": 12,
+          "tools": 12,
+          "messages": 26,
+          "wall_time": "20.8s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11087",
+          "exit": "Submitted",
+          "api": 33,
+          "tools": 38,
+          "messages": 73,
+          "wall_time": "3m 52s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-11095",
+          "exit": "Submitted",
+          "api": 21,
+          "tools": 21,
+          "messages": 44,
+          "wall_time": "1m 13s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11099",
+          "exit": "Submitted",
+          "api": 9,
+          "tools": 9,
+          "messages": 20,
+          "wall_time": "16.7s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11119",
+          "exit": "Submitted",
+          "api": 9,
+          "tools": 9,
+          "messages": 20,
+          "wall_time": "28.4s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11133",
+          "exit": "Submitted",
+          "api": 11,
+          "tools": 11,
+          "messages": 24,
+          "wall_time": "18.9s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11138",
+          "exit": "Submitted",
+          "api": 36,
+          "tools": 44,
+          "messages": 82,
+          "wall_time": "3m 7s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11141",
+          "exit": "Submitted",
+          "api": 37,
+          "tools": 46,
+          "messages": 85,
+          "wall_time": "4m 15s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11149",
+          "exit": "Submitted",
+          "api": 32,
+          "tools": 34,
+          "messages": 68,
+          "wall_time": "2m 18s",
+          "nonzero_rc": 4
+        },
+        {
+          "instance": "django__django-11163",
+          "exit": "Submitted",
+          "api": 9,
+          "tools": 9,
+          "messages": 20,
+          "wall_time": "16.1s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11179",
+          "exit": "Submitted",
+          "api": 18,
+          "tools": 18,
+          "messages": 38,
+          "wall_time": "40.8s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-11206",
+          "exit": "Submitted",
+          "api": 16,
+          "tools": 16,
+          "messages": 34,
+          "wall_time": "50.1s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11211",
+          "exit": "Submitted",
+          "api": 31,
+          "tools": 36,
+          "messages": 69,
+          "wall_time": "2m 56s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11239",
+          "exit": "Submitted",
+          "api": 16,
+          "tools": 20,
+          "messages": 38,
+          "wall_time": "1m 24s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11265",
+          "exit": "Submitted",
+          "api": 42,
+          "tools": 42,
+          "messages": 86,
+          "wall_time": "3m 17s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-11276",
+          "exit": "Submitted",
+          "api": 16,
+          "tools": 16,
+          "messages": 34,
+          "wall_time": "45.0s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11292",
+          "exit": "Submitted",
+          "api": 44,
+          "tools": 45,
+          "messages": 91,
+          "wall_time": "3m 28s",
+          "nonzero_rc": 9
+        },
+        {
+          "instance": "django__django-11299",
+          "exit": "Submitted",
+          "api": 26,
+          "tools": 30,
+          "messages": 58,
+          "wall_time": "1m 45s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11333",
+          "exit": "Submitted",
+          "api": 20,
+          "tools": 20,
+          "messages": 42,
+          "wall_time": "42.4s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11400",
+          "exit": "Submitted",
+          "api": 56,
+          "tools": 59,
+          "messages": 117,
+          "wall_time": "4m 11s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11433",
+          "exit": "Submitted",
+          "api": 38,
+          "tools": 40,
+          "messages": 80,
+          "wall_time": "2m 32s",
+          "nonzero_rc": 5
+        },
+        {
+          "instance": "django__django-11451",
+          "exit": "Submitted",
+          "api": 12,
+          "tools": 12,
+          "messages": 26,
+          "wall_time": "26.1s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11477",
+          "exit": "Submitted",
+          "api": 23,
+          "tools": 23,
+          "messages": 48,
+          "wall_time": "1m 38s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11490",
+          "exit": "Submitted",
+          "api": 13,
+          "tools": 13,
+          "messages": 28,
+          "wall_time": "37.8s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11532",
+          "exit": "Submitted",
+          "api": 30,
+          "tools": 30,
+          "messages": 62,
+          "wall_time": "2m 53s",
+          "nonzero_rc": 7
+        },
+        {
+          "instance": "django__django-11551",
+          "exit": "Submitted",
+          "api": 26,
+          "tools": 26,
+          "messages": 54,
+          "wall_time": "1m 15s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11555",
+          "exit": "Submitted",
+          "api": 17,
+          "tools": 20,
+          "messages": 39,
+          "wall_time": "1m 22s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11603",
+          "exit": "Submitted",
+          "api": 13,
+          "tools": 14,
+          "messages": 29,
+          "wall_time": "37.0s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11728",
+          "exit": "Submitted",
+          "api": 26,
+          "tools": 26,
+          "messages": 54,
+          "wall_time": "3m 21s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11734",
+          "exit": "Submitted",
+          "api": 73,
+          "tools": 80,
+          "messages": 155,
+          "wall_time": "13m 27s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11740",
+          "exit": "Submitted",
+          "api": 45,
+          "tools": 48,
+          "messages": 95,
+          "wall_time": "2m 55s",
+          "nonzero_rc": 11
+        },
+        {
+          "instance": "django__django-11749",
+          "exit": "Submitted",
+          "api": 23,
+          "tools": 23,
+          "messages": 48,
+          "wall_time": "2m 6s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11790",
+          "exit": "Submitted",
+          "api": 30,
+          "tools": 30,
+          "messages": 62,
+          "wall_time": "2m 28s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-11815",
+          "exit": "Submitted",
+          "api": 25,
+          "tools": 26,
+          "messages": 53,
+          "wall_time": "1m 47s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-11820",
+          "exit": "Submitted",
+          "api": 15,
+          "tools": 19,
+          "messages": 36,
+          "wall_time": "43.5s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-11848",
+          "exit": "Submitted",
+          "api": 10,
+          "tools": 11,
+          "messages": 23,
+          "wall_time": "1m 9s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11880",
+          "exit": "Submitted",
+          "api": 15,
+          "tools": 14,
+          "messages": 31,
+          "wall_time": "33.2s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11885",
+          "exit": "Submitted",
+          "api": 41,
+          "tools": 52,
+          "messages": 95,
+          "wall_time": "9m 38s",
+          "nonzero_rc": 6
+        },
+        {
+          "instance": "django__django-11951",
+          "exit": "Submitted",
+          "api": 23,
+          "tools": 24,
+          "messages": 49,
+          "wall_time": "1m 10s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-11964",
+          "exit": "Submitted",
+          "api": 24,
+          "tools": 32,
+          "messages": 58,
+          "wall_time": "2m 29s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-11999",
+          "exit": "Submitted",
+          "api": 12,
+          "tools": 13,
+          "messages": 27,
+          "wall_time": "36.6s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-12039",
+          "exit": "Submitted",
+          "api": 20,
+          "tools": 21,
+          "messages": 43,
+          "wall_time": "50.3s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-12050",
+          "exit": "Submitted",
+          "api": 14,
+          "tools": 14,
+          "messages": 30,
+          "wall_time": "44.3s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-12125",
+          "exit": "Submitted",
+          "api": 61,
+          "tools": 61,
+          "messages": 124,
+          "wall_time": "4m 56s",
+          "nonzero_rc": 6
+        },
+        {
+          "instance": "django__django-12143",
+          "exit": "Submitted",
+          "api": 21,
+          "tools": 21,
+          "messages": 44,
+          "wall_time": "48.7s",
+          "nonzero_rc": 5
+        },
+        {
+          "instance": "django__django-12155",
+          "exit": "Submitted",
+          "api": 14,
+          "tools": 16,
+          "messages": 32,
+          "wall_time": "38.6s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-12193",
+          "exit": "Submitted",
+          "api": 25,
+          "tools": 27,
+          "messages": 54,
+          "wall_time": "1m 1s",
+          "nonzero_rc": 4
+        },
+        {
+          "instance": "django__django-12209",
+          "exit": "Submitted",
+          "api": 43,
+          "tools": 43,
+          "messages": 88,
+          "wall_time": "4m 48s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-12262",
+          "exit": "Submitted",
+          "api": 12,
+          "tools": 12,
+          "messages": 26,
+          "wall_time": "35.8s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-12273",
+          "exit": "Submitted",
+          "api": 37,
+          "tools": 41,
+          "messages": 80,
+          "wall_time": "3m 39s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-12276",
+          "exit": "Submitted",
+          "api": 30,
+          "tools": 32,
+          "messages": 64,
+          "wall_time": "1m 19s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-12304",
+          "exit": "Submitted",
+          "api": 13,
+          "tools": 15,
+          "messages": 30,
+          "wall_time": "35.7s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-12308",
+          "exit": "Submitted",
+          "api": 20,
+          "tools": 20,
+          "messages": 42,
+          "wall_time": "1m 49s",
+          "nonzero_rc": 4
+        },
+        {
+          "instance": "django__django-12325",
+          "exit": "Submitted",
+          "api": 40,
+          "tools": 40,
+          "messages": 82,
+          "wall_time": "2m 55s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-12406",
+          "exit": "Submitted",
+          "api": 39,
+          "tools": 51,
+          "messages": 92,
+          "wall_time": "3m 38s",
+          "nonzero_rc": 7
+        },
+        {
+          "instance": "django__django-12419",
+          "exit": "Submitted",
+          "api": 25,
+          "tools": 30,
+          "messages": 57,
+          "wall_time": "1m 3s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-12663",
+          "exit": "Submitted",
+          "api": 33,
+          "tools": 34,
+          "messages": 69,
+          "wall_time": "2m 34s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-12708",
+          "exit": "Submitted",
+          "api": 22,
+          "tools": 27,
+          "messages": 51,
+          "wall_time": "1m 29s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-12713",
+          "exit": "Submitted",
+          "api": 21,
+          "tools": 21,
+          "messages": 44,
+          "wall_time": "42.3s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-12741",
+          "exit": "Submitted",
+          "api": 12,
+          "tools": 12,
+          "messages": 26,
+          "wall_time": "25.3s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-12754",
+          "exit": "Submitted",
+          "api": 45,
+          "tools": 45,
+          "messages": 92,
+          "wall_time": "3m 48s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-12774",
+          "exit": "Submitted",
+          "api": 33,
+          "tools": 37,
+          "messages": 72,
+          "wall_time": "2m 15s",
+          "nonzero_rc": 7
+        },
+        {
+          "instance": "django__django-12858",
+          "exit": "Submitted",
+          "api": 23,
+          "tools": 24,
+          "messages": 49,
+          "wall_time": "1m 14s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-12965",
+          "exit": "Submitted",
+          "api": 28,
+          "tools": 36,
+          "messages": 66,
+          "wall_time": "1m 60s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-13012",
+          "exit": "Submitted",
+          "api": 14,
+          "tools": 16,
+          "messages": 32,
+          "wall_time": "42.9s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-13023",
+          "exit": "Submitted",
+          "api": 19,
+          "tools": 19,
+          "messages": 40,
+          "wall_time": "1m 2s",
+          "nonzero_rc": 4
+        },
+        {
+          "instance": "django__django-13028",
+          "exit": "Submitted",
+          "api": 23,
+          "tools": 23,
+          "messages": 48,
+          "wall_time": "1m 2s",
+          "nonzero_rc": 5
+        },
+        {
+          "instance": "django__django-13033",
+          "exit": "Submitted",
+          "api": 24,
+          "tools": 27,
+          "messages": 53,
+          "wall_time": "4m 0s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-13089",
+          "exit": "Submitted",
+          "api": 7,
+          "tools": 7,
+          "messages": 16,
+          "wall_time": "37.6s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-13109",
+          "exit": "Submitted",
+          "api": 12,
+          "tools": 12,
+          "messages": 26,
+          "wall_time": "26.4s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-13112",
+          "exit": "Submitted",
+          "api": 24,
+          "tools": 27,
+          "messages": 53,
+          "wall_time": "1m 9s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-13121",
+          "exit": "Submitted",
+          "api": 56,
+          "tools": 66,
+          "messages": 124,
+          "wall_time": "7m 29s",
+          "nonzero_rc": 13
+        },
+        {
+          "instance": "django__django-13128",
+          "exit": "Submitted",
+          "api": 24,
+          "tools": 29,
+          "messages": 55,
+          "wall_time": "1m 53s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-13158",
+          "exit": "Submitted",
+          "api": 22,
+          "tools": 22,
+          "messages": 46,
+          "wall_time": "1m 49s",
+          "nonzero_rc": 4
+        },
+        {
+          "instance": "django__django-13195",
+          "exit": "Submitted",
+          "api": 34,
+          "tools": 34,
+          "messages": 70,
+          "wall_time": "3m 33s",
+          "nonzero_rc": 2
+        },
+        {
+          "instance": "django__django-13212",
+          "exit": "Submitted",
+          "api": 25,
+          "tools": 31,
+          "messages": 58,
+          "wall_time": "1m 21s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-13279",
+          "exit": "Submitted",
+          "api": 23,
+          "tools": 26,
+          "messages": 51,
+          "wall_time": "1m 23s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-13297",
+          "exit": "Submitted",
+          "api": 33,
+          "tools": 33,
+          "messages": 68,
+          "wall_time": "2m 25s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-13315",
+          "exit": "Submitted",
+          "api": 50,
+          "tools": 51,
+          "messages": 103,
+          "wall_time": "3m 22s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-13343",
+          "exit": "Submitted",
+          "api": 13,
+          "tools": 15,
+          "messages": 30,
+          "wall_time": "35.3s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-13344",
+          "exit": "Submitted",
+          "api": 47,
+          "tools": 48,
+          "messages": 97,
+          "wall_time": "3m 58s",
+          "nonzero_rc": 5
+        },
+        {
+          "instance": "django__django-13346",
+          "exit": "Submitted",
+          "api": 62,
+          "tools": 68,
+          "messages": 132,
+          "wall_time": "5m 51s",
+          "nonzero_rc": 6
+        },
+        {
+          "instance": "django__django-13363",
+          "exit": "Submitted",
+          "api": 24,
+          "tools": 24,
+          "messages": 50,
+          "wall_time": "58.7s",
+          "nonzero_rc": 11
+        },
+        {
+          "instance": "django__django-13401",
+          "exit": "Submitted",
+          "api": 23,
+          "tools": 23,
+          "messages": 48,
+          "wall_time": "2m 27s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-13406",
+          "exit": "Submitted",
+          "api": 25,
+          "tools": 33,
+          "messages": 60,
+          "wall_time": "2m 6s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-13410",
+          "exit": "Submitted",
+          "api": 9,
+          "tools": 10,
+          "messages": 21,
+          "wall_time": "16.2s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-13417",
+          "exit": "Submitted",
+          "api": 36,
+          "tools": 45,
+          "messages": 83,
+          "wall_time": "3m 5s",
+          "nonzero_rc": 7
+        },
+        {
+          "instance": "django__django-13449",
+          "exit": "Submitted",
+          "api": 32,
+          "tools": 34,
+          "messages": 68,
+          "wall_time": "3m 44s",
+          "nonzero_rc": 4
+        },
+        {
+          "instance": "django__django-13512",
+          "exit": "Submitted",
+          "api": 15,
+          "tools": 18,
+          "messages": 35,
+          "wall_time": "35.1s",
+          "nonzero_rc": 3
+        },
+        {
+          "instance": "django__django-13513",
+          "exit": "Submitted",
+          "api": 26,
+          "tools": 28,
+          "messages": 56,
+          "wall_time": "2m 18s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-13516",
+          "exit": "Submitted",
+          "api": 11,
+          "tools": 12,
+          "messages": 25,
+          "wall_time": "17.2s",
+          "nonzero_rc": 1
+        },
+        {
+          "instance": "django__django-13551",
+          "exit": "Submitted",
+          "api": 12,
+          "tools": 12,
+          "messages": 26,
+          "wall_time": "32.9s",
+          "nonzero_rc": 0
+        },
+        {
+          "instance": "django__django-13568",
+          "exit": "Submitted",
+          "api": 37,
+          "tools": 38,
+          "messages": 77,
+          "wall_time": "1m 48s",
+          "nonzero_rc": 9
+        },
+        {
+          "instance": "django__django-13569",
+          "exit": "Submitted",
+          "api": 22,
+          "tools": 23,
+          "messages": 47,
+          "wall_time": "2m 10s",
+          "nonzero_rc": 4
+        }
+      ],
+      "failures": {
+        "total_nonzero": 241,
+        "reasons": {
+          "Traceback(other)": 80,
+          "File/dir not found": 33,
+          "Other": 31,
+          "grep/no-match (empty output)": 19,
+          "AttributeError": 14,
+          "AssertionError": 14,
+          "TypeError": 12,
+          "Error(other)": 8,
+          "ImportError": 8,
+          "UnicodedecodeError": 6,
+          "ValueError": 5,
+          "ModulenotfoundError": 4,
+          "KeyError": 3,
+          "UnicodeencodeError": 2,
+          "FilenotfoundError": 2
+        },
+        "per_trajectory": [
+          {
+            "instance": "django__django-13121",
+            "errors": 12
+          },
+          {
+            "instance": "django__django-11740",
+            "errors": 11
+          },
+          {
+            "instance": "django__django-13363",
+            "errors": 11
+          },
+          {
+            "instance": "django__django-11292",
+            "errors": 9
+          },
+          {
+            "instance": "django__django-13568",
+            "errors": 9
+          },
+          {
+            "instance": "django__django-11532",
+            "errors": 7
+          },
+          {
+            "instance": "django__django-12406",
+            "errors": 7
+          },
+          {
+            "instance": "django__django-12774",
+            "errors": 7
+          },
+          {
+            "instance": "django__django-13417",
+            "errors": 7
+          },
+          {
+            "instance": "django__django-11885",
+            "errors": 6
+          },
+          {
+            "instance": "django__django-12125",
+            "errors": 6
+          },
+          {
+            "instance": "django__django-13346",
+            "errors": 6
+          },
+          {
+            "instance": "django__django-11433",
+            "errors": 5
+          },
+          {
+            "instance": "django__django-12143",
+            "errors": 5
+          },
+          {
+            "instance": "django__django-13028",
+            "errors": 5
+          },
+          {
+            "instance": "django__django-13344",
+            "errors": 5
+          },
+          {
+            "instance": "django__django-11149",
+            "errors": 4
+          },
+          {
+            "instance": "django__django-12193",
+            "errors": 4
+          },
+          {
+            "instance": "django__django-12308",
+            "errors": 4
+          },
+          {
+            "instance": "django__django-13023",
+            "errors": 4
+          },
+          {
+            "instance": "django__django-13158",
+            "errors": 4
+          },
+          {
+            "instance": "django__django-13449",
+            "errors": 4
+          },
+          {
+            "instance": "django__django-13569",
+            "errors": 4
+          },
+          {
+            "instance": "django__django-10097",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-10554",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-10914",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-11087",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-11179",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-11265",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-11815",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-11951",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-12209",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-12276",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-12325",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-13128",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-13212",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-13279",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-13297",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-13315",
+            "errors": 3
+          },
+          {
+            "instance": "django__django-11095",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-11133",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-11400",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-11551",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-11728",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-11734",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-12262",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-13033",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-13195",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-13406",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-13512",
+            "errors": 2
+          },
+          {
+            "instance": "django__django-11099",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11138",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11211",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11299",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11333",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11477",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11490",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11555",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11603",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11749",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11790",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11820",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-11999",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-12039",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-12304",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-12663",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-12708",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-12713",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-12741",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-12754",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-13012",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-13109",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-13112",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-13401",
+            "errors": 1
+          },
+          {
+            "instance": "django__django-13516",
+            "errors": 1
+          }
+        ]
+      },
+      "eval": {
+        "submitted": 100,
+        "resolved": 89,
+        "unresolved": 11,
+        "empty_patch": 0,
+        "error": 0,
+        "instance_status": {
+          "django__django-10554": "resolved",
+          "django__django-10880": "resolved",
+          "django__django-10914": "resolved",
+          "django__django-10973": "resolved",
+          "django__django-10999": "resolved",
+          "django__django-11066": "resolved",
+          "django__django-11087": "resolved",
+          "django__django-11095": "resolved",
+          "django__django-11099": "resolved",
+          "django__django-11119": "resolved",
+          "django__django-11133": "resolved",
+          "django__django-11138": "resolved",
+          "django__django-11141": "resolved",
+          "django__django-11149": "resolved",
+          "django__django-11163": "resolved",
+          "django__django-11179": "resolved",
+          "django__django-11206": "resolved",
+          "django__django-11211": "resolved",
+          "django__django-11239": "resolved",
+          "django__django-11265": "resolved",
+          "django__django-11276": "resolved",
+          "django__django-11292": "resolved",
+          "django__django-11299": "resolved",
+          "django__django-11333": "resolved",
+          "django__django-11433": "resolved",
+          "django__django-11451": "resolved",
+          "django__django-11477": "resolved",
+          "django__django-11490": "resolved",
+          "django__django-11532": "resolved",
+          "django__django-11551": "resolved",
+          "django__django-11555": "resolved",
+          "django__django-11603": "resolved",
+          "django__django-11728": "resolved",
+          "django__django-11740": "resolved",
+          "django__django-11749": "resolved",
+          "django__django-11790": "resolved",
+          "django__django-11880": "resolved",
+          "django__django-11885": "resolved",
+          "django__django-11951": "resolved",
+          "django__django-11964": "resolved",
+          "django__django-11999": "resolved",
+          "django__django-12039": "resolved",
+          "django__django-12050": "resolved",
+          "django__django-12125": "resolved",
+          "django__django-12143": "resolved",
+          "django__django-12155": "resolved",
+          "django__django-12193": "resolved",
+          "django__django-12209": "resolved",
+          "django__django-12262": "resolved",
+          "django__django-12273": "resolved",
+          "django__django-12276": "resolved",
+          "django__django-12304": "resolved",
+          "django__django-12308": "resolved",
+          "django__django-12325": "resolved",
+          "django__django-12406": "resolved",
+          "django__django-12419": "resolved",
+          "django__django-12663": "resolved",
+          "django__django-12708": "resolved",
+          "django__django-12713": "resolved",
+          "django__django-12741": "resolved",
+          "django__django-12754": "resolved",
+          "django__django-12774": "resolved",
+          "django__django-12858": "resolved",
+          "django__django-12965": "resolved",
+          "django__django-13012": "resolved",
+          "django__django-13023": "resolved",
+          "django__django-13028": "resolved",
+          "django__django-13033": "resolved",
+          "django__django-13089": "resolved",
+          "django__django-13109": "resolved",
+          "django__django-13112": "resolved",
+          "django__django-13121": "resolved",
+          "django__django-13128": "resolved",
+          "django__django-13279": "resolved",
+          "django__django-13315": "resolved",
+          "django__django-13343": "resolved",
+          "django__django-13346": "resolved",
+          "django__django-13363": "resolved",
+          "django__django-13401": "resolved",
+          "django__django-13406": "resolved",
+          "django__django-13410": "resolved",
+          "django__django-13417": "resolved",
+          "django__django-13449": "resolved",
+          "django__django-13512": "resolved",
+          "django__django-13513": "resolved",
+          "django__django-13516": "resolved",
+          "django__django-13551": "resolved",
+          "django__django-13568": "resolved",
+          "django__django-13569": "resolved",
+          "django__django-10097": "unresolved",
+          "django__django-11400": "unresolved",
+          "django__django-11734": "unresolved",
+          "django__django-11815": "unresolved",
+          "django__django-11820": "unresolved",
+          "django__django-11848": "unresolved",
+          "django__django-13158": "unresolved",
+          "django__django-13195": "unresolved",
+          "django__django-13212": "unresolved",
+          "django__django-13297": "unresolved",
+          "django__django-13344": "unresolved"
+        }
+      },
+      "traj": {
+        "django__django-10097": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-10097/django__django-10097.html",
+        "django__django-10554": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-10554/django__django-10554.html",
+        "django__django-10880": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-10880/django__django-10880.html",
+        "django__django-10914": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-10914/django__django-10914.html",
+        "django__django-10973": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-10973/django__django-10973.html",
+        "django__django-10999": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-10999/django__django-10999.html",
+        "django__django-11066": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11066/django__django-11066.html",
+        "django__django-11087": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11087/django__django-11087.html",
+        "django__django-11095": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11095/django__django-11095.html",
+        "django__django-11099": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11099/django__django-11099.html",
+        "django__django-11119": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11119/django__django-11119.html",
+        "django__django-11133": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11133/django__django-11133.html",
+        "django__django-11138": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11138/django__django-11138.html",
+        "django__django-11141": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11141/django__django-11141.html",
+        "django__django-11149": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11149/django__django-11149.html",
+        "django__django-11163": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11163/django__django-11163.html",
+        "django__django-11179": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11179/django__django-11179.html",
+        "django__django-11206": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11206/django__django-11206.html",
+        "django__django-11211": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11211/django__django-11211.html",
+        "django__django-11239": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11239/django__django-11239.html",
+        "django__django-11265": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11265/django__django-11265.html",
+        "django__django-11276": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11276/django__django-11276.html",
+        "django__django-11292": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11292/django__django-11292.html",
+        "django__django-11299": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11299/django__django-11299.html",
+        "django__django-11333": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11333/django__django-11333.html",
+        "django__django-11400": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11400/django__django-11400.html",
+        "django__django-11433": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11433/django__django-11433.html",
+        "django__django-11451": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11451/django__django-11451.html",
+        "django__django-11477": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11477/django__django-11477.html",
+        "django__django-11490": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11490/django__django-11490.html",
+        "django__django-11532": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11532/django__django-11532.html",
+        "django__django-11551": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11551/django__django-11551.html",
+        "django__django-11555": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11555/django__django-11555.html",
+        "django__django-11603": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11603/django__django-11603.html",
+        "django__django-11728": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11728/django__django-11728.html",
+        "django__django-11734": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11734/django__django-11734.html",
+        "django__django-11740": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11740/django__django-11740.html",
+        "django__django-11749": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11749/django__django-11749.html",
+        "django__django-11790": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11790/django__django-11790.html",
+        "django__django-11815": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11815/django__django-11815.html",
+        "django__django-11820": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11820/django__django-11820.html",
+        "django__django-11848": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11848/django__django-11848.html",
+        "django__django-11880": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11880/django__django-11880.html",
+        "django__django-11885": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11885/django__django-11885.html",
+        "django__django-11951": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11951/django__django-11951.html",
+        "django__django-11964": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11964/django__django-11964.html",
+        "django__django-11999": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-11999/django__django-11999.html",
+        "django__django-12039": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12039/django__django-12039.html",
+        "django__django-12050": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12050/django__django-12050.html",
+        "django__django-12125": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12125/django__django-12125.html",
+        "django__django-12143": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12143/django__django-12143.html",
+        "django__django-12155": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12155/django__django-12155.html",
+        "django__django-12193": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12193/django__django-12193.html",
+        "django__django-12209": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12209/django__django-12209.html",
+        "django__django-12262": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12262/django__django-12262.html",
+        "django__django-12273": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12273/django__django-12273.html",
+        "django__django-12276": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12276/django__django-12276.html",
+        "django__django-12304": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12304/django__django-12304.html",
+        "django__django-12308": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12308/django__django-12308.html",
+        "django__django-12325": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12325/django__django-12325.html",
+        "django__django-12406": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12406/django__django-12406.html",
+        "django__django-12419": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12419/django__django-12419.html",
+        "django__django-12663": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12663/django__django-12663.html",
+        "django__django-12708": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12708/django__django-12708.html",
+        "django__django-12713": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12713/django__django-12713.html",
+        "django__django-12741": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12741/django__django-12741.html",
+        "django__django-12754": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12754/django__django-12754.html",
+        "django__django-12774": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12774/django__django-12774.html",
+        "django__django-12858": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12858/django__django-12858.html",
+        "django__django-12965": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-12965/django__django-12965.html",
+        "django__django-13012": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13012/django__django-13012.html",
+        "django__django-13023": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13023/django__django-13023.html",
+        "django__django-13028": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13028/django__django-13028.html",
+        "django__django-13033": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13033/django__django-13033.html",
+        "django__django-13089": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13089/django__django-13089.html",
+        "django__django-13109": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13109/django__django-13109.html",
+        "django__django-13112": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13112/django__django-13112.html",
+        "django__django-13121": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13121/django__django-13121.html",
+        "django__django-13128": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13128/django__django-13128.html",
+        "django__django-13158": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13158/django__django-13158.html",
+        "django__django-13195": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13195/django__django-13195.html",
+        "django__django-13212": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13212/django__django-13212.html",
+        "django__django-13279": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13279/django__django-13279.html",
+        "django__django-13297": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13297/django__django-13297.html",
+        "django__django-13315": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13315/django__django-13315.html",
+        "django__django-13343": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13343/django__django-13343.html",
+        "django__django-13344": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13344/django__django-13344.html",
+        "django__django-13346": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13346/django__django-13346.html",
+        "django__django-13363": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13363/django__django-13363.html",
+        "django__django-13401": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13401/django__django-13401.html",
+        "django__django-13406": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13406/django__django-13406.html",
+        "django__django-13410": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13410/django__django-13410.html",
+        "django__django-13417": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13417/django__django-13417.html",
+        "django__django-13449": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13449/django__django-13449.html",
+        "django__django-13512": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13512/django__django-13512.html",
+        "django__django-13513": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13513/django__django-13513.html",
+        "django__django-13516": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13516/django__django-13516.html",
+        "django__django-13551": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13551/django__django-13551.html",
+        "django__django-13568": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13568/django__django-13568.html",
+        "django__django-13569": "html_traj/Qwen3.8-Flash-Next/medium-none_WQNFP4_CQFP8/django__django-13569/django__django-13569.html"
+      },
+      "total_tools": 2801,
+      "total_api": 2589,
+      "total_nonzero_rc": 247
+    },
     "medium-run2_WQAWQW4A16_CQBF16": {
       "model": "Qwen3.8-Flash-Next (medium-run2_WQAWQW4A16_CQBF16)",
       "variant": "medium-run2_WQAWQW4A16_CQBF16",
@@ -103947,6 +105524,75 @@
         return label;
       }
 
+      // Plotly's `automargin` paints long y-axis labels over the plot instead of
+      // reserving room for them. An uncapped gutter also starves the bars: a
+      // 388px label column in a 514px chart leaves a 106px plot. So the gutter is
+      // budgeted against the visible width, labels are wrapped over several
+      // lines, and the tick font shrinks until both fit.
+      function isNarrow() {
+        return window.innerWidth < 900;
+      }
+
+      function wrapLabel(label, max) {
+        const lines = [];
+        let cur = '';
+        for (let word of String(label).split(/\s+/)) {
+          while (word.length > max) {
+            const at = word.lastIndexOf('-', max);
+            const cut = at > 0 ? at + 1 : max;
+            lines.push(word.slice(0, cut));
+            word = word.slice(cut);
+          }
+          if (cur && (cur + ' ' + word).length > max) { lines.push(cur); cur = word; }
+          else cur = cur ? cur + ' ' + word : word;
+        }
+        if (cur) lines.push(cur);
+        return lines;
+      }
+
+      const _measure = document.createElement('canvas').getContext('2d');
+      function widestPx(lines, size) {
+        _measure.font = size + "px 'Inter', 'Segoe UI', system-ui, sans-serif";
+        return lines.reduce((m, l) => Math.max(m, _measure.measureText(l).width), 0);
+      }
+
+      // { labels, tick, margin, height } for a horizontal bar chart's y-axis: the
+      // largest tick font and the narrowest wrapped-label gutter that fit the
+      // container, plus the height every row needs at that font. Resizes the plot
+      // div so the box and the plot agree, then Plotly's responsive resize follows.
+      function barAxis(divId, labels) {
+        const div = document.getElementById(divId);
+        const narrow = isNarrow();
+        const width = div && div.clientWidth ? div.clientWidth : window.innerWidth;
+        const budget = Math.round(width * (narrow ? 0.4 : 0.5));
+        const minRow = narrow ? 28 : 25;
+        // Unwrapped first, then progressively tighter wraps: only wrap as much as
+        // the budget needs, and never past four lines.
+        const widths = [Infinity, ...Array.from({ length: 15 }, (_, i) => 24 - i)];
+        for (const tick of [12, 11, 10, 9, 8]) {
+          const lineH = Math.ceil(tick * 1.25);
+          for (const max of widths) {
+            const wrapped = labels.map(l => wrapLabel(l, max));
+            const lines = wrapped.reduce((m, l) => Math.max(m, l.length), 1);
+            if (lines > 4) continue;
+            const needed = Math.round(widestPx(wrapped.reduce((a, l) => a.concat(l), []), tick)) + 12;
+            if (needed <= budget) {
+              return finish(wrapped, tick, needed, Math.max(minRow, lines * lineH + 2));
+            }
+          }
+        }
+        // Nothing fits the budget: wrap hard at the smallest font and let the rows
+        // grow rather than let the gutter swallow the plot.
+        const wrapped = labels.map(l => wrapLabel(l, 10));
+        const lines = wrapped.reduce((m, l) => Math.max(m, l.length), 1);
+        return finish(wrapped, 8, budget, Math.max(minRow, lines * 10 + 2));
+        function finish(wrapped, tick, margin, rowH) {
+          const height = Math.max(150, labels.length * rowH);
+          if (div) div.style.height = height + 'px';
+          return { labels: wrapped.map(l => l.join('<br>')), tick, margin, height };
+        }
+      }
+
       function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
       function getAllVariants() {
@@ -103971,25 +105617,30 @@
       }
 
       const HOVERLABEL = { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 } };
+      // The modebar only appears on hover, so on touch it sits permanently over the
+      // top of the chart. The getter re-reads the width on every render.
+      const PLOT_CONFIG = {
+        responsive: true,
+        get displayModeBar() { return !isNarrow(); },
+      };
 
-      function commonLayout(leftMargin, xTitle) {
+      function commonLayout(leftMargin, xTitle, yTick) {
         const tc = getThemeColors();
         return {
           paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
           font: { color: tc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
-          margin: { t: 10, r: 20, b: 40, l: leftMargin || 140 },
+          margin: { t: isNarrow() ? 30 : 10, r: 20, b: 40, l: leftMargin || 140 },
+          // Without this, a one-finger drag inside a tall chart zoom-selects
+          // instead of scrolling the page.
+          dragmode: isNarrow() ? false : 'zoom',
           xaxis: { gridcolor: tc.grid, title: xTitle || '' },
-          yaxis: { gridcolor: tc.grid },
-          legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font } },
+          yaxis: Object.assign({ gridcolor: tc.grid }, yTick ? { tickfont: { size: yTick } } : {}),
+          // A vertical legend sits beside the plot, which a phone cannot spare.
+          legend: isNarrow()
+            ? { orientation: 'h', x: 0, xanchor: 'left', y: 1.02, yanchor: 'bottom', bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font, size: 10 } }
+            : { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font } },
           hoverlabel: HOVERLABEL
         };
-      }
-
-      // Horizontal bar charts need enough height per category for y-axis labels to show.
-      // A fixed 500px clips labels once there are many bars.
-      function barChartHeight(n) {
-        //return Math.max(320, Math.min(n * 25, 1600));
-        return Math.max(150, n*25);
       }
 
       function renderSummary(panel) {
@@ -104011,7 +105662,7 @@
         if (evalVariants.length) {
           const sortedEval = evalVariants.slice().sort((a, b) => (a.data.eval.resolved || 0) - (b.data.eval.resolved || 0));
           html += '<div class="chart-row">';
-          html += '<div class="chart-box full"><h3>Task Resolution Breakdown by Variant</h3><div id="eval-stacked" style="height:' + barChartHeight(evalVariants.length) + 'px;"></div></div>';
+          html += '<div class="chart-box full"><h3>Task Resolution Breakdown by Variant</h3><div id="eval-stacked"></div></div>';
           html += '</div>';
           evalChartData = sortedEval.map(v => ({ label: shortLabel(v), resolved: v.data.eval.resolved || 0, unresolved: v.data.eval.unresolved || 0, empty_patch: v.data.eval.empty_patch || 0, error: v.data.eval.error || 0 }));
         }
@@ -104031,27 +105682,20 @@
         }
 
         const agmtVariants = variants.filter(v => v.data.eval && v.data.eval.instance_status && Object.keys(v.data.eval.instance_status).length > 0);
-        const agmtHeight = agmtVariants.length ? barChartHeight(evalVariants.length) : 0;
         if (agmtVariants.length) {
           html += '<div class="chart-row">';
-          html += '<div class="chart-box full"><h3>Agreement Matrix (solve patterns)</h3><div id="chart-agreement" style="height:' + agmtHeight + 'px;"></div></div>';
+          html += '<div class="chart-box full"><h3>Agreement Matrix (solve patterns)</h3><div class="chart-scroll-x"><div id="chart-agreement"></div></div></div>';
           html += '</div>';
           html += '<div class="chart-row">';
           html += '<div class="chart-box full"><h3>Agreement Histogram (tasks by number of variants that solved them)</h3><div id="chart-agreement-hist" style="height:320px;"></div></div>';
           html += '</div>';
         }
-
-        const labels = variants.map(v => shortLabel(v));
-        const maxLabelLen = labels.reduce((m, l) => Math.max(m, l.length), 0);
-        const leftMargin = Math.max(140, maxLabelLen * 6.8);
-
-        const barH = barChartHeight(variants.length);
         html += '<div class="chart-row">';
-        html += '<div class="chart-box full"><h3>Total Tool Calls by Variant (lower is better)</h3><div id="chart-tools" style="height:' + barH + 'px;"></div></div>';
+        html += '<div class="chart-box full"><h3>Total Tool Calls by Variant (lower is better)</h3><div id="chart-tools"></div></div>';
         html += '</div>';
         html += '<div class="chart-row">';
-        html += '<div class="chart-box"><h3>Total Non-Zero RC by Variant (lower is better)</h3><div id="chart-rc" style="height:' + barH + 'px;"></div></div>';
-        html += '<div class="chart-box"><h3>Non-Zero RC Ratio (%) (lower is better)</h3><div id="chart-rcpct" style="height:' + barH + 'px;"></div></div>';
+        html += '<div class="chart-box"><h3>Total Non-Zero RC by Variant (lower is better)</h3><div id="chart-rc"></div></div>';
+        html += '<div class="chart-box"><h3>Non-Zero RC Ratio (%) (lower is better)</h3><div id="chart-rcpct"></div></div>';
         html += '</div>';
         html += '<div class="chart-row">';
         html += '<div class="chart-box full"><h3>Scatter Plot</h3>';
@@ -104088,7 +105732,8 @@
               return ((isNaN(na) ? 0 : na) - (isNaN(nb) ? 0 : nb));
             }));
 
-          const agmtY = agmtVariants.map(v => shortLabel(v));
+          const agmtAxis = barAxis('chart-agreement', agmtVariants.map(v => shortLabel(v)));
+          const agmtY = agmtAxis.labels;
           const agmtX = agmtOrdered.map(i => i.replace('django__django-', ''));
           const agmtZ = agmtVariants.map(v => agmtOrdered.map(inst => {
             const st = (v.data.eval.instance_status || {})[inst];
@@ -104119,11 +105764,12 @@
           }], {
             paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
             font: { color: agmtTc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
-            margin: { t: 10, r: 20, b: 60, l: 150 },
+            margin: { t: 10, r: 20, b: 60, l: agmtAxis.margin },
             xaxis: { gridcolor: agmtTc.grid, title: 'Tasks (clustered by solve pattern)', type: 'category', tickmode: 'array', tickvals: agmtX.filter((_, i) => i % 10 === 0), ticktext: agmtX.filter((_, i) => i % 10 === 0), tickangle: -90, tickfont: { size: 9 } },
-            yaxis: { gridcolor: agmtTc.grid, title: 'Models', automargin: true },
-            hoverlabel: HOVERLABEL
-          }, { responsive: true });
+            yaxis: { gridcolor: agmtTc.grid, title: 'Models', tickfont: { size: agmtAxis.tick } },
+            hoverlabel: HOVERLABEL,
+            dragmode: false,
+          }, PLOT_CONFIG);
 
           const agmtN = agmtVariants.length;
           const agmtHist = Array(agmtN + 1).fill(0);
@@ -104147,8 +105793,9 @@
             margin: { t: 10, r: 20, b: 50, l: 50 },
             xaxis: { gridcolor: agmtTc.grid, title: 'Number of variants that solved the task', tickmode: 'array', tickvals: agmtHistX, ticktext: agmtHistLabels },
             yaxis: { gridcolor: agmtTc.grid, title: 'Number of tasks' },
-            hoverlabel: HOVERLABEL
-          }, { responsive: true });
+            hoverlabel: HOVERLABEL,
+            dragmode: isNarrow() ? false : 'zoom',
+          }, PLOT_CONFIG);
         }
 
         if (cumVariants.length) {
@@ -104170,9 +105817,11 @@
               hoverlabel: { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 }, namelength: -1, align: 'left' }
             };
           });
-          const cumLayout = commonLayout(70, 'Cumulative Requests (API calls)');
+          const cumLayout = Object.assign(commonLayout(70, 'Cumulative Requests (API calls)'),
+            // One legend entry per variant: unusable at phone width.
+            isNarrow() ? { showlegend: false } : {});
           cumLayout.yaxis = Object.assign({}, cumLayout.yaxis, { title: 'Cumulative Solved Tasks' });
-          Plotly.newPlot('chart-cumulative', cumTraces, cumLayout, { responsive: true });
+          Plotly.newPlot('chart-cumulative', cumTraces, cumLayout, PLOT_CONFIG);
         }
 
         if (ecdfVariants.length) {
@@ -104187,45 +105836,48 @@
               hoverlabel: { bgcolor: '#fff', bordercolor: '#8b5cf6', font: { color: '#000', size: 12 }, namelength: -1, align: 'left' }
             };
           });
-          const ecdfLayout = commonLayout(70, 'Requests (API calls) per task');
+          const ecdfLayout = Object.assign(commonLayout(70, 'Requests (API calls) per task'),
+            isNarrow() ? { showlegend: false } : {});
           ecdfLayout.yaxis = Object.assign({}, ecdfLayout.yaxis, { title: 'Cumulative fraction of tasks' });
-          Plotly.newPlot('chart-ecdf', ecdfTraces, ecdfLayout, { responsive: true });
+          Plotly.newPlot('chart-ecdf', ecdfTraces, ecdfLayout, PLOT_CONFIG);
         }
 
         if (evalChartData) {
-          const evalLabels = evalChartData.map(e => e.label);
-          const evalMaxLabelLen = evalLabels.reduce((m, l) => Math.max(m, l.length), 0);
-          const evalLeftMargin = Math.max(140, evalMaxLabelLen * 6.8);
+          const axis = barAxis('eval-stacked', evalChartData.map(e => e.label));
+          const evalLabels = axis.labels;
           Plotly.newPlot('eval-stacked', [
             { type: 'bar', orientation: 'h', name: 'Resolved', y: evalLabels, x: evalChartData.map(e => e.resolved), marker: { color: '#22c55e' } },
             { type: 'bar', orientation: 'h', name: 'Unresolved', y: evalLabels, x: evalChartData.map(e => e.unresolved), marker: { color: '#f97316' } },
             { type: 'bar', orientation: 'h', name: 'Empty Patch', y: evalLabels, x: evalChartData.map(e => e.empty_patch), marker: { color: '#9ca3af' } },
             { type: 'bar', orientation: 'h', name: 'Error', y: evalLabels, x: evalChartData.map(e => e.error), marker: { color: '#ef4444' } }
-          ], { ...commonLayout(evalLeftMargin), barmode: 'stack' }, { responsive: true });
+          ], { ...commonLayout(axis.margin, '', axis.tick), barmode: 'stack' }, PLOT_CONFIG);
         }
 
         const toolsSorted = variants.slice().sort((a, b) => (b.data.total_tools || 0) - (a.data.total_tools || 0));
+        const toolsAxis = barAxis('chart-tools', toolsSorted.map(v => shortLabel(v)));
         Plotly.newPlot('chart-tools', [{
-          type: 'bar', orientation: 'h', y: toolsSorted.map(v => shortLabel(v)), x: toolsSorted.map(v => v.data.total_tools || 0),
+          type: 'bar', orientation: 'h', y: toolsAxis.labels, x: toolsSorted.map(v => v.data.total_tools || 0),
           marker: { color: toolsSorted.map(v => modelColor(v)) },
           text: toolsSorted.map(v => (v.data.total_tools || 0).toLocaleString()), textposition: 'outside', textfont: { size: 11 }
-        }], { ...commonLayout(leftMargin, 'Total Tool Calls') }, { responsive: true });
+        }], { ...commonLayout(toolsAxis.margin, 'Total Tool Calls', toolsAxis.tick) }, PLOT_CONFIG);
 
         const rcSorted = variants.slice().sort((a, b) => (b.data.total_nonzero_rc || 0) - (a.data.total_nonzero_rc || 0));
+        const rcAxis = barAxis('chart-rc', rcSorted.map(v => shortLabel(v)));
         Plotly.newPlot('chart-rc', [{
-          type: 'bar', orientation: 'h', y: rcSorted.map(v => shortLabel(v)), x: rcSorted.map(v => v.data.total_nonzero_rc || 0),
+          type: 'bar', orientation: 'h', y: rcAxis.labels, x: rcSorted.map(v => v.data.total_nonzero_rc || 0),
           marker: { color: rcSorted.map(v => modelColor(v)) },
           text: rcSorted.map(v => (v.data.total_nonzero_rc || 0).toLocaleString()), textposition: 'outside', textfont: { size: 9 }
-        }], { ...commonLayout(leftMargin, 'Total Non-Zero RC') }, { responsive: true });
+        }], { ...commonLayout(rcAxis.margin, 'Total Non-Zero RC', rcAxis.tick) }, PLOT_CONFIG);
 
         const rcpctSorted = variants.slice().sort((a, b) => (b.data.total_tools ? (b.data.total_nonzero_rc / b.data.total_tools * 100) : 0) - (a.data.total_tools ? (a.data.total_nonzero_rc / a.data.total_tools * 100) : 0));
+        const rcpctAxis = barAxis('chart-rcpct', rcpctSorted.map(v => shortLabel(v)));
         Plotly.newPlot('chart-rcpct', [{
-          type: 'bar', orientation: 'h', y: rcpctSorted.map(v => shortLabel(v)),
+          type: 'bar', orientation: 'h', y: rcpctAxis.labels,
           x: rcpctSorted.map(v => v.data.total_tools ? (v.data.total_nonzero_rc / v.data.total_tools * 100) : 0),
           marker: { color: rcpctSorted.map(v => modelColor(v)) },
           text: rcpctSorted.map(v => (v.data.total_tools ? (v.data.total_nonzero_rc / v.data.total_tools * 100) : 0).toFixed(2) + '%'),
           textposition: 'outside', textfont: { size: 10 }
-        }], { ...commonLayout(leftMargin, 'RC Ratio %'), showlegend: false }, { responsive: true });
+        }], { ...commonLayout(rcpctAxis.margin, 'RC Ratio %', rcpctAxis.tick), showlegend: false }, PLOT_CONFIG);
 
         const scatterVariants = variants.filter(v => (v.data.eval && (v.data.eval.resolved || 0) > 0));
 
@@ -104281,7 +105933,7 @@
           }], { ...commonLayout(60), margin: { t: 10, r: 20, b: 80, l: 60 },
             xaxis: { ...commonLayout().xaxis, title: getAxisTitle(xAxis), type: 'linear', range: [Math.max(0, xMin - xPad), xMax + xPad] },
             yaxis: { ...commonLayout().yaxis, title: getAxisTitle(yAxis), type: 'linear', range: [Math.max(0, yMin - yPad), yMax + yPad] }
-          }, { responsive: true });
+          }, PLOT_CONFIG);
 
           window.__scatterOutline = () => {
             const line = scatterLine(scatterVariants, stc);
@@ -104306,10 +105958,6 @@
 
         let html = '';
 
-        const failLabels = variants.map(v => shortLabel(v));
-        const failMaxLabelLen = failLabels.reduce((m, l) => Math.max(m, l.length), 0);
-        const failLeftMargin = Math.max(200, failMaxLabelLen * 6.8);
-
         const allReasons = {};
         variants.forEach(v => {
           for (const [reason, count] of Object.entries(v.data.failures.reasons || {})) {
@@ -104317,7 +105965,6 @@
             allReasons[reason].push({ label: shortLabel(v), v, count });
           }
         });
-
         const sortedReasons = Object.entries(allReasons).sort((a, b) => b[1].reduce((s, e) => s + e.count, 0) - a[1].reduce((s, e) => s + e.count, 0));
 
         const variantTotals = variants.map(v => {
@@ -104329,10 +105976,6 @@
           return { v, total };
         });
         variantTotals.sort((a, b) => b.total - a.total);
-        const reasonLabels = variantTotals.map(vt => shortLabel(vt.v));
-        const maxReasonLabelLen = reasonLabels.reduce((m, l) => Math.max(m, l.length), 0);
-        const reasonLeftMargin = Math.max(140, maxReasonLabelLen * 6.8);
-
         let reasonsHtml = '<div class="section-title"><div class="section-dot dot-orange"></div>Error Details by Reason</div>';
         reasonsHtml += '<div class="chart-row">';
         reasonsHtml += '<div class="chart-box full">';
@@ -104340,13 +105983,17 @@
         reasonsHtml += '<button class="btn" onclick="uncheckAllErrorReasons()">Uncheck all</button>';
         reasonsHtml += '<button class="btn" onclick="checkAllErrorReasons()">Check all</button>';
         reasonsHtml += '</div>';
-        reasonsHtml += '<div style="display:flex;gap:20px;">';
-        reasonsHtml += '<div id="error-reason-checkboxes" class="checkbox-group" style="min-width:180px;padding-right:12px;overflow-y:auto;max-height:500px;"></div>';
-        reasonsHtml += '<div id="error-reason-chart" style="height:' + barChartHeight(variantTotals.length) + 'px;flex:1;"></div>';
+        reasonsHtml += '<div class="fail-reasons">';
+        reasonsHtml += '<div id="error-reason-checkboxes" class="checkbox-group error-reason-checkboxes"></div>';
+        reasonsHtml += '<div id="error-reason-chart" class="error-reason-chart"></div>';
         reasonsHtml += '</div></div></div>';
 
         // Set all HTML at once to avoid innerHTML += re-parsing and destroying Plotly state
         panel.innerHTML = html + reasonsHtml;
+
+        // Measured once the panel is in the DOM, so the gutter and height use the
+        // chart's real width.
+        const reasonAxis = barAxis('error-reason-chart', variantTotals.map(vt => shortLabel(vt.v)));
 
         const reasonColors = ['#f97316', '#8b5cf6', '#22c55e', '#ef4444', '#6366f1', '#0ea5e9', '#facc15', '#4ade80', '#ec4899', '#2dd4bf', '#9ca3af', '#f87171', '#a3e635', '#a5f3fc', '#fde68a'];
 
@@ -104362,7 +106009,7 @@
           entries.forEach(e => { lookup[e.v.key] = e.count; });
           const counts = variantTotals.map(vt => lookup[vt.v.key] || 0);
           return {
-            type: 'bar', orientation: 'h', y: reasonLabels, x: counts,
+            type: 'bar', orientation: 'h', y: reasonAxis.labels, x: counts,
             name: reason,
             marker: { color: reasonColors[idx % reasonColors.length] },
             visible: true
@@ -104373,13 +106020,14 @@
         Plotly.newPlot('error-reason-chart', traces, {
           paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
           font: { color: tc.font, family: 'Inter, Segoe UI, system-ui, sans-serif' },
-          margin: { t: 10, r: 20, b: 20, l: reasonLeftMargin },
+          margin: { t: 10, r: 20, b: 40, l: reasonAxis.margin },
           xaxis: { gridcolor: tc.grid, title: 'Count', type: 'linear' },
-          yaxis: { gridcolor: tc.grid },
+          yaxis: { gridcolor: tc.grid, tickfont: { size: reasonAxis.tick } },
           barmode: 'stack',
           legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: tc.font }, visible: false, clicktolayoutattributes: [{ visible: false }] },
-          hoverlabel: HOVERLABEL
-        }, { responsive: true });
+          hoverlabel: HOVERLABEL,
+          dragmode: isNarrow() ? false : 'zoom',
+        }, PLOT_CONFIG);
 
         window.toggleErrorReason = function(idx, checked) {
           const el = document.getElementById('error-reason-chart');
@@ -104653,6 +106301,14 @@
         });
       };
 
+      // Gutters and heights are derived from the viewport, so a rotation needs a
+      // full re-render rather than just Plotly's width rescale.
+      let resizeTimer = null;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(renderAll, 250);
+      });
+
       initModelFilters();
       applyUrlFilter();
       renderAll();
@@ -104745,6 +106401,20 @@
       }
       .footer-sticky a:hover {
         text-decoration: underline;
+      }
+      @media (max-width: 900px) {
+        /* A fixed card covers the bottom-right of a phone permanently; the report
+           metadata reads better as the last block of the page. */
+        .footer-sticky {
+          position: static;
+          max-width: none;
+          margin: 24px 16px 32px;
+          box-shadow: none;
+          font-size: 0.75rem;
+        }
+        .footer-sticky span {
+          white-space: normal;
+        }
       }
     </style>
   </body>

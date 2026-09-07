@@ -411,6 +411,13 @@
         margin: 16px 0;
         border: 1px solid var(--border);
       }
+      /* Markdown tables can outgrow the column they sit in; the wrapper added at
+         render time scrolls them instead of letting an ancestor's
+         `overflow: hidden` clip the trailing columns. */
+      .bd-table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
       .bd-intro th,
       .bd-intro td {
         border: 1px solid var(--border);
@@ -421,6 +428,10 @@
         background: var(--bg-table-header);
         font-weight: 600;
         color: var(--accent);
+      }
+      .bd-intro,
+      .bd-section {
+        overflow-wrap: break-word;
       }
 
       .bd-top-container {
@@ -433,22 +444,29 @@
         margin-right: 28px;
         margin-bottom: 16px;
       }
-      @media (max-width: 1024px) {
+      /* Narrow layout: sidebar, scatter, and charts all stack at one breakpoint.
+         `align-items: stretch` is required: in column direction `flex-start` would
+         size .bd-content-main to max-content and blow the page width out. */
+      @media (max-width: 900px) {
         .bd-scatter-float {
           float: none;
           width: 100%;
           margin-right: 0;
           margin-bottom: 24px;
         }
-      }
-      @media (max-width: 1024px) {
+        .bd-wrapper {
+          flex-direction: column;
+          align-items: stretch;
+        }
         .bd-filter-sidebar {
           position: static;
           width: 100%;
           flex-direction: row;
           flex-wrap: wrap;
-          max-height: none;
-          overflow-y: visible;
+          /* Forty model labels would otherwise push the report a full screen down.
+             A bounded scroller is right for a control panel. */
+          max-height: 260px;
+          overflow-y: auto;
           padding: 12px 16px;
           gap: 4px;
         }
@@ -475,13 +493,43 @@
         }
         .bd-wrapper {
           padding: 24px 16px 48px;
-          flex-direction: column;
         }
         .bd-section {
           padding: 16px;
         }
         .bd-intro {
           padding: 16px;
+        }
+        /* The bar chart's y-axis gutter is computed from the viewport (barAxis),
+           so it no longer needs a wide scroll area. */
+        .bd-chart-scroll {
+          overflow-x: visible;
+        }
+        .theme-toggle {
+          top: 10px;
+          right: 12px;
+          padding: 6px 10px;
+        }
+        .bd-intro h1 {
+          font-size: 1.75rem;
+        }
+        .bd-intro h2 {
+          font-size: 1.35rem;
+        }
+        .bd-intro h3 {
+          font-size: 1.1rem;
+        }
+        .bd-intro h4 {
+          font-size: 1rem;
+        }
+        .bd-filter-sidebar input[type="checkbox"] {
+          width: 20px;
+          height: 20px;
+        }
+        /* Squeeze-to-fit widths are no use once the table scrolls horizontally, so
+           let it take the width its content needs. */
+        .bd-table-scroll table {
+          width: auto;
         }
       }
 
@@ -615,12 +663,6 @@
         border-bottom: 1px solid var(--grid);
         transition: background 0.2s;
       }
-      .bd-table tbody tr:nth-child(even) {
-        background: var(--bd-row-even);
-      }
-      .bd-table tbody tr:hover {
-        background: var(--bg-table-row-hover);
-      }
       .bd-table tbody tr.bd-row-highlight {
         background: var(--bd-highlight) !important;
         outline: 2px solid var(--bd-highlight-outline);
@@ -633,10 +675,14 @@
       }
       .bd-table tbody td.bd-empty-cell {
         color: var(--text-secondary);
-        font-style: italic;
       }
 
       /* Charts */
+      .bd-chart-scroll {
+        /* Always scrollable: the bar chart reserves a wide left margin for the
+           model labels, and Plotly's automargin can exceed the container. */
+        overflow-x: auto;
+      }
       .bd-chart-container {
         position: relative;
         width: 100%;
@@ -648,6 +694,14 @@
         max-width: 800px;
         aspect-ratio: 1.3;
         margin: 0 auto;
+      }
+      /* Touch devices cannot use the modebar's drag-zoom, and it covers the
+         plot. Narrow desktop windows keep it: there the zoom button still
+         switches the drag mode back on. */
+      @media (hover: none) and (pointer: coarse) {
+        .js-plotly-plot .modebar {
+          display: none;
+        }
       }
     </style>
   </head>
@@ -723,7 +777,9 @@
             <label for="bd-metric-select">Metric :</label>
             <select id="bd-metric-select"></select>
           </div>
-          <div id="bd-metric-chart" class="bd-chart-container"></div>
+          <div class="bd-chart-scroll">
+            <div id="bd-metric-chart" class="bd-chart-container"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1105,6 +1161,76 @@
         });
       }
 
+      // Plotly's `automargin` paints long y-axis labels over the plot instead of
+      // reserving room for them, and a phone cannot afford a 320px gutter at all.
+      // So on narrow screens the labels wrap over several lines and the gutter is
+      // capped at half the visible chart width, with the tick font shrunk to match.
+      function isNarrow() {
+        return window.innerWidth < 900;
+      }
+
+      function wrapLabel(label, max) {
+        var lines = [];
+        var cur = '';
+        var words = String(label).split(/\s+/);
+        for (var i = 0; i < words.length; i++) {
+          var word = words[i];
+          while (word.length > max) {
+            var at = word.lastIndexOf('-', max);
+            var cut = at > 0 ? at + 1 : max;
+            lines.push(word.slice(0, cut));
+            word = word.slice(cut);
+          }
+          if (cur && (cur + ' ' + word).length > max) { lines.push(cur); cur = word; }
+          else cur = cur ? cur + ' ' + word : word;
+        }
+        if (cur) lines.push(cur);
+        return lines;
+      }
+
+      var _measure = document.createElement('canvas').getContext('2d');
+      function widestPx(lines, size) {
+        _measure.font = size + "px 'Inter', 'Segoe UI', system-ui, sans-serif";
+        return lines.reduce(function (m, l) {
+          return Math.max(m, _measure.measureText(l).width);
+        }, 0);
+      }
+
+      // { labels, tick, margin, rowH } for a horizontal bar chart's y-axis.
+      function barAxis(divId, labels) {
+        var div = document.getElementById(divId) || {};
+        var width = div.clientWidth || window.innerWidth;
+        if (!isNarrow()) {
+          return { labels: labels.map(String), tick: 10, rowH: 28,
+            margin: Math.min(Math.round(width * 0.5),
+                             Math.round(widestPx(labels, 10)) + 12) };
+        }
+        // Prefer the largest legible tick font, then the narrowest gutter that
+        // still fits `rowH` (4 lines). Gutter stays under 40% of the chart so
+        // the bars keep the rest of the width.
+        var budget = Math.round(width * 0.4);
+        for (var tick = 12; tick >= 8; tick--) {
+          for (var max = 10; max <= 20; max++) {
+            var wrapped = labels.map(function (l) { return wrapLabel(l, max); });
+            var lines = wrapped.reduce(function (m, l) { return Math.max(m, l.length); }, 1);
+            if (lines > 4) continue;
+            var flat = wrapped.reduce(function (a, l) { return a.concat(l); }, []);
+            var needed = Math.round(widestPx(flat, tick)) + 12;
+            if (needed <= budget) {
+              return { labels: wrapped.map(function (l) { return l.join('<br>'); }),
+                       tick: tick, margin: needed,
+                       rowH: Math.max(28, lines * Math.ceil(tick * 1.25) + 2) };
+            }
+          }
+        }
+        var w = labels.map(function (l) { return wrapLabel(l, 10); });
+        var maxLines = w.reduce(function (m, l) { return Math.max(m, l.length); }, 1);
+        return { labels: w.map(function (l) { return l.join('<br>'); }), tick: 8,
+                 margin: Math.min(budget,
+                   Math.round(widestPx(w.reduce(function (a, l) { return a.concat(l); }, []), 8)) + 12),
+                 rowH: Math.max(28, maxLines * 10 + 2) };
+      }
+
       var metricChart = null;
       function buildMetricChart(){
         var sel = document.getElementById("bd-metric-select");
@@ -1147,9 +1273,10 @@
         var loErr = avgVals.map(function(a, i){return a - mins[i];});
         var hiErr = maxs.map(function(m, i){return m - avgVals[i];});
 
+        var axis = barAxis("bd-metric-chart", labels);
         var trace = {
           type: "bar", orientation: "h",
-          x: avgVals, y: labels,
+          x: avgVals, y: axis.labels,
           error_x: {
             type: "data",
             symmetric: false,
@@ -1168,15 +1295,25 @@
         };
 
         var layout = {
-          margin: { l: 320, r: 40, t: 30, b: 40 },
+          margin: { l: axis.margin, r: 40, t: 30, b: 40 },
+          // Without this, a one-finger drag inside the chart zoom-selects
+          // instead of scrolling the page.
+          dragmode: isNarrow() ? false : "zoom",
           xaxis: { title: { text: nk.label }, zerocolor: tc.grid, gridcolor: tc.grid, tickfont: {color: tc.font} },
-          yaxis: { automargin: true, tickfont: { size: 10, color: tc.font } },
-          height: Math.max(300, agg.length * 28),
+          yaxis: { tickfont: { size: axis.tick, color: tc.font } },
+          height: Math.max(300, agg.length * axis.rowH),
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
           font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", color: tc.font }
         };
-        var cfg = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d","select2d"] };
+        // The modebar only appears on hover, so on touch it sits permanently over
+        // the top of the chart, where a phone has no room for it.
+        var cfg = {
+          responsive: true,
+          displaylogo: false,
+          displayModeBar: !isNarrow(),
+          modeBarButtonsToRemove: ["lasso2d", "select2d"],
+        };
         var div = document.getElementById("bd-metric-chart");
         if (metricChart) Plotly.purge(div);
         metricChart = Plotly.newPlot(div, [trace], layout, cfg);
@@ -1305,9 +1442,16 @@
           plot_bgcolor: "rgba(0,0,0,0)",
           font: { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", size: 12, color: tc.font },
           margin: { l: 60, r: 20, t: 30, b: 50 },
-          hovermode: "closest"
+          hovermode: "closest",
+          dragmode: isNarrow() ? false : "zoom"
         };
-        var cfg = { responsive: true, displaylogo: false, scrollZoom: true };
+        // Pinch-zoom inside the plot would otherwise eat the page's zoom gesture.
+        var cfg = {
+          responsive: true,
+          displaylogo: false,
+          displayModeBar: !isNarrow(),
+          scrollZoom: !isNarrow(),
+        };
 
         Plotly.react(xyDiv, [trace], layout, cfg);
       }
@@ -1388,6 +1532,26 @@
       buildMetricChart();
       setupFilterSync();
       setupScatter();
+
+      // Markdown tables arrive from the README with no wrapper of their own, and an
+      // ancestor's `overflow: hidden` would clip their trailing columns.
+      for (const table of document.querySelectorAll('.bd-intro table')) {
+        const box = document.createElement('div');
+        box.className = 'bd-table-scroll';
+        table.parentNode.replaceChild(box, table);
+        box.appendChild(table);
+      }
+
+      // The bar chart's gutter and row heights come from the viewport, so a
+      // rotation needs a rebuild rather than just Plotly's width rescale.
+      var resizeTimer = null;
+      window.addEventListener("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          buildMetricChart();
+          buildScatter();
+        }, 250);
+      });
 
       })();
     </script>
@@ -1479,6 +1643,27 @@
       }
       .footer-sticky a:hover {
         text-decoration: underline;
+      }
+      @media (max-width: 768px) {
+        /* iOS Safari zooms the whole page when a focused control is under 16px.
+           These have to come after the base `.bd-*-controls` rules to win. */
+        .bd-table-controls select,
+        .bd-xy-controls select,
+        .bd-table-controls input[type="text"] {
+          font-size: 16px;
+        }
+        /* A fixed card covers the bottom-right of a phone permanently; the report
+           metadata reads better as the last block of the page. */
+        .footer-sticky {
+          position: static;
+          max-width: none;
+          margin: 24px 16px 0;
+          box-shadow: none;
+          font-size: 0.75rem;
+        }
+        .footer-sticky span {
+          white-space: normal;
+        }
       }
     </style>
   </body>
