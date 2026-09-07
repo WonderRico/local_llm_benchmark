@@ -327,6 +327,47 @@
         border-radius: 2px;
       }
 
+      /* Headline totals */
+      .bd-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+      .bd-stat {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 12px 16px;
+        background: var(--bg-table-header);
+      }
+      .bd-stat__label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+      }
+      .bd-stat__value {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+      }
+      .bd-stat__sub {
+        font-size: 0.74rem;
+        color: var(--text-secondary);
+        margin-top: 2px;
+      }
+      @media (max-width: 768px) {
+        .bd-stats {
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        }
+        .bd-stat__value {
+          font-size: 1.2rem;
+        }
+      }
+
       /* Cards */
       .bd-section {
         background: var(--bg-card);
@@ -731,6 +772,11 @@
     <div class="bd-wrapper">
       <div id="bd-filter-panel" class="bd-filter-sidebar"></div>
       <div class="bd-content-main">
+        <div class="bd-section" style="margin-bottom: 28px">
+          <div class="bd-section__title">Benchmark in Numbers</div>
+          <div class="bd-stats" id="bd-stats"></div>
+        </div>
+
         <div class="bd-top-container">
           <div class="bd-section bd-scatter-float">
             <div class="bd-section__title">Scatter Graph</div>
@@ -1211,6 +1257,43 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
         {display:"tg_s_per_task",num:"tg_s_per_task_num",higherBetter:true},
         {display:"total_cost",num:"total_cost_num",higherBetter:false}
        ];
+
+      // --- Headline totals ---
+      // Every run solves the same task set (the first 100 tasks of the django set),
+      // so the cumulative task count is runs x that constant.
+      var TASKS_PER_RUN = 100;
+
+      function sumNums(records, key) {
+        return records.reduce(function(s, r){ return s + (r[key] || 0); }, 0);
+      }
+
+      function distinct(records, fn) {
+        var seen = {};
+        records.forEach(function(r){ seen[fn(r)] = true; });
+        return Object.keys(seen).length;
+      }
+
+      function renderStats() {
+        var host = document.getElementById("bd-stats");
+        if (!host) return;
+        var seconds = sumNums(VALID, "duration_s");
+        var hours = seconds / 3600;
+        var stats = [
+          {label: "Models tested", value: fmtNum(VALID.length),
+           sub: distinct(VALID, function(r){ return nameKey(r.base, r.model); }) + " models \u00B7 "
+             + distinct(VALID, function(r){ return r.base; }) + " families"},
+          {label: "Tasks", value: fmtNum(VALID.length * TASKS_PER_RUN), sub: "each run \u00D7 " + TASKS_PER_RUN + " tasks"},
+          {label: "Cumulative duration", value: fmtNum(Math.round(hours)) + " h", sub: "\u2248 " + (hours / 24).toFixed(1) + " days of compute"},
+          {label: "Requests", value: fmtNum(sumNums(VALID, "requests_num")), sub: "\u2248 " + fmtNum(Math.round(sumNums(VALID, "requests_num") / VALID.length)) + " per run"},
+          {label: "Output tokens", value: sumNums(VALID, "tokens_generated_num").toFixed(1) + " M",
+           sub: fmtNum(Math.round(sumNums(VALID, "tokens_processed_num"))) + " Mtok processed"}
+        ];
+        host.innerHTML = stats.map(function(s){
+          return '<div class="bd-stat"><div class="bd-stat__label">' + esc(s.label) + '</div>'
+            + '<div class="bd-stat__value">' + esc(s.value) + '</div>'
+            + '<div class="bd-stat__sub">' + esc(s.sub) + '</div></div>';
+        }).join("");
+      }
 
       function el(tag,cls,parent){var e=document.createElement(tag);if(cls)e.className=cls;if(parent)parent.appendChild(e);return e;}
       function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1850,6 +1933,7 @@ The k-quants' extra requests are spent iterating — more read/edit/test cycles 
       };
 
       initModelFilters();
+      renderStats();
       applyUrlFilter();
       renderModelFilter();
       renderTableHead();
