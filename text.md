@@ -27,9 +27,11 @@ Bigger local Models are tested with llama.cpp with all three GPUs. llama.cpp is 
 
 Some paid API models have been tested through OpenRouter API, for reference.
 
-All bench runs have been set to 5 parallel tasks, except for llama.cpp which is not optimized for concurrency and was limited to 1 request at a time.
+Most of the bench runs have been set to 5 parallel tasks, except for llama.cpp which is not optimized for concurrency and was limited to 1 request at a time.
 
 When available, **Multi Token Prediction** was enabled. Suggested params from the model creators were applied. Thinking mode enabled for all.
+
+Provider's sampling parameter values have been applied for each model (temp, top_k, etc...)
 
 ## Limitations
 
@@ -55,8 +57,8 @@ Support for **Qwen3.8-Flash-Next** for different hardware and engines is still m
 - **Best score overall** : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
 - **Best score local** : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
 - **Best score single GPU** : (98) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
-- **Fewer number of request** : (2306) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
-- **Most efficient both local and api** (lower request count per point scored) (24) : Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
+- **Fewer number of request** : (2134) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
+- **Most efficient both local and api** (lower request count per point scored) (22) : Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
 
 *(update August 28th 2026)*
 
@@ -117,7 +119,7 @@ Some Papers say than the tiny errors added by the quantisation can, sometimes, b
 
 The question "why does MXFP4 take 34 req/pt but score 81, while Q2 takes 50 and scores 92?" seems to reduce to: the k-quants are submitting later. And there's a concrete, code-level reason a "native" model would submit earlier:
 
-MXFP4 produces valid submit commands earlier — it reads the repo, writes a patch, and decides "done" sooner. That's why it has 12 trajectories at ≤10 requests (the k-quants have 3–6) and why its resolved tasks average 26 requests vs 45 for Q2.
+MXFP4 produces valid submit commands earlier — it reads the repo, writes a patch, and decides "done" sooner. That's why it has 13 trajectories at ≤10 requests (the k-quants have 2–6) and why its resolved tasks average 26 requests vs 45 for Q2.
 The k-quants' extra requests are spent iterating — more read/edit/test cycles before submitting. On this 100-task Django subset, that extra iteration converts directly into more resolved tasks (92 vs 81). The cost is more requests; the benefit is a higher solve rate.
 
 ## About cost...
@@ -129,7 +131,7 @@ The cost of locally run LLMs have been estimated base on the average power draw 
 However... The initial cost of the rig itself, while very significant, is not part of this discussion... You obviously need to account for it in order to estimate any long term rentability.
 
 - Qwen 3.7 Max (API) full run did cost 60$ while not scoring better than its little siblings. That's more than 200 times more expensive than the smaller locally run Qwen 3.6 (less than 0.3$) showing how per token $ is not sustainable for agentic dev. You must obviously use a monthly subscription, but with limits sometimes reached very soon... 
-- Gemma 4 local, being less chatty, is even twice cheaper than Qwen 3.6 local models.
+- Gemma 4 dense local, being less chatty, is even twice cheaper than Qwen 3.6 dense local models.
 - Minimax 2.7 Q4 local or Deepseek v4 flash Q3 local costs less than 1 dollar for the full run and score just 1 point shy of the recent GLM 5.2 . N.B. the cost for bigger models run with llama.cpp are impacted by the concurrency limitation. We could expect it to be 5 times cheaper if run with SGLANG or vLLM with the adequate hardware. (2x RTX Pro 6000 BW for instance)
 - An expensive GPU price can be hard to justify as a single dev, but for a small team of 5 or 10, one (or more) 10k$ GPU can be quickly paid off...
 
@@ -221,7 +223,7 @@ In **medium** reasoning mode, score 98 with the best efficiency of all model tes
 
 #### xhigh reasoning *score=98*
 
-The **xhigh** mode is still over chatty without real benefit for those tasks. (NB. in both reasoning modes, the exact same tasks are completed successfully)
+The **xhigh** mode is still over chatty without real benefit for those tasks.
 
 ### Bigger models via llama.cpp
 
@@ -239,11 +241,15 @@ The final release version is expected to be very good!
 
 It just came out and is very good. Best score *AND* very efficient!
 
-Very strong model! Too bad it's lacking vision support...
+Very strong model! Too bad it was lacking vision support...
 
 Running at 50 tokens/s without speculative decoding via DSpark.
 
 With Dspark enabled for 3 predicted tokens, I reached 95 tokens/s average for the whole benchmark run (looking at the actual inference logs). Dspark degrades the prefill speed, but the boost in generation is totaly worth it. The run with dspark took 4 to 5 hours instead of 6 to 7 hours.
+
+#### DeepSeek-V4-Flash-Vision-Exp (Q3_K_XL) *score 81*
+
+Now with vision!
 
 ### Bigger models yet to be tested
 
