@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-"""Shared utilities for the benchmark dashboards.
-
-Used by `generate_dashboard.py` (full benchmark) and
-`generate_parallel_dashboard.py` (parallel-tasks sweet-spot dashboard).
-"""
+"""Shared utilities for the benchmark dashboards."""
 
 from __future__ import annotations
 
 import csv
 import json
 import re
+import time
 from pathlib import Path
 
 import bleach
@@ -17,7 +14,7 @@ import jinja2
 import markdown
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-DATA_CSV = SCRIPT_DIR / "data.csv"
+STATS_CSV = SCRIPT_DIR / "stats.csv"
 TEXT_MD = SCRIPT_DIR / "text.md"
 RESULTS_DIR = SCRIPT_DIR / "results"
 TEMPLATE_MAIN = SCRIPT_DIR / "template-main.html"
@@ -28,61 +25,27 @@ OUTPUT_DETAIL = SCRIPT_DIR / "benchmark-detail.html"
 # Normalised CSV header label -> field name used by the templates.
 HEADER_NAMES = {
     "base": "base",
-    "model name": "model",
-    "reasoning effort": "reasoning_effort",
-    "total params (b)": "total_params",
-    "active params (b)": "active_params",
-    "n-grams params (b)": "ngram_params",
-    "model size (gb)": "model_size",
-    "weights quantization": "weights_quant",
-    "kv cache quantization": "kv_cache_quant",
-    "ple quantization": "ple_quant",
-    "engine": "engine",
-    "nb gpu": "nb_gpu",
-    "spec": "spec",
-    "license": "license",
-    "model ref": "model_ref",
-    "max kv ktokens": "max_kv_ktokens",
-    "score /100": "score",
-    "duration": "duration",
+    "variant": "model",
+    "wq": "weights_quant",
+    "cq": "kv_cache_quant",
+    "score": "score",
     "requests": "requests",
-    "req/pts": "req_pts",
-    "in mtok": "tokens_processed_mt",
-    "out mtok": "tokens_generated_mt",
-    "total tg/s": "total_tg_s",
-    "parallel tasks": "parallel_tasks",
-    "tg/s per task": "tg_s_per_task",
-    "total cost $": "total_cost",
-    "ktok/pt": "ktok_per_pt",
-    "gen tok /req": "gen_tok_per_req",
-    "notes": "notes",
+    "request_time_seconds": "request_time_s",
+    "wall_time_seconds": "duration_s",
+    "input_tokens": "tokens_processed_mt",
+    "output_tokens": "tokens_generated_mt",
+    "req/pt": "req_pts",
 }
 
-DECIMAL_FIELDS = (
-    "score",
-    "requests",
-    "req_pts",
-    "tokens_processed_mt",
-    "tokens_generated_mt",
-    "total_tg_s",
-    "parallel_tasks",
-    "tg_s_per_task",
-)
+# stats.csv counts raw tokens; the dashboard reports them in millions.
+SCALES = {"tokens_processed_mt": 1e-6, "tokens_generated_mt": 1e-6}
 
 NUMERIC_FIELDS = {
-    "score": "score_num",
-    "total_params": "total_params_num",
-    "active_params": "active_params_num",
-    "ngram_params": "ngram_params_num",
-    "model_size": "model_size_num",
     "requests": "requests_num",
     "req_pts": "req_pts_num",
+    "request_time_s": "request_time_s_num",
     "tokens_processed_mt": "tokens_processed_num",
     "tokens_generated_mt": "tokens_generated_num",
-    "total_tg_s": "total_tg_s_num",
-    "parallel_tasks": "parallel_tasks_num",
-    "tg_s_per_task": "tg_s_per_task_num",
-    "total_cost": "total_cost_num",
 }
 
 SAFE_TAGS = [
@@ -179,30 +142,16 @@ def _parse_decimal(s: str) -> float | None:
         return None
 
 
-def _duration_to_seconds(s: str) -> int | None:
-    if not s:
-        return None
-    s = s.strip()
-    if not s:
-        return None
-    parts = s.split(":")
-    try:
-        if len(parts) == 3:
-            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-        if len(parts) == 2:
-            return int(parts[0]) * 60 + int(parts[1])
-    except (ValueError, IndexError):
-        return None
-    return None
-
-
 def _normalise_record(rec: dict) -> dict:
+    for field, scale in SCALES.items():
+        if (v := _parse_decimal(rec.get(field, ""))) is not None:
+            rec[field] = f"{v * scale:.1f}"
     rec["score_num"] = _parse_decimal(rec.get("score", ""))
-    rec["duration_s"] = _duration_to_seconds(rec.get("duration", ""))
     for src, dst in NUMERIC_FIELDS.items():
-        if dst == "score_num":
-            continue
         rec[dst] = _parse_decimal(rec.get(src, ""))
+    if (seconds := _parse_decimal(rec.get("duration_s", ""))) is not None:
+        rec["duration_s"] = seconds
+        rec["duration"] = time.strftime("%H:%M:%S", time.gmtime(seconds))
     return rec
 
 
@@ -218,6 +167,24 @@ def render_markdown(path: Path) -> str:
     )
 
 
+HALL_SECTION = re.compile(r"(<h2>Hall of fame</h2>)(.*?)(?=<h2>|\Z)", re.DOTALL)
+UPDATE_BLOCK = re.compile(r"<h3>(.*?)</h3>(.*?)(?=<h3>|\Z)", re.DOTALL)
+
+
+def collapse_updates(md_html: str) -> str:
+    """Fold each Hall of fame update into its own <details>, newest one left open."""
+
+    def fold(section: re.Match) -> str:
+        head, *blocks = re.split(r"(?=<h3>)", section[2])
+        folded = "".join(
+            f"<details{' open' if not i else ''}><summary>{title}</summary>{body}</details>"
+            for i, (title, body) in enumerate(UPDATE_BLOCK.findall("".join(blocks)))
+        )
+        return f"{section[1]}{head}{folded}"
+
+    return HALL_SECTION.sub(fold, md_html)
+
+
 def render_html(template_path: Path, output_path: Path, **context) -> None:
     """Render a Jinja2 template with the given context and write the output."""
     env = jinja2.Environment(autoescape=False)
@@ -231,7 +198,7 @@ def render_html(template_path: Path, output_path: Path, **context) -> None:
 
 def render_dashboard(
     *,
-    csv_path: Path = DATA_CSV,
+    csv_path: Path = STATS_CSV,
     md_path: Path = TEXT_MD,
     template_path: Path = TEMPLATE_MAIN,
     output_path: Path = OUTPUT_MAIN,
@@ -241,6 +208,6 @@ def render_dashboard(
     valid = [r for r in records if r["score_num"] is not None]
     print(f"Parsed {len(records)} records from {csv_path} ({len(valid)} with valid score)")
 
-    md_html = render_markdown(md_path)
+    md_html = collapse_updates(render_markdown(md_path))
     json_str = json.dumps(records, ensure_ascii=False)
     render_html(template_path, output_path, md_html=md_html, json_data=json_str)

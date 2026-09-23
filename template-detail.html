@@ -8,49 +8,55 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&display=swap"
       rel="stylesheet"
     />
     <style>
-      /* Light theme mirrors e2studio.fr: warm paper ground, ink text, white cards,
-         tan accents, flat surfaces separated by rules instead of shadows.
-         Dark theme keeps the same hue family (warm charcoal + tan), inverted. */
+      /* Design language mirrors desing-ref.html: near-black ground, one orange
+         accent, hairline rules, mono uppercase apparatus labels, display type.
+         The reference ships dark only; the light theme is its counterpart —
+         neutral paper, ink text, the same accent darkened to hold contrast. */
       :root {
-        --font-sans: "Figtree", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-        --font-mono: "JetBrains Mono", "Consolas", monospace;
-        --bg: #eeeae2;
-        --bg-header: #eeeae2;
+        --font-sans: "Archivo", "Helvetica Neue", "Segoe UI", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+        --bg: #f5f4f1;
+        --bg-header: #f5f4f1;
         --bg-card: #fff;
-        --bg-table-header: #f6f3ec;
-        --bg-table-row-hover: #f6f3ec;
+        --bg-table-header: #efeeea;
+        --bg-table-row-hover: #efeeea;
         --bg-sticky: #fff;
-        --bg-highlight: #f5e7cd;
+        --bg-highlight: #fbe4da;
         --bg-btn: #fff;
-        --bg-btn-hover: #f2eee5;
+        --bg-btn-hover: #eceae5;
         --bg-select: #fff;
-        --text-primary: #202020;
-        --text-secondary: #6f6a60;
-        --text-tertiary: #3b372f;
-        --border: #ded8cc;
-        --border-strong: #202020;
-        --border-select: #cec7b8;
-        --grid: #e6e1d7;
-        --scrollbar-thumb: #cec7b8;
-        --scrollbar-thumb-hover: #a49b8a;
-        --accent: #8a6a2f;
-        --accent-eyebrow: #b08d58;
-        --accent-glow: rgba(138, 106, 47, 0.18);
+        --text-primary: #17181a;
+        --text-secondary: #6b6760;
+        --text-tertiary: #3a3c3f;
+        --border: rgba(23, 24, 26, 0.12);
+        --border-strong: rgba(23, 24, 26, 0.55);
+        --border-select: rgba(23, 24, 26, 0.3);
+        --grid: rgba(23, 24, 26, 0.08);
+        --scrollbar-thumb: #c9c5bc;
+        --scrollbar-thumb-hover: #a49f94;
+        --accent: #cf826f;
+        --accent-eyebrow: #6b6760;
+        --accent-glow: rgba(216, 67, 28, 0.2);
+        --radius: 3px;
         --shadow-card: none;
         --shadow-card-hover: none;
-        --chart-font: #3b372f;
-        --chart-grid: #e0dacd;
+        --chart-font: #6a6e73;
+        --chart-grid: rgba(23, 24, 26, 0.1);
+        --atmos-line: rgba(23, 24, 26, 0.05);
+        --atmos-line-2: rgba(23, 24, 26, 0.035);
+        --grain: 0.035;
         /* Status + section markers are theme tokens, not fixed hex, so both
            themes stay legible on their own ground. */
         --ok: #1f7a4d;
         --warn: #b4661d;
         --err: #b3261e;
         --muted: #8b8375;
-        --na: #efece4;
+        --na: #e9e7e1;
         --dot-orange: #c0562b;
         --dot-violet: #5a4bb0;
         --dot-blue: #0e7fbf;
@@ -58,41 +64,39 @@
         --dot-red: #b3261e;
         --dot-lime: #7d9b1f;
         --dot-pink: #c0357c;
-        --dot-line-from: #dfc095;
-        --dot-line-to: transparent;
       }
       [data-theme="dark"] {
-        --bg: #171512;
-        --bg-header: #171512;
-        --bg-card: #201d18;
-        --bg-table-header: #262219;
-        --bg-table-row-hover: #262219;
-        --bg-sticky: #201d18;
-        --bg-highlight: #3d3016;
-        --bg-btn: #262219;
-        --bg-btn-hover: #322c21;
-        --bg-select: #262219;
-        --text-primary: #f2efe8;
-        --text-secondary: #a89f8d;
-        --text-tertiary: #ded7c8;
-        --border: #35301f;
-        --border-strong: #f2efe8;
-        --border-select: #3f3928;
-        --grid: #322c21;
-        --scrollbar-thumb: #4a4230;
-        --scrollbar-thumb-hover: #6a5f45;
-        --accent: #dfc095;
-        --accent-eyebrow: #dfc095;
-        --accent-glow: rgba(223, 192, 149, 0.22);
-        --shadow-card: none;
-        --shadow-card-hover: none;
-        --chart-font: #ded7c8;
-        --chart-grid: #3a3425;
+        --bg: #0a0b0c;
+        --bg-header: #0a0b0c;
+        --bg-card: #0e0f11;
+        --bg-table-header: #101214;
+        --bg-table-row-hover: #16181b;
+        --bg-sticky: #0e0f11;
+        --bg-highlight: #2a150e;
+        --bg-btn: #0e0f11;
+        --bg-btn-hover: #191b1e;
+        --bg-select: #0e0f11;
+        --text-primary: #eae7e0;
+        --text-secondary: #9a968c;
+        --text-tertiary: #c8c4bb;
+        --border: rgba(234, 231, 224, 0.09);
+        --border-strong: rgba(234, 231, 224, 0.34);
+        --border-select: rgba(234, 231, 224, 0.2);
+        --grid: rgba(234, 231, 224, 0.07);
+        --scrollbar-thumb: #2c2e31;
+        --scrollbar-thumb-hover: #45484c;
+        --accent: #cf826f;
+        --accent-eyebrow: #9a968c;
+        --accent-glow: rgba(255, 90, 43, 0.28);
+        --chart-grid: rgba(234, 231, 224, 0.09);
+        --atmos-line: rgba(234, 231, 224, 0.04);
+        --atmos-line-2: rgba(234, 231, 224, 0.028);
+        --grain: 0.05;
         --ok: #6cc38a;
         --warn: #e0a35c;
         --err: #ef7a6d;
-        --muted: #8f8874;
-        --na: #2a261f;
+        --muted: #6f6b64;
+        --na: #1a1c1e;
         --dot-orange: #ef8b52;
         --dot-violet: #a795ff;
         --dot-blue: #63c8f5;
@@ -100,8 +104,6 @@
         --dot-red: #ff7a6e;
         --dot-lime: #c8e85a;
         --dot-pink: #f27ab5;
-        --dot-line-from: #dfc095;
-        --dot-line-to: transparent;
       }
       * {
         margin: 0;
@@ -115,107 +117,140 @@
         -webkit-font-smoothing: grayscale;
         -moz-osx-font-smoothing: grayscale;
         font-size: 16px;
-        line-height: 1.7;
+        line-height: 1.6;
         transition:
           background 0.2s,
           color 0.2s;
       }
+      ::selection {
+        background: var(--accent);
+        color: var(--bg);
+      }
 
-      /* Header: flat paper band closed by the reference's 2px ink rule. */
+      /* Fixed atmosphere (reference's grid + film grain), behind the content boxes. */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(to right, var(--atmos-line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--atmos-line-2) 1px, transparent 1px);
+        background-size: 96px 96px;
+        mask-image: radial-gradient(120% 100% at 50% 0%, #000 30%, transparent 92%);
+        -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 30%, transparent 92%);
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: var(--grain);
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+      }
+
+      /* Scroll progress: the reference's 2px accent bar. */
+      #prog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 0;
+        background: var(--accent);
+        z-index: 200;
+        transition: width 0.12s linear;
+      }
+
+      /* Header: reference masthead — mono tick, display heading, hairline close. */
       .header {
-        background: var(--bg-header);
-        padding: 56px 32px 44px;
-        text-align: center;
-        border-bottom: 2px solid var(--border-strong);
         position: relative;
+        z-index: 1;
+        background: var(--bg-header);
+        max-width: 1448px;
+        margin: 0 auto;
+        padding: 84px 24px 40px;
+        border-bottom: 1px solid var(--border);
         transition:
           background 0.2s,
           border-color 0.2s;
       }
       .header h1 {
-        font-size: 2.4rem;
+        font-size: clamp(30px, 4.6vw, 58px);
         color: var(--text-primary);
         font-weight: 600;
-        line-height: 1.25;
-        letter-spacing: -0.01em;
-        margin-bottom: 8px;
+        line-height: 1.06;
+        letter-spacing: -0.04em;
+        max-width: 25ch;
+        margin-bottom: 12px;
+      }
+      .header h1 em {
+        font-family: var(--font-serif);
+        font-weight: 300;
+        font-style: italic;
+        letter-spacing: -0.015em;
       }
       .header p {
         color: var(--text-secondary);
-        font-size: 1.05rem;
-        max-width: 640px;
-        margin: 0 auto;
+        max-width: 62ch;
       }
       .header-line {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 12px;
-        justify-content: center;
-        margin-bottom: 12px;
-      }
-      .header-line::before,
-      .header-line::after {
-        content: "";
-        height: 1px;
-        width: 60px;
+        gap: 10px;
+        margin-bottom: 20px;
       }
       .header-line::before {
-        background: linear-gradient(
-          to left,
-          var(--dot-line-from),
-          var(--dot-line-to)
-        );
+        content: "";
+        display: block;
+        width: 14px;
+        height: 1px;
+        background: var(--accent);
       }
       .header-line::after {
-        background: linear-gradient(
-          to right,
-          var(--dot-line-from),
-          var(--dot-line-to)
-        );
+        content: none;
       }
       .header-line span {
-        font-size: 0.78rem;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
         color: var(--accent-eyebrow);
       }
 
-      /* Theme toggle */
+      /* Theme toggle — the reference's mono ghost button. */
       .theme-toggle {
         position: absolute;
-        top: 16px;
+        top: 20px;
         right: 24px;
-        background: var(--bg-btn);
-        color: var(--text-tertiary);
-        border: 1.5px solid var(--border-strong);
-        padding: 8px 14px;
-        border-radius: 6px;
+        background: none;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-select);
+        padding: 9px 14px;
+        border-radius: 2px;
         cursor: pointer;
-        font-size: 0.82rem;
-        font-weight: 600;
-        font-family: inherit;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
         transition:
-          background 0.15s,
-          border-color 0.15s,
-          color 0.15s;
+          border-color 0.3s,
+          color 0.3s;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
       }
       .theme-toggle:hover {
-        background: var(--accent);
-        color: var(--text-primary);
-      }
-      .theme-toggle svg {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
+        border-color: var(--accent);
+        color: var(--accent);
       }
 
       /* Content container - sidebar + main */
       .content {
-        max-width: 1400px;
+        position: relative;
+        z-index: 1;
+        max-width: 1448px;
         margin: 0 auto;
         padding: 32px 24px 64px;
         display: flex;
@@ -227,21 +262,23 @@
         min-width: 0;
       }
 
-      /* Section titles: headings stay ink; the accent sits in the rule-shaped dot. */
+      /* Section titles: the reference's `.tick` — mono, tracked, accent dash. */
       .section-title {
         display: flex;
         align-items: center;
         gap: 10px;
-        color: var(--text-primary);
-        font-size: 1.35rem;
-        font-weight: 600;
-        line-height: 1.35;
-        margin: 44px 0 20px;
-        letter-spacing: -0.01em;
+        color: var(--accent-eyebrow);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.4;
+        text-transform: uppercase;
+        margin: 52px 0 20px;
+        letter-spacing: 0.22em;
       }
       .section-dot {
-        width: 4px;
-        height: 20px;
+        width: 14px;
+        height: 1px;
         border-radius: 0;
         flex-shrink: 0;
       }
@@ -279,7 +316,7 @@
            horizontal scroller would inflate the whole row past the viewport. */
         min-width: 0;
         background: var(--bg-card);
-        border-radius: 12px;
+        border-radius: var(--radius);
         padding: 20px;
         border: 1px solid var(--border);
         transition: border-color 0.2s;
@@ -292,44 +329,45 @@
       }
       .chart-box h3 {
         color: var(--accent-eyebrow);
-        font-size: 0.72rem;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
-        margin-bottom: 12px;
-        font-weight: 600;
+        letter-spacing: 0.22em;
+        margin-bottom: 14px;
+        font-weight: 400;
       }
 
-      /* Metric cards */
+      /* Metric cards: hairline cells on a shared top rule, no cards-in-cards. */
       .metric-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0;
+        border-top: 1px solid var(--border);
         margin-bottom: 24px;
       }
       .metric-card {
-        background: var(--bg-card);
-        border-radius: 12px;
-        padding: 24px 20px;
-        border: 1px solid var(--border);
-        text-align: center;
-        transition: border-color 0.2s;
-      }
-      .metric-card:hover {
-        border-color: var(--border-select);
+        background: none;
+        padding: 18px 18px 18px 18px;
+        border-bottom: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        border-left: 1px solid var(--border);
+        text-align: left;
       }
       .metric-card .value {
-        font-size: 2.4rem;
+        font-size: clamp(26px, 2.6vw, 38px);
         font-weight: 600;
         color: var(--text-primary);
-        letter-spacing: -0.02em;
-        line-height: 1.1;
+        letter-spacing: -0.035em;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.05;
       }
       .metric-card .label {
-        font-size: 0.72rem;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.22em;
         color: var(--accent-eyebrow);
-        margin-top: 6px;
+        margin-top: 8px;
         line-height: 1.4;
       }
 
@@ -338,22 +376,24 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 0.82rem;
+        font-variant-numeric: tabular-nums;
       }
       th {
         background: var(--bg-table-header);
-        color: var(--text-primary);
-        padding: 10px 12px;
+        color: var(--accent-eyebrow);
+        padding: 12px;
         text-align: left;
         position: sticky;
         top: 0;
-        font-weight: 600;
-        font-size: 0.75rem;
+        font-family: var(--font-mono);
+        font-weight: 400;
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        border-bottom: 2px solid var(--border-strong);
+        letter-spacing: 0.16em;
+        border-bottom: 1px solid var(--border-select);
       }
       td {
-        padding: 7px 12px;
+        padding: 8px 12px;
         border-bottom: 1px solid var(--grid);
         color: var(--text-tertiary);
       }
@@ -363,6 +403,10 @@
       }
       tr:hover td {
         background: var(--bg-table-row-hover);
+      }
+      /* The reference's row hover: a hairline of accent down the leading edge. */
+      tr:hover td:first-child {
+        box-shadow: inset 2px 0 0 var(--accent);
       }
       th a {
         color: inherit;
@@ -376,7 +420,7 @@
       .table-scroll {
         max-height: 600px;
         overflow: auto;
-        border-radius: 12px;
+        border-radius: var(--radius);
         border: 1px solid var(--border);
         background: var(--bg-card);
       }
@@ -405,11 +449,10 @@
         position: sticky;
         top: 24px;
         z-index: 50;
-        width: 250px;
         flex-shrink: 0;
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: var(--radius);
         padding: 16px 12px;
         display: flex;
         flex-direction: column;
@@ -428,12 +471,12 @@
         border-radius: 4px;
       }
       .filter-sidebar .filter-label {
-        font-size: 0.72rem;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
         color: var(--accent-eyebrow);
         text-transform: uppercase;
-        letter-spacing: 0.12em;
-        padding: 4px 6px 8px;
+        letter-spacing: 0.22em;
+        padding: 4px 6px 12px;
       }
       .filter-sidebar label {
         display: flex;
@@ -443,7 +486,7 @@
         color: var(--text-tertiary);
         cursor: pointer;
         padding: 4px 6px;
-        border-radius: 6px;
+        border-radius: 2px;
         transition: background 0.15s;
       }
       .filter-sidebar label:hover {
@@ -522,20 +565,27 @@
         margin-top: 12px;
         display: flex;
         flex-wrap: wrap;
-        gap: 20px;
-        font-size: 0.82rem;
+        gap: 22px;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        text-transform: none; /* graph legends are never rendered ALL CAPS */
         color: var(--text-secondary);
+      }
+      /* Same rule for Plotly's own legend (model/series names). */
+      .js-plotly-plot .legend text {
+        text-transform: none;
       }
       .legend-item {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
       }
 
       /* Highlight column: the reference's tan swatch, closed by an accent edge. */
       .table-col-highlight {
         background: var(--bg-highlight) !important;
-        outline: 2px solid var(--accent);
+        outline: 1px solid var(--accent);
         outline-offset: -1px;
       }
 
@@ -566,24 +616,24 @@
       /* Reference form motif: 2px ink border, small radius, tan focus ring. */
       .scatter-controls label {
         color: var(--accent-eyebrow);
-        font-size: 0.72rem;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.22em;
       }
       .scatter-controls select {
         background: var(--bg-select);
         color: var(--text-tertiary);
-        border: 1.5px solid var(--border-strong);
-        padding: 6px 12px;
-        border-radius: 6px;
+        border: 1px solid var(--border-select);
+        padding: 7px 12px;
+        border-radius: 2px;
         font-size: 0.82rem;
         cursor: pointer;
       }
       .scatter-controls select:focus {
-        outline: none;
+        outline: 1px solid var(--accent);
+        outline-offset: 3px;
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-glow);
       }
 
       /* Failure section */
@@ -591,10 +641,13 @@
         margin-bottom: 24px;
       }
       .fail-section h3 {
-        color: var(--text-primary);
-        font-weight: 600;
+        color: var(--accent-eyebrow);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-weight: 400;
         margin-bottom: 12px;
-        font-size: 1.05rem;
       }
 
       /* Error reason checkboxes */
@@ -634,34 +687,36 @@
         min-width: 0;
       }
 
-      /* Buttons follow the reference: accent fill, ink label, square-ish corners. */
+      /* Buttons: the reference's mono ghost — hairline box, accent on hover. */
       .btn {
-        background: var(--accent);
-        color: var(--bg);
-        border: 1.5px solid var(--accent);
-        padding: 6px 14px;
-        border-radius: 4px;
+        background: none;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-select);
+        padding: 8px 14px;
+        border-radius: 2px;
         cursor: pointer;
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
         transition:
-          background 0.15s,
-          color 0.15s;
+          border-color 0.3s,
+          color 0.3s;
       }
       .btn:hover {
-        background: var(--bg);
-        color: var(--text-primary);
+        border-color: var(--accent);
+        color: var(--accent);
       }
 
-      /* Sub-section headers: ink heading closed by the reference's rule. */
+      /* Sub-section headers: ink heading closed by a hairline rule. */
       .sub-header {
         color: var(--text-primary);
         margin: 28px 0 12px;
         padding-top: 16px;
-        border-top: 2px solid var(--border-strong);
+        border-top: 1px solid var(--border-select);
         font-size: 1.05rem;
         font-weight: 600;
+        letter-spacing: -0.01em;
         line-height: 1.4;
       }
 
@@ -689,18 +744,18 @@
           grid-template-columns: 1fr;
         }
         .header {
-          padding: 56px 16px 28px;
+          padding: 72px 16px 28px;
         }
         .header h1 {
-          font-size: 1.5rem;
+          font-size: 1.75rem;
         }
         .header p {
           font-size: 0.92rem;
         }
         .theme-toggle {
-          top: 10px;
+          top: 12px;
           right: 12px;
-          padding: 6px 10px;
+          padding: 7px 10px;
         }
         .content {
           padding: 24px 16px 48px;
@@ -821,9 +876,11 @@
         type="button"
       ></button>
       <div class="header-line"><span>E2Studio Benchmark Report</span></div>
-      <h1>Agentic coding Models Benchmark Comparison</h1>
+      <h1>Agentic coding models <em>benchmark comparison</em></h1>
       <p>Focus on model efficiency: Tool calls and return codes analysis</p>
     </div>
+
+    <div id="prog" aria-hidden="true"></div>
     <div class="content">
       <div id="filter-panel" class="filter-sidebar"></div>
       <div class="content-main">
@@ -839,13 +896,24 @@
       const TRAJ_LINKS_OK = new RegExp({{TRAJ_HOST_RE}}).test(location.hostname);
 
       // --- Theme toggle ---
+      // --- Scroll progress: the reference's 2px accent bar ---
       (function() {
-        const sunSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-        const moonSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+        const bar = document.getElementById('prog');
+        function paint() {
+          const max = document.documentElement.scrollHeight - window.innerHeight;
+          bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+        }
+        window.addEventListener('scroll', paint, {passive: true});
+        window.addEventListener('resize', paint);
+        paint();
+      })();
+
+      // --- Theme toggle: the reference sets type, not icons. ---
+      (function() {
         const btn = document.getElementById('theme-toggle');
         function setTheme(dark) {
           document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-          btn.innerHTML = (dark ? sunSvg : moonSvg);
+          btn.textContent = (dark ? 'Light mode' : 'Dark mode');
           try { localStorage.setItem('dashboard-theme', dark ? 'dark' : 'light'); } catch(e) {}
         }
         const saved = (function() {
@@ -864,8 +932,8 @@
          the dark set bright enough to read on the warm night ground. Same hue order
          as the main dashboard, so a model keeps its identity across both pages. */
       const PALETTES = {
-        light: ["#8a6a2f","#1f7a4d","#c0562b","#b3261e","#5a4bb0","#0e7fbf","#c9a227","#4a9a5c","#c0357c","#1f9e97","#8b8375","#d4703f","#7d9b1f","#3f9fd0","#dcc06a"],
-        dark: ["#dfc095","#5ec98a","#ef8b52","#ff7a6e","#a795ff","#63c8f5","#f2d84a","#7ee0a0","#f27ab5","#5ee6da","#b0a894","#ff9d70","#c8e85a","#8fdcff","#f7e0a0"],
+        light: ["#d8431c","#1f7a4d","#c0562b","#b3261e","#5a4bb0","#0e7fbf","#c9a227","#4a9a5c","#c0357c","#1f9e97","#8b8375","#d4703f","#7d9b1f","#3f9fd0","#dcc06a"],
+        dark: ["#ff5a2b","#5ec98a","#ef8b52","#ff7a6e","#a795ff","#63c8f5","#f2d84a","#7ee0a0","#f27ab5","#5ee6da","#b0a894","#ff9d70","#c8e85a","#8fdcff","#f7e0a0"],
       };
 
       // Past the curated colors, spread hues by the golden angle so any number of models stays distinct.
@@ -901,11 +969,13 @@
       }
 
       // --- Model filter (sticky top panel) ---
-      const visibleModels = {};
+      // The per-variant checkboxes are the only state; a base row just checks/
+      // unchecks all of them at once, so it can never veto a ticked child.
       const visibleVariants = {};
       const openBases = {};
 
-      // Hovering a base or a variant in the sidebar outlines its dots in the scatter plot.
+      // Dots carry a 1px black hairline; hovering a base or a variant in the sidebar
+      // outlines its dots thicker.
       let scatterHover = null;
 
       function hoverHit(v) {
@@ -915,7 +985,7 @@
 
       function scatterLine(variants, tc) {
         return {
-          color: variants.map(v => hoverHit(v) ? tc.font : tc.grid),
+          color: variants.map(v => hoverHit(v) ? tc.font : '#000'),
           width: variants.map(v => hoverHit(v) ? 4 : 1)
         };
       }
@@ -940,7 +1010,6 @@
 
       function initModelFilters() {
         Object.keys(DATA).forEach((base, i) => {
-          visibleModels[base] = true;
           _baseOrder[base] = i;
           _modelColors[base] = paletteColor(i, isDarkTheme());
           shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = true; });
@@ -948,7 +1017,7 @@
       }
 
       function getFilteredVariants() {
-        return getAllVariants().filter(v => visibleModels[getModelKey(v)] !== false &&
+        return getAllVariants().filter(v =>
           visibleVariants[variantKey(getModelKey(v), v.variant)] !== false);
       }
 
@@ -964,7 +1033,6 @@
         const keys = Object.keys(DATA);
         if (!keys.some(k => hit(k) || shownVariants(k).some(hit))) return; // no match: keep all visible
         keys.forEach(k => {
-          visibleModels[k] = hit(k) || shownVariants(k).some(hit);
           if (!hit(k)) openBases[k] = shownVariants(k).some(hit); // matched by variant name only: reveal the children
           shownVariants(k).forEach(v => { visibleVariants[variantKey(k, v)] = hit(k) || hit(v); });
         });
@@ -976,12 +1044,13 @@
         let html = '<span class="filter-label">Models:</span>';
         for (const base of Object.keys(DATA)) {
           const col = _modelColors[base] || paletteColor(0, isDarkTheme());
-          const checked = visibleModels[base] !== false;
           const vs = shownVariants(base);
-          const open = checked && !!openBases[base];
+          const nvis = vs.filter(v => visibleVariants[variantKey(base, v)] !== false).length;
+          const checked = nvis === vs.length;
+          const open = !!openBases[base];
           const multi = vs.length > 1;
           const caret = multi ? '<button class="caret" type="button" aria-expanded="' + (open ? 'true' : 'false') + '" aria-label="Show variants">' + (open ? "\u25BE" : "\u25B8") + '</button>' : '';
-          html += '<label' + (multi ? ' class="model-row" data-base="' + esc(base) + '" onclick="toggleBaseRow(event, this)"' : '') + ' data-hover-base="' + esc(base) + '"><input type="checkbox" data-base="' + esc(base) + '"' + (checked ? ' checked' : '') + ' onchange="toggleModelFilter(this)"><span class="color-swatch" style="background:' + col + ';"></span>' + esc(base) + caret + '</label>';
+          html += '<label' + (multi ? ' class="model-row" data-base="' + esc(base) + '" onclick="toggleBaseRow(event, this)"' : '') + ' data-hover-base="' + esc(base) + '"><input type="checkbox" data-base="' + esc(base) + '"' + (checked ? ' checked' : '') + (nvis && nvis < vs.length ? ' data-partial="1"' : '') + ' onchange="toggleModelFilter(this)"><span class="color-swatch" style="background:' + col + ';"></span>' + esc(base) + caret + '</label>';
           // Single-model bases need no sub-line.
           if (multi) for (const v of vs) {
             const label = shortName(base, shortLabel(DATA[base][v]));
@@ -993,8 +1062,9 @@
         html += '<button class="btn" onclick="setAllModelFilters(false)" type="button">Uncheck all</button>';
         html += '</div>';
         var top = panel.scrollTop;
-        panel.innerHTML = html;
+        setHtml(panel, html);
         panel.scrollTop = top; // the panel re-renders on every toggle: keep the scroll position
+        panel.querySelectorAll('input[data-base]').forEach(cb => { cb.indeterminate = cb.getAttribute('data-partial') === '1'; });
         panel.querySelectorAll('label[data-hover-base]').forEach(l => {
           const hover = {base: l.getAttribute('data-hover-base'), variant: l.getAttribute('data-hover-variant')};
           l.addEventListener('mouseenter', () => outlineScatter(hover));
@@ -1006,9 +1076,8 @@
         const base = cb.getAttribute('data-base');
         const variant = cb.getAttribute('data-variant');
         if (variant === null) {
-          visibleModels[base] = cb.checked;
-          // Re-checking a base re-enables every variant under it; unchecking leaves them as they were.
-          if (cb.checked) shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = true; });
+          // Children always mirror their base, rolled out or collapsed.
+          shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = cb.checked; });
         } else visibleVariants[variantKey(base, variant)] = cb.checked;
         renderAll();
       }
@@ -1029,7 +1098,6 @@
 
       function setAllModelFilters(checked) {
         for (const base of Object.keys(DATA)) {
-          visibleModels[base] = checked;
           shownVariants(base).forEach(v => { visibleVariants[variantKey(base, v)] = checked; });
         }
         renderAll();
@@ -1146,7 +1214,53 @@
         }
       }
 
+      // Same as the main dashboard: parse the markup once and move the nodes in, instead
+      // of handing a raw HTML string to the panel.
+      function setHtml(el, html) {
+        el.replaceChildren(...new DOMParser().parseFromString(html, 'text/html').body.children);
+      }
+
       function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+      // Repeat runs of the same config ("-run2") compound into one bar: the mean value,
+      // min/max whiskers, and the run count in the tooltip.
+      const RUN_TAG = /-?run\d+(?=[\s_]|$)/i;
+
+      function compoundBars(variants, value) {
+        const groups = new Map();
+        variants.forEach(v => {
+          const gk = v.key.replace(RUN_TAG, '');
+          if (!groups.has(gk)) groups.set(gk, { v: v, vals: [] });
+          groups.get(gk).vals.push(value(v));
+        });
+        return Array.from(groups.values()).map(function(g){
+          const vals = g.vals;
+          return {
+            v: g.v, label: shortLabel(g.v).replace(RUN_TAG, ''),
+            avg: vals.reduce((s, x) => s + x, 0) / vals.length,
+            min: Math.min.apply(null, vals), max: Math.max.apply(null, vals), count: vals.length,
+          };
+        }).sort((a, b) => b.avg - a.avg);
+      }
+
+      // One horizontal bar chart: colour-coded by base model, whiskers spanning the runs.
+      function barChart(divId, groups, title, fmt, textSize) {
+        const axis = barAxis(divId, groups.map(g => g.label));
+        const tc = getThemeColors();
+        Plotly.newPlot(divId, [{
+          type: 'bar', orientation: 'h', y: axis.labels, x: groups.map(g => g.avg),
+          error_x: {
+            type: 'data', symmetric: false,
+            array: groups.map(g => g.max - g.avg), arrayminus: groups.map(g => g.avg - g.min),
+            color: tc.accent, thickness: 1.5, width: 4
+          },
+          marker: { color: groups.map(g => modelColor(g.v)) },
+          text: groups.map(g => fmt(g.avg)), textposition: 'outside', textfont: { size: textSize },
+          customdata: groups.map(g => [g.min, g.max, g.count]),
+          hovertemplate: '<b>%{y}</b><br>' + title + ' avg: %{x:.1f}<br>min: %{customdata[0]:.1f}'
+            + '<br>max: %{customdata[1]:.1f}<br>runs: %{customdata[2]}<extra></extra>'
+        }], { ...commonLayout(axis.margin, title, axis.tick), showlegend: false }, PLOT_CONFIG);
+      }
 
       function getAllVariants() {
         const variants = [];
@@ -1236,6 +1350,17 @@
           '</div><div class="label">Total Tool Calls</div></div>';
         html += '</div>';
 
+        html += '<div class="chart-row">';
+        html += '<div class="chart-box full"><h3>Scatter Plot</h3>';
+        html += '<div class="scatter-controls">';
+        html += '<div><label>X Axis: </label><select id="scatter-x-axis"><option value="score">Score</option><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio" selected>Non-Zero RC Ratio</option></select></div>';
+        html += '<div><label>Y Axis: </label><select id="scatter-y-axis"><option value="score" selected>Score</option><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio">Non-Zero RC Ratio</option></select></div>';
+        html += '<div><label>Size: </label><select id="scatter-size"><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio">Non-Zero RC Ratio</option></select></div>';
+        html += '</div>';
+        html += '<div id="chart-scatter" style="height:500px;"></div></div>';
+        html += '</div>';
+
+
         let evalChartData = null;
         const evalVariants = variants.filter(v => v.data.eval);
         if (evalVariants.length) {
@@ -1276,17 +1401,8 @@
         html += '<div class="chart-box"><h3>Total Non-Zero RC by Variant (lower is better)</h3><div id="chart-rc"></div></div>';
         html += '<div class="chart-box"><h3>Non-Zero RC Ratio (%) (lower is better)</h3><div id="chart-rcpct"></div></div>';
         html += '</div>';
-        html += '<div class="chart-row">';
-        html += '<div class="chart-box full"><h3>Scatter Plot</h3>';
-        html += '<div class="scatter-controls">';
-        html += '<div><label>X Axis: </label><select id="scatter-x-axis"><option value="score">Score</option><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio" selected>Non-Zero RC Ratio</option></select></div>';
-        html += '<div><label>Y Axis: </label><select id="scatter-y-axis"><option value="score" selected>Score</option><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio">Non-Zero RC Ratio</option></select></div>';
-        html += '<div><label>Size: </label><select id="scatter-size"><option value="total_tools">Total Tool Calls</option><option value="total_nonzero_rc">Total Non-Zero RC</option><option value="rc_ratio">Non-Zero RC Ratio</option></select></div>';
-        html += '</div>';
-        html += '<div id="chart-scatter" style="height:500px;"></div></div>';
-        html += '</div>';
 
-        panel.innerHTML = html;
+        setHtml(panel, html);
 
 
         if (agmtVariants.length) {
@@ -1432,31 +1548,12 @@
           ], { ...commonLayout(axis.margin, '', axis.tick), barmode: 'stack' }, PLOT_CONFIG);
         }
 
-        const toolsSorted = variants.slice().sort((a, b) => (b.data.total_tools || 0) - (a.data.total_tools || 0));
-        const toolsAxis = barAxis('chart-tools', toolsSorted.map(v => shortLabel(v)));
-        Plotly.newPlot('chart-tools', [{
-          type: 'bar', orientation: 'h', y: toolsAxis.labels, x: toolsSorted.map(v => v.data.total_tools || 0),
-          marker: { color: toolsSorted.map(v => modelColor(v)) },
-          text: toolsSorted.map(v => (v.data.total_tools || 0).toLocaleString()), textposition: 'outside', textfont: { size: 11 }
-        }], { ...commonLayout(toolsAxis.margin, 'Total Tool Calls', toolsAxis.tick) }, PLOT_CONFIG);
-
-        const rcSorted = variants.slice().sort((a, b) => (b.data.total_nonzero_rc || 0) - (a.data.total_nonzero_rc || 0));
-        const rcAxis = barAxis('chart-rc', rcSorted.map(v => shortLabel(v)));
-        Plotly.newPlot('chart-rc', [{
-          type: 'bar', orientation: 'h', y: rcAxis.labels, x: rcSorted.map(v => v.data.total_nonzero_rc || 0),
-          marker: { color: rcSorted.map(v => modelColor(v)) },
-          text: rcSorted.map(v => (v.data.total_nonzero_rc || 0).toLocaleString()), textposition: 'outside', textfont: { size: 9 }
-        }], { ...commonLayout(rcAxis.margin, 'Total Non-Zero RC', rcAxis.tick) }, PLOT_CONFIG);
-
-        const rcpctSorted = variants.slice().sort((a, b) => (b.data.total_tools ? (b.data.total_nonzero_rc / b.data.total_tools * 100) : 0) - (a.data.total_tools ? (a.data.total_nonzero_rc / a.data.total_tools * 100) : 0));
-        const rcpctAxis = barAxis('chart-rcpct', rcpctSorted.map(v => shortLabel(v)));
-        Plotly.newPlot('chart-rcpct', [{
-          type: 'bar', orientation: 'h', y: rcpctAxis.labels,
-          x: rcpctSorted.map(v => v.data.total_tools ? (v.data.total_nonzero_rc / v.data.total_tools * 100) : 0),
-          marker: { color: rcpctSorted.map(v => modelColor(v)) },
-          text: rcpctSorted.map(v => (v.data.total_tools ? (v.data.total_nonzero_rc / v.data.total_tools * 100) : 0).toFixed(2) + '%'),
-          textposition: 'outside', textfont: { size: 10 }
-        }], { ...commonLayout(rcpctAxis.margin, 'RC Ratio %', rcpctAxis.tick), showlegend: false }, PLOT_CONFIG);
+        barChart('chart-tools', compoundBars(variants, v => v.data.total_tools || 0),
+          'Total Tool Calls', n => n.toLocaleString(), 11);
+        barChart('chart-rc', compoundBars(variants, v => v.data.total_nonzero_rc || 0),
+          'Total Non-Zero RC', n => n.toLocaleString(), 9);
+        barChart('chart-rcpct', compoundBars(variants, v => (v.data.total_tools ? v.data.total_nonzero_rc / v.data.total_tools * 100 : 0)),
+          'RC Ratio %', n => n.toFixed(2) + '%', 10);
 
         const scatterVariants = variants.filter(v => (v.data.eval && (v.data.eval.resolved || 0) > 0));
 
@@ -1567,8 +1664,8 @@
         reasonsHtml += '<div id="error-reason-chart" class="error-reason-chart"></div>';
         reasonsHtml += '</div></div></div>';
 
-        // Set all HTML at once to avoid innerHTML += re-parsing and destroying Plotly state
-        panel.innerHTML = html + reasonsHtml;
+        // Set all markup at once to avoid += re-parsing and destroying Plotly state
+        setHtml(panel, html + reasonsHtml);
 
         // Measured once the panel is in the DOM, so the gutter and height use the
         // chart's real width.
@@ -1803,7 +1900,7 @@
 
         html += '</tbody></table></div>';
 
-        panel.innerHTML = html;
+        setHtml(panel, html);
 
         const scrollStatus = document.getElementById('table-scroll-status');
         const scrollTools = document.getElementById('table-scroll-tools');
@@ -1923,15 +2020,15 @@
         right: 16px;
         z-index: 9999;
         background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 10px 14px;
-        box-shadow: var(--shadow-card-hover);
-        backdrop-filter: blur(6px);
+        border: 1px solid var(--border-select);
+        border-radius: var(--radius);
+        padding: 12px 14px;
         display: flex;
         flex-direction: column;
         gap: 6px;
-        font-size: 0.78rem;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.04em;
         max-width: 260px;
         transition:
           background 0.2s,

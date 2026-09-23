@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ title }}</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" /><style>{{ css | safe }}</style>
+<title>{{ title }}</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /><style>{{ css | safe }}</style>
 <script>
 /* Same rule as the dashboards: localStorage wins, else the OS preference. Applied
    before the body parses so a long transcript never flashes the wrong theme. */
+/* The dashboards set the shared `dashboard-theme`; these pages obey it. The label
+   names the theme it switches to, like the reference's mono ghost buttons. */
 var THEME = {
-  sun: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
-  moon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>',
   dark: null,
   set: function (dark) {
     this.dark = dark;
@@ -17,10 +17,22 @@ var THEME = {
   paint: function () {
     var btn = document.getElementById("theme-toggle");
     if (!btn) return;
-    btn.innerHTML = this.dark ? this.sun : this.moon;
+    btn.textContent = this.dark ? "Light mode" : "Dark mode";
     btn.title = this.dark ? "Switch to light theme" : "Switch to dark theme";
   },
 };
+
+/* Scroll progress: the reference's 2px accent bar. */
+document.addEventListener("DOMContentLoaded", function () {
+  var bar = document.getElementById("prog");
+  var paint = function () {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + "%";
+  };
+  window.addEventListener("scroll", paint, { passive: true });
+  window.addEventListener("resize", paint);
+  paint();
+});
 (function () {
   var saved = null;
   try { saved = localStorage.getItem("dashboard-theme"); } catch (e) {}
@@ -34,6 +46,7 @@ var THEME = {
 })();
 </script></head>
 <body>
+<div id="prog" aria-hidden="true"></div>
 <header><div class="wrap"><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme"></button>
 <h1><code>{{ title }}</code></h1>
 <div class="meta">{{ model }} · {{ source }} · mini-swe-agent {{ version }} · image {{ image }}</div>
@@ -56,7 +69,7 @@ var THEME = {
 {%- if blk.kind == "cmd" %}<div class="cmd">{{ blk.text }}</div>
 {%- elif blk.kind == "alert" %}<div class="rc bad">{{ blk.text }}</div>
 {%- elif blk.kind == "pre" %}{% if blk.text.strip() %}<pre>{{ blk.text }}</pre>{% endif %}
-{%- elif blk.kind == "fold" %}{% if blk.open %}<details open>{% else %}<details>{% endif %}<summary>{{ blk.summary }}</summary>{% if blk.text.strip() %}<pre>{{ blk.text }}</pre>{% endif %}</details>{% endif %}
+{%- elif blk.kind == "fold" %}<details {% if blk.open %}open{% endif %}><summary>{{ blk.summary }}</summary>{% if blk.text.strip() %}<pre>{{ blk.text }}</pre>{% endif %}</details>{% endif %}
 {%- endfor %}
 </div></section>
 {% endfor %}

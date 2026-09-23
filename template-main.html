@@ -8,84 +8,87 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&display=swap"
       rel="stylesheet"
     />
     <style>
-      /* Light theme mirrors e2studio.fr: warm paper ground, ink text, white cards,
-         tan accents, flat surfaces separated by rules instead of shadows.
-         Dark theme keeps the same hue family (warm charcoal + tan), inverted. */
+      /* Design language mirrors desing-ref.html: near-black ground, one orange
+         accent, hairline rules, mono uppercase apparatus labels, display type.
+         The reference ships dark only; the light theme is its counterpart —
+         neutral paper, ink text, the same accent darkened to hold contrast. */
       :root {
-        --font-sans: "Figtree", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-        --font-mono: "JetBrains Mono", "Consolas", monospace;
-        --bg: #eeeae2;
-        --bg-header: #eeeae2;
+        --font-sans: "Archivo", "Helvetica Neue", "Segoe UI", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+        --bg: #f5f4f1;
+        --bg-header: #f5f4f1;
         --bg-card: #fff;
-        --bg-table-header: #f6f3ec;
-        --bg-table-row-hover: #f6f3ec;
+        --bg-table-header: #efeeea;
+        --bg-table-row-hover: #efeeea;
         --bg-sticky: #fff;
         --bg-btn: #fff;
-        --bg-btn-hover: #f2eee5;
+        --bg-btn-hover: #eceae5;
         --bg-select: #fff;
-        --text-primary: #202020;
-        --text-secondary: #6f6a60;
-        --text-tertiary: #3b372f;
-        --border: #ded8cc;
-        --border-strong: #202020;
-        --border-select: #cec7b8;
-        --grid: #e6e1d7;
-        --scrollbar-thumb: #cec7b8;
-        --scrollbar-thumb-hover: #a49b8a;
-        --accent: #8a6a2f;
-        --accent-eyebrow: #b08d58;
-        --accent-glow: rgba(138, 106, 47, 0.18);
+        --text-primary: #17181a;
+        --text-secondary: #494742;
+        --text-tertiary: #23221f;
+        --border: rgba(23, 24, 26, 0.12);
+        --border-strong: rgba(23, 24, 26, 0.55);
+        --border-select: rgba(23, 24, 26, 0.3);
+        --grid: rgba(23, 24, 26, 0.08);
+        --scrollbar-thumb: #c9c5bc;
+        --scrollbar-thumb-hover: #a49f94;
+        --accent: #cf826f;
+        --accent-eyebrow: #6b6760;
+        --accent-glow: rgba(216, 67, 28, 0.2);
         --ok: #1f7a4d;
         --bad: #b3261e;
-        --chart-font: #3b372f;
+        --chart-font: #6a6e73;
+        --radius: 3px;
         --shadow-card: none;
         --shadow-card-hover: none;
-        --chart-grid: #e0dacd;
-        --dot-line-from: #dfc095;
-        --dot-line-to: transparent;
-        --bd-row-even: #faf8f3;
-        --bd-row-hover: #f3ede0;
-        --bd-highlight: #f5e7cd;
-        --bd-highlight-outline: #8a6a2f;
+        --chart-grid: rgba(23, 24, 26, 0.1);
+        --atmos-line: rgba(23, 24, 26, 0.05);
+        --atmos-line-2: rgba(23, 24, 26, 0.035);
+        --grain: 0.035;
+        --bd-row-even: #faf9f6;
+        --bd-row-hover: #efeeea;
+        --bd-highlight: #fbe4da;
+        --bd-highlight-outline: #cf826f;
       }
       [data-theme="dark"] {
-        --bg: #171512;
-        --bg-header: #171512;
-        --bg-card: #201d18;
-        --bg-table-header: #262219;
-        --bg-table-row-hover: #262219;
-        --bg-sticky: #201d18;
-        --bg-btn: #262219;
-        --bg-btn-hover: #322c21;
-        --bg-select: #262219;
-        --text-primary: #f2efe8;
-        --text-secondary: #a89f8d;
-        --text-tertiary: #ded7c8;
-        --border: #35301f;
-        --border-strong: #f2efe8;
-        --border-select: #3f3928;
-        --grid: #322c21;
-        --scrollbar-thumb: #4a4230;
-        --scrollbar-thumb-hover: #6a5f45;
-        --accent: #dfc095;
-        --accent-eyebrow: #dfc095;
-        --accent-glow: rgba(223, 192, 149, 0.22);
+        --bg: #0a0b0c;
+        --bg-header: #0a0b0c;
+        --bg-card: #0e0f11;
+        --bg-table-header: #101214;
+        --bg-table-row-hover: #16181b;
+        --bg-sticky: #0e0f11;
+        --bg-btn: #0e0f11;
+        --bg-btn-hover: #191b1e;
+        --bg-select: #0e0f11;
+        --text-primary: #eae7e0;
+        --text-secondary: #9a968c;
+        --text-tertiary: #c8c4bb;
+        --border: rgba(234, 231, 224, 0.09);
+        --border-strong: rgba(234, 231, 224, 0.34);
+        --border-select: rgba(234, 231, 224, 0.2);
+        --grid: rgba(234, 231, 224, 0.07);
+        --scrollbar-thumb: #2c2e31;
+        --scrollbar-thumb-hover: #45484c;
+        --accent: #cf826f;
+        --accent-eyebrow: #9a968c;
+        --accent-glow: rgba(255, 90, 43, 0.28);
         --ok: #6cc38a;
         --bad: #ef7a6d;
-        --chart-font: #ded7c8;
-        --shadow-card: none;
-        --shadow-card-hover: none;
-        --chart-grid: #3a3425;
-        --dot-line-from: #dfc095;
-        --dot-line-to: transparent;
-        --bd-row-even: #221f19;
-        --bd-row-hover: #2d2718;
-        --bd-highlight: #3d3016;
-        --bd-highlight-outline: #dfc095;
+        --chart-font: #c8c4bb;
+        --chart-grid: rgba(234, 231, 224, 0.09);
+        --atmos-line: rgba(234, 231, 224, 0.04);
+        --atmos-line-2: rgba(234, 231, 224, 0.028);
+        --grain: 0.05;
+        --bd-row-even: #101214;
+        --bd-row-hover: #1a1d20;
+        --bd-highlight: #2a150e;
+        --bd-highlight-outline: #cf826f;
       }
       * {
         margin: 0;
@@ -99,61 +102,161 @@
         -webkit-font-smoothing: grayscale;
         -moz-osx-font-smoothing: grayscale;
         font-size: 16px;
-        line-height: 1.7;
+        line-height: 1.6;
         margin: 0;
         padding: 0;
       }
+      ::selection {
+        background: var(--accent);
+        color: var(--bg);
+      }
 
-      /* Header: flat paper band closed by the reference's 2px ink rule. */
+      /* Fixed atmosphere (reference's grid + film grain). Sits behind the content
+         boxes, so the hairline fabric only shows in the gutters, as in the ref. */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(to right, var(--atmos-line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--atmos-line-2) 1px, transparent 1px);
+        background-size: 96px 96px;
+        mask-image: radial-gradient(120% 100% at 50% 0%, #000 30%, transparent 92%);
+        -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 30%, transparent 92%);
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: var(--grain);
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+      }
+
+      /* Scroll progress: the reference's 2px accent bar. */
+      #prog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 0;
+        background: var(--accent);
+        z-index: 200;
+        transition: width 0.12s linear;
+      }
+
+      /* Marquee: hairline band of mono keywords, paused on hover. */
+      .marquee {
+        border-block: 1px solid var(--border);
+        overflow: hidden;
+        position: relative;
+        padding: 13px 0;
+      }
+      .marquee::before,
+      .marquee::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 90px;
+        z-index: 2;
+        pointer-events: none;
+      }
+      .marquee::before {
+        left: 0;
+        background: linear-gradient(90deg, var(--bg), transparent);
+      }
+      .marquee::after {
+        right: 0;
+        background: linear-gradient(-90deg, var(--bg), transparent);
+      }
+      .marquee .track {
+        display: flex;
+        width: max-content;
+        animation: mq 42s linear infinite;
+      }
+      .marquee:hover .track {
+        animation-play-state: paused;
+      }
+      .marquee span {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--accent-eyebrow);
+        white-space: nowrap;
+        padding-inline: 22px;
+      }
+      .marquee i {
+        font-style: normal;
+        color: var(--accent);
+        margin-right: 22px;
+      }
+      @keyframes mq {
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .marquee .track {
+          animation: none;
+        }
+      }
+
+      /* Header: reference masthead — mono tick, display heading, hairline close. */
       .bd-header {
         background: var(--bg-header);
-        padding: 56px 32px 44px;
-        text-align: center;
-        border-bottom: 2px solid var(--border-strong);
+        max-width: 1448px;
+        margin: 0 auto;
+        padding: 84px 24px 40px;
+        border-bottom: 1px solid var(--border);
         transition:
           background 0.2s,
           border-color 0.2s;
       }
       .bd-header h1 {
-        font-size: 2.25rem;
+        font-size: clamp(30px, 4.6vw, 58px);
         color: var(--text-primary);
         font-weight: 600;
-        line-height: 1.25;
-        letter-spacing: -0.01em;
-        margin-bottom: 8px;
-      }
-      .bd-header-line {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        justify-content: center;
+        line-height: 1.06;
+        letter-spacing: -0.04em;
+        max-width: 25ch;
         margin-bottom: 12px;
       }
-      .bd-header-line::before,
-      .bd-header-line::after {
-        content: "";
-        height: 1px;
-        width: 60px;
+      .bd-header h1 em {
+        font-family: var(--font-serif);
+        font-weight: 300;
+        font-style: italic;
+        letter-spacing: -0.015em;
+      }
+      .bd-header p {
+        color: var(--text-secondary);
+        max-width: 62ch;
+      }
+      .bd-header-line {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
       }
       .bd-header-line::before {
-        background: linear-gradient(
-          to left,
-          var(--dot-line-from),
-          var(--dot-line-to)
-        );
+        content: "";
+        display: block;
+        width: 14px;
+        height: 1px;
+        background: var(--accent);
       }
       .bd-header-line::after {
-        background: linear-gradient(
-          to right,
-          var(--dot-line-from),
-          var(--dot-line-to)
-        );
+        content: none;
       }
       .bd-header-line span {
-        font-size: 0.78rem;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
         color: var(--accent-eyebrow);
       }
       .bd-header a {
@@ -165,41 +268,39 @@
         color: var(--accent);
       }
 
-      /* Theme toggle */
+      /* Theme toggle — the reference's mono ghost button. */
       .theme-toggle {
         position: fixed;
-        top: 16px;
+        top: 20px;
         right: 24px;
         z-index: 100;
-        background: var(--bg-btn);
-        color: var(--text-tertiary);
-        border: 1.5px solid var(--border-strong);
-        padding: 8px 14px;
-        border-radius: 6px;
+        background: none;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-select);
+        padding: 9px 14px;
+        border-radius: 2px;
         cursor: pointer;
-        font-size: 0.82rem;
-        font-weight: 600;
-        font-family: inherit;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
         transition:
-          background 0.15s,
-          border-color 0.15s,
-          color 0.15s;
+          border-color 0.3s,
+          color 0.3s;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
       }
       .theme-toggle:hover {
-        background: var(--bg-btn-hover);
-      }
-      .theme-toggle svg {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
+        border-color: var(--accent);
+        color: var(--accent);
       }
 
       /* Content container - sidebar + main */
       .bd-wrapper {
-        max-width: 1400px;
+        position: relative;
+        z-index: 1;
+        max-width: 1448px;
         margin: 0 auto;
         padding: 32px 24px 64px;
         display: flex;
@@ -216,11 +317,10 @@
         position: sticky;
         top: 24px;
         z-index: 50;
-        width: 250px;
         flex-shrink: 0;
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: var(--radius);
         padding: 16px 12px;
         box-shadow: var(--shadow-card);
         display: flex;
@@ -244,12 +344,12 @@
         border-radius: 4px;
       }
       .bd-filter-sidebar .bd-filter-label {
-        font-size: 0.72rem;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
         color: var(--accent-eyebrow);
         text-transform: uppercase;
-        letter-spacing: 0.12em;
-        padding: 4px 6px 8px;
+        letter-spacing: 0.22em;
+        padding: 4px 6px 12px;
       }
       .bd-filter-sidebar label {
         display: flex;
@@ -259,8 +359,10 @@
         color: var(--text-tertiary);
         cursor: pointer;
         padding: 4px 6px;
-        border-radius: 6px;
-        transition: background 0.15s;
+        border-radius: 2px;
+        transition:
+          background 0.15s,
+          color 0.15s;
       }
       .bd-filter-sidebar label:hover {
         background: var(--bg-table-row-hover);
@@ -294,7 +396,7 @@
         display: inline-block;
         width: 10px;
         height: 10px;
-        border-radius: 3px;
+        border-radius: 0;
         flex-shrink: 0;
       }
       .bd-filter-sidebar .bd-btn-group {
@@ -308,40 +410,45 @@
       .bd-filter-sidebar .bd-btn {
         width: 100%;
         text-align: center;
-        padding: 6px 10px;
-        font-size: 0.78rem;
-        background: var(--bg-btn);
-        color: var(--text-tertiary);
-        border: 1.5px solid var(--border-strong);
-        border-radius: 6px;
+        padding: 8px 10px;
+        background: none;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-select);
+        border-radius: 2px;
         cursor: pointer;
-        font-family: inherit;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
         transition:
-          background 0.15s,
-          color 0.15s;
+          border-color 0.3s,
+          color 0.3s;
       }
       .bd-filter-sidebar .bd-btn:hover {
-        background: var(--accent);
-        color: var(--text-primary);
+        border-color: var(--accent);
+        color: var(--accent);
       }
 
-      /* Section titles: reference headings stay ink; the accent is the rule, not the text. */
+      /* Section titles: the reference's `.tick` label — mono, tracked, accent dash. */
       .bd-section__title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        line-height: 1.35;
-        margin: 0 0 16px;
-        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.4;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--accent-eyebrow);
+        margin: 0 0 22px;
         display: flex;
         align-items: center;
         gap: 10px;
       }
       .bd-section__title::before {
         content: "";
-        display: inline-block;
-        width: 4px;
-        height: 20px;
+        display: block;
+        flex-shrink: 0;
+        width: 14px;
+        height: 1px;
         background: var(--accent);
       }
 
@@ -349,35 +456,39 @@
       .bd-stats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 12px;
+        gap: 0;
+        border-top: 1px solid var(--border);
       }
       .bd-stat {
-        border: 1px solid var(--border);
-        border-left: 3px solid var(--accent);
-        border-radius: 6px;
-        padding: 12px 16px;
-        background: var(--bg-table-header);
+        border: 0;
+        border-bottom: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        border-left: 1px solid var(--border);
+        padding: 16px 18px 16px 18px;
+        background: none;
       }
       .bd-stat__label {
-        font-size: 0.7rem;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
         color: var(--accent-eyebrow);
-        margin-bottom: 4px;
+        margin-bottom: 8px;
       }
       .bd-stat__value {
-        font-size: 1.5rem;
+        font-size: clamp(24px, 2.4vw, 34px);
         font-weight: 600;
-        line-height: 1.2;
+        line-height: 1.05;
         color: var(--text-primary);
-        letter-spacing: -0.01em;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
         white-space: nowrap;
       }
       .bd-stat__sub {
-        font-size: 0.74rem;
+        font-family: var(--font-mono);
+        font-size: 11px;
         color: var(--text-secondary);
-        margin-top: 2px;
+        margin-top: 6px;
       }
       @media (max-width: 768px) {
         .bd-stats {
@@ -388,11 +499,13 @@
         }
       }
 
-      /* Cards */
+      /* Cards: flat second ground closed by one hairline, never a shadow. */
       .bd-section {
+        position: relative;
+        z-index: 1;
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: var(--radius);
         padding: 24px;
         transition: border-color 0.2s;
       }
@@ -400,44 +513,70 @@
         border-color: var(--border-select);
       }
       .bd-intro {
+        position: relative;
+        z-index: 1;
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: var(--radius);
         padding: 28px 32px;
-        line-height: 1.7;
+        line-height: 1.65;
       }
       .bd-intro h1 {
-        font-size: 2.25rem;
+        font-size: clamp(24px, 3vw, 38px);
         font-weight: 600;
-        line-height: 1.25;
+        line-height: 1.06;
+        letter-spacing: -0.035em;
         margin: 0 0 16px;
         color: var(--text-primary);
       }
       .bd-intro h2 {
-        font-size: 1.5rem;
+        font-size: clamp(20px, 2.2vw, 30px);
         font-weight: 600;
-        line-height: 1.35;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
         margin: 0 0 12px;
         color: var(--text-primary);
       }
       .bd-intro h3 {
-        font-size: 1.25rem;
+        font-size: 1.19rem;
         font-weight: 600;
-        line-height: 1.35;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
         margin: 16px 0 8px;
         color: var(--text-primary);
       }
-      .bd-intro h4 {
-        font-size: 0.78rem;
+      /* Hall of fame: newest update open, the older ones folded away. */
+      .bd-intro details {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0 16px;
+        margin: 0 0 12px;
+      }
+      .bd-intro details[open] {
+        border-color: var(--border-select);
+      }
+      .bd-intro details > summary {
+        cursor: pointer;
+        font-size: 1.19rem;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: -0.01em;
+        line-height: 1.25;
+        padding: 12px 0;
+        color: var(--text-primary);
+      }
+      .bd-intro details > summary:hover {
+        color: var(--accent);
+      }
+      .bd-intro details[open] > summary {
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 12px;
+      }
+      .bd-intro h4 {
         margin: 16px 0 8px;
-        color: var(--accent-eyebrow);
       }
       .bd-intro p {
         margin: 0 0 12px;
-        color: var(--text-tertiary);
+        color: var(--text-secondary);
       }
       .bd-intro ul {
         margin: 8px 0 8px 20px;
@@ -445,7 +584,7 @@
       }
       .bd-intro ul li {
         margin-bottom: 4px;
-        color: var(--text-tertiary);
+        color: var(--text-secondary);
       }
       .bd-intro a {
         color: var(--text-primary);
@@ -455,17 +594,23 @@
       .bd-intro a:hover {
         color: var(--accent);
       }
+      /* The reference's one serif moment: a Newsreader italic pull-quote. */
       .bd-intro blockquote {
-        border-left: 2px solid var(--accent);
+        border-left: 1px solid var(--accent);
         padding-left: 16px;
-        margin: 12px 0;
+        margin: 16px 0;
         color: var(--text-secondary);
+        font-family: var(--font-serif);
+        font-weight: 300;
+        font-style: italic;
+        font-size: 1.15rem;
+        line-height: 1.5;
       }
       .bd-intro code {
         background: var(--bg-table-row-hover);
         border: 1px solid var(--border);
         padding: 1px 5px;
-        border-radius: 3px;
+        border-radius: 2px;
         font-size: 0.82rem;
         font-family: var(--font-mono);
       }
@@ -493,12 +638,13 @@
       /* Reference tables: 2px ink rule under the head, ink uppercase labels. */
       .bd-intro th {
         background: var(--bg-table-header);
-        border-bottom: 2px solid var(--border-strong);
-        font-weight: 600;
-        font-size: 0.75rem;
+        border-bottom: 1px solid var(--border-select);
+        font-family: var(--font-mono);
+        font-weight: 400;
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-primary);
+        letter-spacing: 0.16em;
+        color: var(--accent-eyebrow);
       }
       .bd-intro,
       .bd-section {
@@ -514,6 +660,9 @@
         width: 55%;
         margin-right: 28px;
         margin-bottom: 16px;
+        /* .bd-intro is positioned with the same z-index as .bd-section and comes
+           later in the DOM, so it would paint its card over the floated chart. */
+        z-index: 2;
       }
       /* Narrow layout: sidebar, scatter, and charts all stack at one breakpoint.
          `align-items: stretch` is required: in column direction `flex-start` would
@@ -531,7 +680,6 @@
         }
         .bd-filter-sidebar {
           position: static;
-          width: 100%;
           flex-direction: row;
           flex-wrap: wrap;
           /* Forty model labels would otherwise push the report a full screen down.
@@ -590,6 +738,9 @@
         .bd-intro h3 {
           font-size: 1.1rem;
         }
+        .bd-intro details > summary {
+          font-size: 1.1rem;
+        }
         .bd-intro h4 {
           font-size: 0.85rem;
         }
@@ -613,51 +764,47 @@
         margin-bottom: 12px;
         align-items: center;
       }
-      /* Reference form motif: 2px ink border, 5px radius, tan focus ring. */
+      /* Form motif: hairline box, 2px radius, 1px accent focus outline. */
       .bd-table-controls input[type="text"] {
         flex: 1;
         min-width: 200px;
-        padding: 8px 12px;
-        border: 1.5px solid var(--border-strong);
-        border-radius: 6px;
+        padding: 9px 12px;
+        border: 1px solid var(--border-select);
+        border-radius: 2px;
         font-size: 0.85rem;
         font-family: inherit;
         outline: none;
         background: var(--bg-select);
         color: var(--text-tertiary);
-        transition:
-          border-color 0.15s,
-          box-shadow 0.15s;
+        transition: border-color 0.2s;
       }
       .bd-table-controls input[type="text"]:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-glow);
       }
       .bd-table-controls select,
       .bd-xy-controls select {
-        padding: 8px 12px;
-        border: 1.5px solid var(--border-strong);
-        border-radius: 6px;
+        padding: 9px 12px;
+        border: 1px solid var(--border-select);
+        border-radius: 2px;
         font-size: 0.85rem;
         font-family: inherit;
         background: var(--bg-select);
         color: var(--text-tertiary);
         cursor: pointer;
-        transition:
-          border-color 0.15s,
-          box-shadow 0.15s;
+        transition: border-color 0.2s;
       }
       .bd-table-controls select:focus,
       .bd-xy-controls select:focus {
+        outline: 1px solid var(--accent);
+        outline-offset: 3px;
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-glow);
       }
       .bd-table-controls label,
       .bd-xy-controls label {
-        font-size: 0.72rem;
-        font-weight: 600;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.22em;
         color: var(--accent-eyebrow);
       }
       /* X / Y / Size read as three labelled fields, so each pair is one shrinkable
@@ -685,7 +832,7 @@
       .bd-table-wrap {
         overflow-x: auto;
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: var(--radius);
         background: var(--bg-card);
       }
       .bd-table-wrap::-webkit-scrollbar {
@@ -706,24 +853,26 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 0.82rem;
+        font-variant-numeric: tabular-nums;
       }
       .bd-table thead th {
         background: var(--bg-table-header);
-        padding: 10px 8px;
+        padding: 12px 8px;
         text-align: left;
         cursor: pointer;
         user-select: none;
         white-space: nowrap;
-        border-bottom: 2px solid var(--border-strong);
-        font-weight: 600;
-        color: var(--text-primary);
-        font-size: 0.75rem;
+        border-bottom: 1px solid var(--border-select);
+        font-family: var(--font-mono);
+        font-weight: 400;
+        color: var(--accent-eyebrow);
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        transition: background 0.15s;
+        letter-spacing: 0.16em;
+        transition: color 0.15s;
       }
       .bd-table thead th:hover {
-        background: var(--bg-table-row-hover);
+        color: var(--accent);
       }
       .bd-table thead th .bd-sort-icon {
         margin-left: 4px;
@@ -755,15 +904,21 @@
       }
       .bd-table tbody tr {
         border-bottom: 1px solid var(--grid);
-        transition: background 0.2s;
+        transition:
+          background 0.2s,
+          box-shadow 0.2s;
       }
       .bd-table tbody tr:last-child {
         border-bottom: 0;
       }
+      /* The reference's row hover: a hairline of accent down the leading edge. */
+      .bd-table tbody tr:hover {
+        box-shadow: inset 2px 0 0 var(--accent);
+      }
       .bd-table tbody tr.bd-row-highlight {
         background: var(--bd-highlight) !important;
-        outline: 2px solid var(--bd-highlight-outline);
-        outline-offset: -2px;
+        outline: 1px solid var(--bd-highlight-outline);
+        outline-offset: -1px;
       }
       .bd-table tbody td {
         padding: 8px;
@@ -803,6 +958,8 @@
     </style>
   </head>
   <body>
+    <div id="prog" aria-hidden="true"></div>
+
     <button
       class="theme-toggle"
       id="theme-toggle"
@@ -820,6 +977,10 @@
       <p>
         Check also the <a href="./benchmark-detail.html">tool calling fine detail analysis</a> 
       </p>
+    </div>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="track"><span id="bd-keywords"></span></div>
     </div>
 
     <div class="bd-wrapper">
@@ -856,20 +1017,14 @@
         <div class="bd-section" style="margin-bottom: 28px">
           <div class="bd-section__title">Data Table</div>
           <p>
-            TP = total parameters (B), AP = active parameters (B) for MoE
-            models, Size (GB), WQ = weigths quantization, CQ = KV cache
-            quantization
+            WQ = weights quantization, CQ = KV cache quantization, Wall time =
+            run span, Req. time = summed LLM request time, Req/Pts = requests
+            per resolved task
           </p>
           <div class="bd-table-controls">
             <input type="text" id="bd-search" placeholder="Search…" />
-            <select id="bd-filter-engine">
-              <option value="">— Engine (all) —</option>
-            </select>
             <select id="bd-filter-quant">
               <option value="">— Quantization (all) —</option>
-            </select>
-            <select id="bd-filter-gpu">
-              <option value="">— Nb GPU (all) —</option>
             </select>
           </div>
           <div class="bd-table-wrap">
@@ -899,14 +1054,24 @@
       (function(){
       "use strict";
 
-      // --- Theme toggle ---
+      // --- Scroll progress: the reference's 2px accent bar ---
       (function() {
-        const sunSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-        const moonSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+        const bar = document.getElementById('prog');
+        function paint() {
+          const max = document.documentElement.scrollHeight - window.innerHeight;
+          bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+        }
+        window.addEventListener('scroll', paint, {passive: true});
+        window.addEventListener('resize', paint);
+        paint();
+      })();
+
+      // --- Theme toggle: the reference sets type, not icons. ---
+      (function() {
         const btn = document.getElementById('theme-toggle');
         function setTheme(dark) {
           document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-          btn.innerHTML = (dark ? sunSvg : moonSvg);
+          btn.textContent = (dark ? 'Light mode' : 'Dark mode');
           btn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
           try { localStorage.setItem('dashboard-theme', dark ? 'dark' : 'light'); } catch(e) {}
         }
@@ -945,60 +1110,35 @@
       var DISPLAY_COLS = [
         {key:"base",label:"Base"},
         {key:"model",label:"Model"},
-        {key:"reasoning_effort",label:"Effort"},
-        {key:"total_params",label:"TP"},
-        {key:"active_params",label:"AP"},
-        {key:"ngram_params",label:"NG"},
-        {key:"model_size",label:"Size"},
         {key:"weights_quant",label:"WQ"},
         {key:"kv_cache_quant",label:"CQ"},
-        {key:"ple_quant",label:"PLE"},
-        {key:"engine",label:"Engine"},
-        {key:"nb_gpu",label:"Nb GPU"},
         {key:"score",label:"Score"},
-        {key:"duration",label:"Duration"},
+        {key:"duration",label:"Wall time"},
+        {key:"request_time_s",label:"Req. time (s)"},
         {key:"requests",label:"Requests"},
         {key:"req_pts",label:"Req/Pts"},
         {key:"tokens_processed_mt",label:"in Mtok"},
-        {key:"tokens_generated_mt",label:"out Mtok"},
-        {key:"total_tg_s",label:"TG/s"},
-        {key:"parallel_tasks",label:"Parallel"},
-        {key:"tg_s_per_task",label:"TG/s/task"},
-        {key:"total_cost",label:"Total Cost ($)"}
+        {key:"tokens_generated_mt",label:"out Mtok"}
        ];
 
       var NUMERIC_KEYS = [
         {key:"score_num",label:"Score /100",higherBetter:true},
-        {key:"total_params_num",label:"Total Params (B)",higherBetter:false},
-        {key:"active_params_num",label:"Active Params (B)",higherBetter:false},
-        {key:"ngram_params_num",label:"N-grams Params (B)",higherBetter:false},
-        {key:"model_size_num",label:"Model Size (GB)",higherBetter:false},
-        {key:"duration_s",label:"Duration (s)",higherBetter:false},
+        {key:"duration_s",label:"Wall time (s)",higherBetter:false},
+        {key:"request_time_s_num",label:"Request time (s)",higherBetter:false},
         {key:"requests_num",label:"Requests",higherBetter:false},
         {key:"req_pts_num",label:"Req/Pts",higherBetter:false},
         {key:"tokens_processed_num",label:"in Mtok",higherBetter:false},
-        {key:"tokens_generated_num",label:"out Mtok",higherBetter:false},
-        {key:"total_tg_s_num",label:"Total TG/s",higherBetter:true},
-        {key:"parallel_tasks_num",label:"Parallel tasks",higherBetter:true},
-        {key:"tg_s_per_task_num",label:"TG/s per task",higherBetter:true},
-        {key:"total_cost_num",label:"Total Cost ($)",higherBetter:false}
+        {key:"tokens_generated_num",label:"out Mtok",higherBetter:false}
        ];
 
       var NUM_COLS = [
         {display:"score",num:"score_num",higherBetter:true},
-        {display:"total_params",num:"total_params_num",higherBetter:false},
-        {display:"active_params",num:"active_params_num",higherBetter:false},
-        {display:"ngram_params",num:"ngram_params_num",higherBetter:false},
-        {display:"model_size",num:"model_size_num",higherBetter:false},
         {display:"duration",num:"duration_s",higherBetter:false},
+        {display:"request_time_s",num:"request_time_s_num",higherBetter:false},
         {display:"requests",num:"requests_num",higherBetter:false},
         {display:"req_pts",num:"req_pts_num",higherBetter:false},
         {display:"tokens_processed_mt",num:"tokens_processed_num",higherBetter:false},
-        {display:"tokens_generated_mt",num:"tokens_generated_num",higherBetter:false},
-        {display:"total_tg_s",num:"total_tg_s_num",higherBetter:true},
-        {display:"parallel_tasks",num:"parallel_tasks_num",higherBetter:true},
-        {display:"tg_s_per_task",num:"tg_s_per_task_num",higherBetter:true},
-        {display:"total_cost",num:"total_cost_num",higherBetter:false}
+        {display:"tokens_generated_mt",num:"tokens_generated_num",higherBetter:false}
        ];
 
       // --- Headline totals ---
@@ -1031,11 +1171,13 @@
           {label: "Output tokens", value: sumNums(VALID, "tokens_generated_num").toFixed(1) + " M",
            sub: fmtNum(Math.round(sumNums(VALID, "tokens_processed_num"))) + " Mtok processed"}
         ];
-        host.innerHTML = stats.map(function(s){
-          return '<div class="bd-stat"><div class="bd-stat__label">' + esc(s.label) + '</div>'
-            + '<div class="bd-stat__value">' + esc(s.value) + '</div>'
-            + '<div class="bd-stat__sub">' + esc(s.sub) + '</div></div>';
-        }).join("");
+        host.replaceChildren();
+        stats.forEach(function (s) {
+          var card = el("div", "bd-stat", host);
+          el("div", "bd-stat__label", card).textContent = s.label;
+          el("div", "bd-stat__value", card).textContent = s.value;
+          el("div", "bd-stat__sub", card).textContent = s.sub;
+        });
       }
 
       function el(tag,cls,parent){var e=document.createElement(tag);if(cls)e.className=cls;if(parent)parent.appendChild(e);return e;}
@@ -1043,7 +1185,8 @@
       function fmtNum(n){if(n===null||n===undefined||isNaN(n))return "\u2014";return n.toLocaleString("fr-FR");}
 
       // --- Model filter (sticky left sidebar) ---
-      var visibleModels = {};
+      // The per-model checkboxes are the only state; a base row just checks/unchecks
+      // all of them at once, so it can never veto a child that was ticked by hand.
       var visibleNames = {};
       var openBases = {};
       var baseNames = {};
@@ -1053,8 +1196,8 @@
          the dark set bright enough to read on the warm night ground. Same hue order
          in both, so a model keeps its identity when the theme flips. */
       var PALETTES = {
-        light: ["#8a6a2f","#1f7a4d","#c0562b","#b3261e","#5a4bb0","#0e7fbf","#c9a227","#4a9a5c","#c0357c","#1f9e97","#8b8375","#d4703f","#7d9b1f","#3f9fd0","#dcc06a"],
-        dark: ["#dfc095","#5ec98a","#ef8b52","#ff7a6e","#a795ff","#63c8f5","#f2d84a","#7ee0a0","#f27ab5","#5ee6da","#b0a894","#ff9d70","#c8e85a","#8fdcff","#f7e0a0"],
+        light: ["#d8431c","#1f7a4d","#c0562b","#b3261e","#5a4bb0","#0e7fbf","#c9a227","#4a9a5c","#c0357c","#1f9e97","#8b8375","#d4703f","#7d9b1f","#3f9fd0","#dcc06a"],
+        dark: ["#ff5a2b","#5ec98a","#ef8b52","#ff7a6e","#a795ff","#63c8f5","#f2d84a","#7ee0a0","#f27ab5","#5ee6da","#b0a894","#ff9d70","#c8e85a","#8fdcff","#f7e0a0"],
       };
 
       // Past the curated colors, spread hues by the golden angle so any number of models stays distinct.
@@ -1081,7 +1224,6 @@
           byBase[r.base][r.model] = true;
         });
         Object.keys(byBase).sort().forEach(function(b, i){
-          visibleModels[b] = true;
           baseOrder[b] = i;
           baseColors[b] = paletteColor(i, isDarkTheme());
           baseNames[b] = Object.keys(byBase[b]).sort();
@@ -1101,14 +1243,13 @@
         var keys = Object.keys(baseColors);
         if (!keys.some(function(b){ return hit(b) || baseNames[b].some(hit); })) return; // no match: keep all visible
         keys.forEach(function(b){
-          visibleModels[b] = hit(b) || baseNames[b].some(hit);
           if (!hit(b)) openBases[b] = baseNames[b].some(hit); // matched by model name only: reveal the children
           baseNames[b].forEach(function(m){ visibleNames[nameKey(b, m)] = hit(b) || hit(m); });
         });
       }
 
       function rowVisible(r) {
-        return visibleModels[r.base] !== false && visibleNames[nameKey(r.base, r.model)] !== false;
+        return visibleNames[nameKey(r.base, r.model)] !== false;
       }
 
       // Sub-lines show only what the model name adds over its base.
@@ -1125,11 +1266,12 @@
         var keys = Object.keys(baseColors).sort();
         keys.forEach(function(b){
           var col = baseColors[b];
-          var checked = visibleModels[b] !== false;
+          var nvis = baseNames[b].filter(function(m){ return visibleNames[nameKey(b, m)] !== false; }).length;
+          var checked = nvis === baseNames[b].length;
           var multi = baseNames[b].length > 1;
-          var open = checked && !!openBases[b];
+          var open = !!openBases[b];
           var caret = multi ? '<button class="bd-caret" type="button" aria-expanded="' + (open ? 'true' : 'false') + '" aria-label="Show model names">' + (open ? "\u25BE" : "\u25B8") + '</button>' : '';
-          html += '<label' + (multi ? ' class="bd-model-row" data-toggle-base="' + esc(b) + '"' : '') + ' data-hover-base="' + esc(b) + '"><input type="checkbox" data-base="' + esc(b) + '" class="bd-model-cb"' + (checked ? ' checked' : '') + '><span class="bd-color-swatch" style="background:' + col + ';"></span>' + esc(b) + caret + '</label>';
+          html += '<label' + (multi ? ' class="bd-model-row" data-toggle-base="' + esc(b) + '"' : '') + ' data-hover-base="' + esc(b) + '"><input type="checkbox" data-base="' + esc(b) + '" class="bd-model-cb"' + (checked ? ' checked' : '') + (nvis && nvis < baseNames[b].length ? ' data-partial="1"' : '') + '><span class="bd-color-swatch" style="background:' + col + ';"></span>' + esc(b) + caret + '</label>';
           // Single-model bases need no sub-line.
           if (multi) baseNames[b].forEach(function(m){
             html += '<label class="bd-model-sub" data-hover-base="' + esc(b) + '" data-hover-model="' + esc(m) + '"' + (open ? '' : ' hidden') + '><input type="checkbox" data-base="' + esc(b) + '" data-model="' + esc(m) + '" class="bd-model-cb"' + (visibleNames[nameKey(b, m)] !== false ? ' checked' : '') + '>' + esc(shortName(b, m)) + '</label>';
@@ -1140,9 +1282,10 @@
         html += '<button class="bd-btn" id="bd-uncheck-all" type="button">Uncheck all</button>';
         html += '</div>';
         var top = panel.scrollTop;
-        panel.innerHTML = html;
+        panel.replaceChildren(...new DOMParser().parseFromString(html, "text/html").body.children);
         panel.scrollTop = top;
         panel.querySelectorAll('.bd-model-cb').forEach(function(cb){
+          cb.indeterminate = cb.getAttribute('data-partial') === '1';
           cb.addEventListener('change', function(){ toggleModelFilter(cb); });
         });
         // On a base with children, only the checkbox checks: clicking the text or
@@ -1170,13 +1313,12 @@
         var b = cb.getAttribute("data-base");
         var m = cb.getAttribute("data-model");
         if (m === null) {
-          visibleModels[b] = cb.checked;
-          // Re-checking a base re-enables every model under it; unchecking leaves them as they were.
-          if (cb.checked) baseNames[b].forEach(function(n){ visibleNames[nameKey(b, n)] = true; });
-          renderModelFilter();
+          // Children always mirror their base, rolled out or collapsed.
+          baseNames[b].forEach(function(n){ visibleNames[nameKey(b, n)] = cb.checked; });
         } else {
           visibleNames[nameKey(b, m)] = cb.checked;
         }
+        renderModelFilter();
         onFilterChange();
       }
 
@@ -1188,7 +1330,6 @@
 
       function setAllModelFilters(checked) {
         Object.keys(baseColors).forEach(function(b){
-          visibleModels[b] = checked;
           baseNames[b].forEach(function(m){ visibleNames[nameKey(b, m)] = checked; });
         });
         renderModelFilter();
@@ -1234,14 +1375,10 @@
 
       function getFiltered(){
         var q = document.getElementById("bd-search").value.toLowerCase();
-        var ef = document.getElementById("bd-filter-engine").value;
         var qf = document.getElementById("bd-filter-quant").value;
-        var gf = document.getElementById("bd-filter-gpu").value;
         return VALID.filter(function(r){
           if (!rowVisible(r)) return false;
-          if (ef && r.engine !== ef) return false;
           if (qf && r.weights_quant !== qf) return false;
-          if (gf && r.nb_gpu !== gf) return false;
           if (q) {
             return Object.keys(r).some(function(k){
               return String(r[k]||"").toLowerCase().indexOf(q) !== -1;
@@ -1251,14 +1388,14 @@
         });
       }
 
-      /* Heat tint rides the theme's own good/bad tokens, so it stays legible on
-         paper and on the night ground instead of a fixed green/red. */
+      /* Heat tint rides the theme's own good/bad tokens: one red→green ramp over the
+         column's goodness, so it stays legible on paper and on the night ground
+         instead of a fixed green/red. */
       function cellBg(nc, val, lo, hi){
         if (lo === null || hi === null || lo === hi) return "";
         var t = (val - lo) / (hi - lo);
-        var pct = Math.round((nc.higherBetter ? t : 1 - t) * 40);
-        if (pct < 4) return "";
-        return "color-mix(in srgb, var(" + (nc.higherBetter ? "--ok" : "--bad") + ") " + pct + "%, transparent)";
+        var pct = Math.round((nc.higherBetter ? t : 1 - t) * 100);
+        return "color-mix(in srgb, color-mix(in srgb, var(--ok) " + pct + "%, var(--bad)) 40%, transparent)";
       }
 
       function renderTableBody(){
@@ -1309,25 +1446,13 @@
       }
 
       function populateFilters(){
-        var ef = document.getElementById("bd-filter-engine");
         var qf = document.getElementById("bd-filter-quant");
-        var gf = document.getElementById("bd-filter-gpu");
-        var seenEng = {}, seenQuant = {}, seenGpu = {};
+        var seenQuant = {};
         DATA.forEach(function(r){
-          if (r.engine && !seenEng[r.engine]) {
-            seenEng[r.engine] = true;
-            var o = document.createElement("option"); o.value = r.engine; o.textContent = r.engine;
-            ef.appendChild(o);
-          }
           if (r.weights_quant && !seenQuant[r.weights_quant]) {
             seenQuant[r.weights_quant] = true;
             var o = document.createElement("option"); o.value = r.weights_quant; o.textContent = r.weights_quant;
             qf.appendChild(o);
-          }
-          if (r.nb_gpu && !seenGpu[r.nb_gpu]) {
-            seenGpu[r.nb_gpu] = true;
-            var o = document.createElement("option"); o.value = r.nb_gpu; o.textContent = r.nb_gpu + " GPU";
-            gf.appendChild(o);
           }
         });
       }
@@ -1415,8 +1540,9 @@
         var byBase = {};
         records.forEach(function(r){
           if (r[key] === null) return;
-          var gk = groupKey(r);
-          if (!byBase[gk]) byBase[gk] = {vals: [], base: r.base, gpu: r.nb_gpu || null};
+          // Key on the base as well: bare model names ("API", "notag") repeat across bases.
+          var gk = r.base + "|" + groupKey(r);
+          if (!byBase[gk]) byBase[gk] = {vals: [], base: r.base, label: r.base + " \u00B7 " + groupKey(r)};
           byBase[gk].vals.push(r[key]);
         });
 
@@ -1427,18 +1553,17 @@
           var vMin = Math.min.apply(null, vals);
           var vMax = Math.max.apply(null, vals);
           var vAvg = vals.reduce(function(s,v){return s+v;},0) / vals.length;
-          agg.push({gk: gk, base: g.base, gpu: g.gpu, min: vMin, max: vMax, avg: vAvg, count: vals.length});
+          agg.push({label: g.label, base: g.base, min: vMin, max: vMax, avg: vAvg, count: vals.length});
         });
 
         agg.sort(function(a, b){
           return nk.higherBetter ? b.avg - a.avg : a.avg - b.avg;
         });
 
-        var labels = agg.map(function(a){return a.gk;});
+        var labels = agg.map(function(a){return a.label;});
         var avgVals = agg.map(function(a){return a.avg;});
         var mins = agg.map(function(a){return a.min;});
         var maxs = agg.map(function(a){return a.max;});
-        var gpuVals = agg.map(function(a){return a.gpu || "\u2014";});
         var colors = agg.map(function(a){return baseColors[a.base] || tc.muted;});
 
         var loErr = avgVals.map(function(a, i){return a - mins[i];});
@@ -1509,9 +1634,10 @@
 
       function getNumKey(key){return NUMERIC_KEYS.filter(function(n){return n.key === key;})[0];}
       function numKeyHigher(key){var nk = getNumKey(key);return nk ? nk.higherBetter : true;}
-      function groupKey(r){return r.model + " " + (r.weights_quant||"-") + "/" + (r.kv_cache_quant||"-");}
+      // Repeat runs of the same config ("-run2", "-run3") compound into one bar.
+      function groupKey(r){return r.model.replace(/-?run\d+$/i, "") + " " + (r.weights_quant||"-") + "/" + (r.kv_cache_quant||"-");}
 
-      // Hovering a base or a model name in the sidebar outlines its scatter dots.
+      // Dots carry a 1px black hairline; hovering a base or a model outlines its dots thicker.
       var scatterPts = [];
       var scatterHover = null;
 
@@ -1522,8 +1648,8 @@
       function scatterLine() {
         var outline = getThemeColors().font;
         return {
-          color: scatterPts.map(function(p){ return hoverHit(p) ? outline : (baseColors[p.base] || getThemeColors().muted); }),
-          width: scatterPts.map(function(p){ return hoverHit(p) ? 4 : 1.5; })
+          color: scatterPts.map(function(p){ return hoverHit(p) ? outline : "#000"; }),
+          width: scatterPts.map(function(p){ return hoverHit(p) ? 4 : 1; })
         };
       }
 
@@ -1547,12 +1673,8 @@
             idx: r.__idx,
             base: r.base,
             model: r.model,
-            model_ref: r.model_ref,
             weights_quant: r.weights_quant || "-",
             kv_cache_quant: r.kv_cache_quant || "-",
-            reasoning_effort: r.reasoning_effort || "",
-            engine: r.engine || "-",
-            nb_gpu: r.nb_gpu,
             x: r[xk],
             y: r[yk],
             s: sk && r[sk] !== null ? r[sk] : null
@@ -1577,9 +1699,8 @@
           customdata: pts.map(function(b){return b.idx;}),
           text: pts.map(function(b){
             var sLabel = sk ? (getNumKey(sk).label + ": " + (b.s !== null ? b.s.toFixed(1) : "\u2014")) : "";
-            var meta = [b.engine, (b.nb_gpu || "\u2014"), b.weights_quant, b.kv_cache_quant,
-              (b.reasoning_effort && b.reasoning_effort !== "?" ? "effort: " + b.reasoning_effort : "")].filter(Boolean).join(" \u00B7 ");
-            return "<b>" + b.model + "</b>"
+            var meta = b.weights_quant + " \u00B7 " + b.kv_cache_quant;
+            return "<b>" + b.base + " \u00B7 " + b.model + "</b>"
               + "<br>" + meta
               + "<br>" + xMeta.label + ": " + b.x.toFixed(1)
               + "<br>" + yMeta.label + ": " + b.y.toFixed(1)
@@ -1677,13 +1798,9 @@
 
       function setupFilterSync(){
         var s = document.getElementById("bd-search");
-        var ef = document.getElementById("bd-filter-engine");
         var qf = document.getElementById("bd-filter-quant");
-        var gf = document.getElementById("bd-filter-gpu");
         s.addEventListener("input", onFilterChange);
-        ef.addEventListener("change", onFilterChange);
         qf.addEventListener("change", onFilterChange);
-        gf.addEventListener("change", onFilterChange);
       }
 
       // Theme-aware chart updates
@@ -1699,6 +1816,20 @@
         buildMetricChart();
         buildScatter();
       };
+
+      // The reference's keyword band, filled with what the data actually holds.
+      (function () {
+        const words = new Set();
+        DATA.forEach(function (r) {
+          [r.weights_quant, r.kv_cache_quant].forEach(function (v) {
+            const w = String(v || '').trim();
+            if (w && w !== '?' && w !== 'n/a') words.add(w);
+          });
+        });
+        // Duplicated so the -50% loop is seamless.
+        const text = Array.from(words).sort().map(function (w) { return ' // ' + w; }).join('');
+        document.getElementById('bd-keywords').textContent = text + text;
+      })();
 
       initModelFilters();
       renderStats();
@@ -1780,13 +1911,15 @@
         right: 16px;
         z-index: 9999;
         background: var(--bg-card);
-        border: 1.5px solid var(--border-strong);
-        border-radius: 6px;
-        padding: 10px 14px;
+        border: 1px solid var(--border-select);
+        border-radius: var(--radius);
+        padding: 12px 14px;
         display: flex;
         flex-direction: column;
         gap: 6px;
-        font-size: 0.78rem;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.04em;
         max-width: 260px;
         transition:
           background 0.2s,

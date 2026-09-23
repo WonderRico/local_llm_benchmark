@@ -5,9 +5,9 @@ Usage:
     python generate.py               # generate both pages
     python generate.py main          # main dashboard only
     python generate.py detail        # detail report only
-    python generate.py detail --skip-batch   # reuse existing results/
+    python generate.py --skip-batch      # reuse existing stats.csv and results/
 
-The main dashboard (`benchmark-main.html`) is built from `data.csv` + `text.md`.
+The main dashboard (`benchmark-main.html`) is built from `stats.csv` + `text.md`.
 The detail report (`benchmark-detail.html`) is built from `results/`, which is
 regenerated from `data/` trajectories (unless `--skip-batch` is given). Each
 trajectory also gets a redacted HTML page under `html_traj/`, mirroring `data/`.
@@ -32,16 +32,24 @@ app = typer.Typer(help="Generate the benchmark dashboards (benchmark-main.html, 
 TRAJ_HOST_RE = r"^(192\.168\.|localhost$|127\.)"
 
 
+def num(text: str | None, cast: type[int] | type[float] = int) -> int | float:
+    """Parse a regex-captured number, 0 when the field is missing or malformed."""
+    try:
+        return cast(text or "")
+    except ValueError:
+        return cast("0")
+
+
 def parse_summary(text: str) -> dict:
     d = {}
     m = re.search(r"Total trajectories:\s*(\d+)", text)
-    d["total_trajectories"] = int(m.group(1)) if m else 0
+    d["total_trajectories"] = num(m and m[1])
     m = re.search(r"Submitted:\s*(\d+)", text)
-    d["submitted"] = int(m.group(1)) if m else 0
+    d["submitted"] = num(m and m[1])
     m = re.search(r"Other exits:\s*(\d+)", text)
-    d["other_exits"] = int(m.group(1)) if m else 0
+    d["other_exits"] = num(m and m[1])
     m = re.search(r"Submissions with diff:\s*(\d+)", text)
-    d["submissions_with_diff"] = int(m.group(1)) if m else 0
+    d["submissions_with_diff"] = num(m and m[1])
 
     for label, key in [
         ("API calls", "api"),
@@ -52,10 +60,10 @@ def parse_summary(text: str) -> dict:
             text,
         )
         if m:
-            d[f"{key}_avg"] = float(m.group(1))
-            d[f"{key}_median"] = float(m.group(2))
-            d[f"{key}_min"] = int(m.group(3))
-            d[f"{key}_max"] = int(m.group(4))
+            d[f"{key}_avg"] = num(m[1], float)
+            d[f"{key}_median"] = num(m[2], float)
+            d[f"{key}_min"] = num(m[3])
+            d[f"{key}_max"] = num(m[4])
 
     m = re.search(r"Wall time:\s*avg=(.*?),\s*median=(.*?),\s*min=(.*?),\s*max=(.*)", text)
     if m:
@@ -66,8 +74,8 @@ def parse_summary(text: str) -> dict:
 
     m = re.search(r"Non-zero return codes:\s*avg=([\d.]+),\s*median=([\d.]+)", text)
     if m:
-        d["nonzero_rc_avg"] = float(m.group(1))
-        d["nonzero_rc_median"] = float(m.group(2))
+        d["nonzero_rc_avg"] = num(m[1], float)
+        d["nonzero_rc_median"] = num(m[2], float)
 
     exit_section = re.search(r"Exit statuses:\s*\n((?:\s+.+\n?)*)\n", text)
     if exit_section:
@@ -75,7 +83,7 @@ def parse_summary(text: str) -> dict:
         for line in exit_section.group(1).strip().split("\n"):
             parts = line.strip().split(":")
             if len(parts) == 2 and parts[1].strip().isdigit():
-                d["exit_statuses"][parts[0].strip()] = int(parts[1].strip())
+                d["exit_statuses"][parts[0].strip()] = num(parts[1].strip())
 
     return d
 
@@ -90,18 +98,23 @@ def parse_table(text: str) -> list[dict]:
                 {
                     "instance": m.group(1),
                     "exit": m.group(2),
-                    "api": int(m.group(3)),
-                    "tools": int(m.group(4)),
-                    "messages": int(m.group(5)),
+                    "api": num(m[3]),
+                    "tools": num(m[4]),
+                    "messages": num(m[5]),
                     "wall_time": m.group(6),
-                    "nonzero_rc": int(m.group(7)),
+                    "nonzero_rc": num(m[7]),
                 }
             )
     return rows
 
 
 def parse_eval(json_text: str) -> dict:
-    d = json.loads(json_text)
+    try:
+        d = json.loads(json_text)
+    except json.JSONDecodeError:
+        print(f"Skipping malformed eval JSON: {json_text[:60]!r}")
+        return {}
+
     out = {
         "submitted": d.get("submitted_instances", 0),
         "resolved": d.get("resolved_instances", 0),
@@ -125,25 +138,24 @@ def parse_failures(text: str) -> dict:
     d = {"total_nonzero": 0, "reasons": {}, "per_trajectory": []}
     m = re.match(r"(\d+) non-zero return codes", text)
     if m:
-        d["total_nonzero"] = int(m.group(1))
+        d["total_nonzero"] = num(m[1])
 
     reason_block = re.search(r"Reason\s+Count\n-+\n((?:[^\n]+\n?)*)", text)
     if reason_block:
         for line in reason_block.group(1).strip().split("\n"):
             parts = line.rsplit(None, 1)
             if len(parts) == 2:
-                d["reasons"][parts[0]] = int(parts[1])
+                d["reasons"][parts[0]] = num(parts[1])
 
     traj_section = re.search(r"Non-zero return codes per trajectory.*?\n((?:[^\n]+\n?)*)", text, re.DOTALL)
     if traj_section:
-        header_skipped = False
         for line in traj_section.group(1).strip().split("\n"):
             line = line.strip()
             if not line or line.startswith("Instance") or line.startswith("---"):
                 continue
             parts = line.rsplit(None, 1)
             if len(parts) == 2:
-                d["per_trajectory"].append({"instance": parts[0], "errors": int(parts[1])})
+                d["per_trajectory"].append({"instance": parts[0], "errors": num(parts[1])})
 
     return d
 
@@ -175,9 +187,9 @@ def parse_all_results() -> dict:
             if failures_file.exists():
                 data["failures"] = parse_failures(failures_file.read_text())
 
-            eval_file = variant_dir / "eval.json"
-            if eval_file.exists():
-                data["eval"] = parse_eval(eval_file.read_text())
+            eval_file = batch.latest_eval(batch.DATA_DIR / model_name / variant_name)
+            if eval_file and (eval_data := parse_eval(eval_file.read_text())):
+                data["eval"] = eval_data
 
             # Hrefs of the human-readable trajectory pages, relative to this page (html_traj/ mirrors data/).
             data["traj"] = {
@@ -201,14 +213,7 @@ def parse_all_results() -> dict:
     return models
 
 
-def build_detail(*, skip_batch: bool, skip_traj_html: bool = False) -> None:
-    if not skip_batch:
-        print(f"Cleaning up {RESULTS_DIR}...")
-        if RESULTS_DIR.exists():
-            shutil.rmtree(RESULTS_DIR)
-        print("Regenerating results from data...")
-        batch.main(with_traj_html=not skip_traj_html)
-
+def build_detail() -> None:
     print(f"Scanning {RESULTS_DIR}...")
     data = parse_all_results()
 
@@ -230,21 +235,30 @@ def run(
     skip_batch: bool = typer.Option(
         False,
         "--skip-batch",
-        help="Reuse existing results/ instead of regenerating from data/ (detail only)",
+        help="Reuse existing stats.csv and results/ instead of regenerating them from data/",
     ),
     skip_traj_html: bool = typer.Option(
         False,
         "--skip-traj-html",
-        help="Skip writing html_traj/ trajectory pages (detail only)",
+        help="Skip writing html_traj/ trajectory pages",
     ),
 ) -> None:
     if which not in ("all", "main", "detail"):
         typer.echo(f"Unknown page '{which}' (choose: all, main, detail)", err=True)
         raise typer.Exit(code=2)
+    if not skip_batch:
+        print(f"Cleaning up {RESULTS_DIR}...")
+        if RESULTS_DIR.exists():
+            try:
+                shutil.rmtree(RESULTS_DIR)
+            except OSError as exc:
+                raise SystemExit(f"Cannot clean {RESULTS_DIR}: {exc}")
+        print("Regenerating stats.csv and results/ from data/...")
+        batch.main(with_traj_html=not skip_traj_html)
     if which in ("all", "main"):
         dashboard_lib.render_dashboard()
     if which in ("all", "detail"):
-        build_detail(skip_batch=skip_batch, skip_traj_html=skip_traj_html)
+        build_detail()
 
 
 if __name__ == "__main__":

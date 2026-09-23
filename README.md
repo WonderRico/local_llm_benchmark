@@ -23,7 +23,7 @@ data/  ──>  parser.py  ──>  aggregator.py  ──>  render.py  ──>  
                           │                   │         v
                           │                   │    benchmark-detail.html
                           │
-                   data.csv + text.md  ──>  dashboard_lib.py
+                   stats.csv + text.md  ──>  dashboard_lib.py
                                             generate.py (main)
                                                    │
                                                    v
@@ -92,13 +92,13 @@ Output mirrors the input structure under `results/`.
 
 Shared utilities for both dashboards:
 
-- **`parse_csv`**: Parses `data.csv` with 21-column benchmark records (base, model name, params, quantization, engine, GPU count, score, duration, requests, tokens, cost, etc.)
+- **`parse_csv`**: Parses `stats.csv` into dashboard records, mapping `variant` to the model name and `wq`/`cq` to the quantization fields
 - Handles European number format (comma as decimal separator)
-- Converts duration strings (`HH:MM:SS` or `MM:SS`) to seconds
+- Derives the `HH:MM:SS` duration and the numeric sort/scatter fields from `wall_time_seconds`
 - **`render_markdown`**: Converts `text.md` (benchmark analysis prose) to sanitized HTML via Python-Markdown + Bleach
 - **`render_html`**: Reads any Jinja2 template, renders it with the given context, writes the output HTML
 - **`render_dashboard`**: Combines CSV data + markdown + `template-main.html` into `benchmark-main.html`
-- Defines the shared path constants (`data.csv`, `text.md`, `results/`, templates, output files)
+- Defines the shared path constants (`stats.csv`, `text.md`, `results/`, templates, output files)
 
 ### `generate.py` — Single Entry Point
 
@@ -131,33 +131,21 @@ Each file contains a session trace with messages, tool calls, timestamps, and re
 
 SWE-bench evaluation per variant — lists submitted, resolved, unresolved, empty-patch, and error instances.
 
-### CSV (`data.csv`)
+### CSV (`stats.csv`)
 
-Main benchmark index with columns:
+Written by `batch.py` from `data/`, one row per model variant, and read by the main dashboard:
 
 | Column | Description |
 |---|---|
 | `base` | Model family |
-| `model name` | Variant display name |
-| `Total Params (B)` | Total parameter count |
-| `Active Params (B)` | Active (expert) parameter count |
-| `model size (GB)` | Memory footprint |
-| `Weights Quantization` | Weight quantization format |
-| `KV cache quantization` | KV-Cache quantization format |
-| `engine` | Inference engine (SGLANG, vLLM, llama.cpp) |
-| `Nb GPU` | GPU count |
-| `License` | Model license |
-| `Model ref` | Unique run identifier |
-| `Score /100` | SWE-bench score |
-| `Duration` | Total run time |
-| `Requests` | Number of HTTP requests |
-| `req/pts` | Requests per point scored |
-| `in Mtok` | Input tokens (millions) |
-| `out Mtok` | Output tokens (millions) |
-| `total TG/s` | Total token generation rate |
-| `parallel tasks` | Parallelism level |
-| `TG/s per task` | Per-task token generation rate |
-| `total cost $` | Estimated cost (API $ or local power cost) |
+| `variant` | Variant directory name (without the quantization suffix) |
+| `wq` / `cq` | Weight / KV-cache quantization, from `<base>/<variant>_WQ<wq>_CQ<cq>` |
+| `score` | Resolved instances out of 100, from the newest `eval<id>.json` |
+| `requests` | Number of HTTP requests |
+| `request_time_seconds` | Summed LLM request time |
+| `wall_time_seconds` | Run span (first to last tool timestamp) |
+| `input_tokens` / `output_tokens` | Token counts, shown as Mtok on the dashboard |
+| `req/pt` | Requests per resolved task |
 
 ### Markdown (`text.md`)
 

@@ -1,6 +1,6 @@
 # Preamble
 
-**TLDR** : *Benchmark scores of "small" open weights models are as good as last year's SOTA paid models. When local inference is needed (data privacy for instance) or preferred (cost), it's totally valid to do agentic coding at scale with the latest ones, such as Qwen 3.6 27B. I do so since a few month, and never looked back. I did this study to make sure my guts feeling was aligned with hard data.*
+**TLDR** : *Benchmark scores of "small" open weights models are as good as last year's SOTA paid models. When local inference is needed (data privacy for instance) or preferred (cost), it's totally valid to do agentic coding at scale with the latest ones, such as Qwen 3.8 27B or Qwen3.8-Flash-Next. I do so since a few month, and never looked back. I did this study to make sure my guts feeling was aligned with hard data, and measure the real impact of quantization in multiturn agentic dev scenarios.*
 
 ## Disclaimer
 
@@ -13,6 +13,12 @@ If you want to dig even deeper in each of the benchmark traces and see more deta
 The main goal here is to **compare different local models** and the **impact of different configuration of the same model.** (quantization, inference engine, hardware, finetunes, etc...)
 
 The second goal is to provide some pointers to compare locally run open weights models to paid subscriptions SOTA models.
+
+## A lesson learned: always pin your evaluation workflow.
+
+I was not aware of this fact when starting this project, but by default, running the evaluation workflow from the benchmark will not always 100% sure give the same results. Some improvements and other fixes are still being pushed into the repo, and depending when you build/run the evaluation, the score can change... And since my first tests started a few month back, I did encounter this issue without knowing it, for a while. I learned it the hard way. 
+
+Since the first publication of these numbers, all 78 runs have been re-evaluated under a frozen setup — same evaluation script, same container image and dependency versions, replayed over the saved patch of every task. The score shown everywhere on this page is now that re-verified count: 38 of the 78 runs changed verdict, 9 of them by 5 points or more.
 
 ## Some technical information:
 
@@ -50,7 +56,24 @@ The token generation speed is not relevant here, because it's derived from the b
 
 ## Hall of fame
 
-*(update Sept 4th 2026)*
+### update Sept 23rd 2026 — complete re-evaluation on a pinned environment
+
+Every run was graded again with a frozen evaluation setup (see the disclaimer above). 
+
+- **Best score overall** : (97) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (**xhigh**) on vLLM, single RTX 6000
+- **Best score local** : (97) same run
+- **Best score single GPU** : (97) same run
+- **Best score via llama.cpp (3 heterogeneous GPUs)** : (92) Deepseek v4 flash 0731 (Q2_K_XL)
+- **Best score paid API** : (77) Deepseek v4 pro, then (76) GLM 5.2
+- **Fewer number of request** : (2134) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM (score 89)
+- **Most efficient both local and api** (lower request count per point scored) (24) : the same run above
+- **Fastest completion** (max concurrency 5) : (43min) Qwen3.8-Flash-Next AWQ-W4A16 (medium) on vLLM (score 86), just ahead of Qwen3.8-27B NVFP4 medium on SGLANG (score 76)
+- **Fewest tokens generated** : Hy3 (API) 0.61M
+- **Most tokens generated** : Qwen3.5-35B-A3B **Ornith-1.5** 4.0M (also the best score of the 35B-A3B family: 80)
+
+The entries below are kept exactly as they were written on their date, for transparency. Their scores come from the old unpinned evaluation pass and are **superseded** by the numbers above and by the tables.
+
+### update Sept 4th 2026
 
 Support for **Qwen3.8-Flash-Next** for different hardware and engines is still moving. I just tested another configuration, this time for vLLM and... WOW! While it's slower than the previous SGLANG patch I used, it's way better !
 
@@ -60,7 +83,7 @@ Support for **Qwen3.8-Flash-Next** for different hardware and engines is still m
 - **Fewer number of request** : (2134) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
 - **Most efficient both local and api** (lower request count per point scored) (22) : Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (medium) on vLLM
 
-*(update August 28th 2026)*
+### update August 28th 2026
 
 **Qwen3.8-Flash-Next** has just been released, as a technological preview of the new Qwen architecture. And... it's very good ! AND fast ! AND efficient (in medium reasoning) !
 
@@ -68,21 +91,21 @@ Support for **Qwen3.8-Flash-Next** for different hardware and engines is still m
 
 It's very close second in overall max score (91 compared to 92) and not far for fastest completion (1h03 compared to 45-ish min)
 
-*(update August 17th 2026)*
+### update August 17th 2026
 
 **Qwen 3.8 27B** has been released a few days ago... It's a nice upgrade! It's now the most efficient local model (only in medium reasoning effort)
 
 - **Most efficient local** (lower request count per point scored) (33) : Qwen3.8-27B medium BF16 BF16 (other quants of the same model very close)
 - **Fastest completion** (max concurrency 5) : (43min)  Qwen3.8-27B medium NVFP4 FP8 
 
-*(update August 7th 2026)*
+### update August 7th 2026
 
 I tested other quants of DSV4F, and got even higher scores (90+). The even more interesting part is that the lower quant of them all got the higher score! But trails behind at efficiency (nb request per point)
 
 - **Best score overall** : (92) Deepseek v4 flash 0731 (Q2_K_XL) 
 - **Best score local** : (92) Deepseek v4 flash 0731 (Q2_K_XL) 
 
-*(update August 3rd 2026)*
+### update August 3rd 2026
 
 **DeepSeek V4 Flash 0731** update came out...
 
@@ -90,7 +113,7 @@ I tested other quants of DSV4F, and got even higher scores (90+). The even more 
 - **Best score local** : (81) Deepseek v4 flash 0731 (MXPF4)
 - **Most efficient local** (lower request count per point scored) : Deepseek v4 flash 0731 (MXFP4)
 
-*(at July 20 2026)*
+### at July 20 2026
 
 - **Best score overall** : (80) tie Deepseek v4 pro (API) & GLM 5.2 (API) 
 - **Best score local** : (79) tie MiniMax-M2.7 Q4_K_M & DeepSeek v4 Flash Q3_K_XL
@@ -104,23 +127,20 @@ I tested other quants of DSV4F, and got even higher scores (90+). The even more 
 
 | Model quant   | Score | Efficiency (Req/pt) |
 |---------------|-------|---------------------|
-| DSV4F Q2_K_XL | 92    | 50                  |
+| DSV4F Q2_K_XL | 88-92 | 51 avg              |
 | DSV4F Q3_K_XL | 90    | 42                  |
 | DSV4F Q8_K_XL | 90    | 42                  |
-| DSV4F MXFP4   | 81    | 34                  |
+| DSV4F MXFP4   | 79-85 | 33 avg             |
 
-The score value doesn't say the whole story. Yes it solved more tasks, a 10 points difference is significant.
+The score value doesn't say the whole story. Yes it solved more tasks, upto 7 points difference is significant.
 
-But, checking the Efficiency (Avg number of requests needed to solve one task) it's the other way around : Q2 needed more than twice more requests count than MXFP4 to score 1 point, in average! Why ?
+But, checking the Efficiency (Avg number of requests needed to solve one task) it's the other way around : Q2 needed more than half again more requests than MXFP4 to score 1 point, in average! Why ?
 
 Why ? it's still unclear... It's not user error, since I used the exact same setup for the all of them. Exact same llama.cpp command line.
 
-Some Papers say than the tiny errors added by the quantisation can, sometimes, be beneficial for certain tasks... 
+Some Papers say than the tiny errors added by the quantization can, sometimes, be beneficial for certain tasks... 
 
-The question "why does MXFP4 take 34 req/pt but score 81, while Q2 takes 50 and scores 92?" seems to reduce to: the k-quants are submitting later. And there's a concrete, code-level reason a "native" model would submit earlier:
-
-MXFP4 produces valid submit commands earlier — it reads the repo, writes a patch, and decides "done" sooner. That's why it has 13 trajectories at ≤10 requests (the k-quants have 2–6) and why its resolved tasks average 26 requests vs 45 for Q2.
-The k-quants' extra requests are spent iterating — more read/edit/test cycles before submitting. On this 100-task Django subset, that extra iteration converts directly into more resolved tasks (92 vs 81). The cost is more requests; the benefit is a higher solve rate.
+It seems that the MXFP4 produces valid submit commands earlier — it reads the repo, writes a patch, and decides "done" sooner. That's why it has 13 trajectories at ≤10 requests (the k-quants have 2–6). The k-quants' extra requests are spent iterating — more read/edit/test cycles before submitting. Maybe making some mistakes trigger the model explore more.
 
 ## About cost...
 
@@ -130,10 +150,9 @@ The cost of locally run LLMs have been estimated base on the average power draw 
 
 However... The initial cost of the rig itself, while very significant, is not part of this discussion... You obviously need to account for it in order to estimate any long term rentability.
 
-- Qwen 3.7 Max (API) full run did cost 60$ while not scoring better than its little siblings. That's more than 200 times more expensive than the smaller locally run Qwen 3.6 (less than 0.3$) showing how per token $ is not sustainable for agentic dev. You must obviously use a monthly subscription, but with limits sometimes reached very soon... 
 - Gemma 4 dense local, being less chatty, is even twice cheaper than Qwen 3.6 dense local models.
-- Minimax 2.7 Q4 local or Deepseek v4 flash Q3 local costs less than 1 dollar for the full run and score just 1 point shy of the recent GLM 5.2 . N.B. the cost for bigger models run with llama.cpp are impacted by the concurrency limitation. We could expect it to be 5 times cheaper if run with SGLANG or vLLM with the adequate hardware. (2x RTX Pro 6000 BW for instance)
-- An expensive GPU price can be hard to justify as a single dev, but for a small team of 5 or 10, one (or more) 10k$ GPU can be quickly paid off...
+- Minimax 2.7 Q4 local or Deepseek v4 flash Q3 local cost about 1 dollar for the full run and, once re-verified, match or beat the recent GLM 5.2 (76) : 77 and 90. N.B. the cost for bigger models run with llama.cpp are impacted by the concurrency limitation. We could expect it to be 5 times cheaper if run with SGLANG or vLLM with the adequate hardware. (2x RTX Pro 6000 BW for instance)
+- An expensive GPU price can be hard to justify as a single dev, but for a small team of 5 or 10, one (or more) 15k$ GPU can be quickly paid off...
 
 ## Generalities
 
@@ -142,7 +161,6 @@ However... The initial cost of the rig itself, while very significant, is not pa
 - In general, for similar sizes, dense models score better than their MoE counterparts (but are slower, of course).
 - **Quantization variants of dense models** (FP8, weights and/or cache) have similar scores. (Gemma4 31B / Qwen3.6 27B).
 - It is **the opposite for MoE models** (Gemma4 26B-A4B / Qwen3.6 35B-A3B) which seem to degrade significantly.
-- Some surprising significant delta in score for a same model, but running on different GPUs and/or engine... Still under investigation.
 
 ## Model-Specific observations
 
@@ -152,13 +170,13 @@ However... The initial cost of the rig itself, while very significant, is not pa
 
 This MoE model is fast, but was not so good with tools, but a recent promising finetune has been released :
 
-#### Ornith-1.0-35B *score=75* 
+#### Ornith-1.0-35B *score=74*
 
 is a finetune of the older Qwen3.5-35B-A3B, and has a very good score for its category. We see that it generates many more requests and tokens to achieve this in twice as much time as Qwen3.6-35B-A3B. This could have one or more explanations:
 
 - The model was trained to lengthen its "chain-of-thought" during "thinking"
 - The model makes more mistakes, incorrect tool calls, and generating code bugs that it must later fix
-- while still being a little better than the original model, since it scored higher (+7).
+- while still being a little better than the original model, since it scored higher (+6).
 
 Trying to understand, let's see the details in [tool calling fine detail analysis](./benchmark-detail.html) 
 
@@ -169,77 +187,85 @@ Trying to understand, let's see the details in [tool calling fine detail analysi
 
 The models tries harder, generate less tool call errors and scores higher, which seems a good finetune result.
 
-#### Qwen 3.6 35B-A3B *score=66* 
+#### Ornith-1.5-35B *score=80*
 
-This recent 3.6 update is better (even if it is not showing in this benchmark...), specially for people without GPU or with limited VRAM, but surpassed by it's dense model brother...
+The new version of the same finetune is now the best of the whole 35B-A3B family (+12 over the original Qwen3.5-35B-A3B).
 
-3.6 generates only 6186 tool calls with only 584 with non zero return code, compared to 3.5 7546 / 739.
+#### GRM-3.2-Sky *score=71*
 
-### Gemma-4 26B-A4B MoE *score=56-57* 
+Another finetune of the same base, in between (+3), at the same cost as Ornith-1.0.
 
-Fast but Quite poor... lowest score.
+#### Qwen 3.6 35B-A3B *score=60*
 
-### Gemma-4 31B *score=69-72* 
+TBD
 
-Nice score, and one of the most efficient for the requests / score ratio. It's actually the most efficient of the local models. Some people say it is "lazy", meaning it's not trying has hard as it could. Maybe a 4.1 version trained to try harder could be very good!
+### Gemma-4 26B-A4B MoE *score=54* 
+
+Fast but Quite poor.
+
+### Gemma-4 31B *score=67-73*
+
+Nice score, and one of the most efficient for the requests / score ratio. It's actually the most efficient of the local models (45 req/pt), if we exclude the Qwen3.8-Flash-Next family. Some people say it is "lazy", meaning it's not trying has hard as it could. Maybe a 4.1 version trained to try harder could be very good!
 
 This model is praised for its writing ability, so I keep using it for others tasks than coding.
 
-### Qwen3.6 27B family *score=66-76*
+### Qwen3.6 27B family *score=69-76*
 
-To my knowledge, currently the best for its size and efficiency with tools. And with MTP, it's fast too!
+Probably the best coding LLM for its size when it was released. Only to be replaced by the 3.8 version a few month later.
 
 #### Qwen3.6 27B heretic-v2 *score=70-73*
 
-An uncensored version, which managed to preserve most of it's intelligence. Useful if you still need to know what really happened in Tienanmen, or just not a fan of PRC's guardrails baked into their models.
+An uncensored version, which managed to preserve most of it's intelligence. Useful if you still need to know what really happened in Tienanmen, or just not a fan of the guardrails baked into the models.
 
-#### ThinkingCap Qwen3.6 27B *score=66-69*
+#### ThinkingCap Qwen3.6 27B *score=69*
 
 A finetune version trained to be more efficient and generate less tokens (and less requests), which is achieved, but at the cost of a few score points. Very good finetune nonetheless.
 
-### Qwen3.5 122B-A10B *score=68*
+### Qwen3.5 122B-A10B *score=70*
 
-This one was my previous favorite. Its size 122B pack a bunch of knowledge and with only 10B active parameters it was fast. I'd love to see the 3.6 version of this one...
+This one was my previous favorite. Its size 122B pack a bunch of knowledge and with only 10B active parameters it was fast. (The upgraded 3.8 flash next version with an added ngram table is kicking ass!)
 
-### Qwen3.8 27B family *score=74-81*
+### Qwen3.8 27B family *score=74-83*
 
-The more recent 3.8 version of Qwen 27B model is better!
+The best local model for the size. Also robust to quantization (being a dense model).
 
-#### medium reasoning *score=75-81*
+#### medium reasoning *score=74-81*
 
-In **medium** reasoning mode, it both scores higher than the 3.6 version, AND is very efficient (almost half requests needed, and 66% tokens generated)
+In **medium** reasoning mode, it both scores higher than the 3.6 version, AND is very efficient (about 55% of the requests of the xhigh runs, and less than a third of the tokens generated). The heretic-ara (INT8) and Huihui-abliterated (FP8) finetunes reach 80, so uncensoring costs nothing here.
 
-#### xhigh reasoning *score=74-81*
+#### xhigh reasoning *score=82-83*
 
-The **xhigh** mode is advertised to be the best one for hard tasks. In this benchmark, however the gain is clearly not visible. The score are comparable with the medium version, while using more requests (still a little fewer than 3.6) and generating almost 4 times the tokens...
+The **xhigh** mode is advertised to be the best one for hard tasks, and after the re-evaluation the gain is finally visible : +4 pts over medium, consistently across quants and engines. The price is ~70% more requests and more than 3 times the tokens. For a daily coding agent I'd still stay on medium, for the last few percent of hard tasks use xhigh.
 
-### Qwen3.8-Flash-Next *score=98*
+### Qwen3.8-Flash-Next *score=75-97*
 
-Incredibly good (yet still undertrained) model with a new architecture that will probably become outstanding once fully trained
+Incredibly good (yet still undertrained) model with a new architecture that will probably become outstanding once fully trained. Qwen4 soon !
 
-#### medium reasoning *score=98*
+#### medium reasoning *score=84-90*
 
-In **medium** reasoning mode, score 98 with the best efficiency of all model tested!
+In **medium** reasoning mode it holds the best efficiency of all models tested : 89 at 24 req/pt (vLLM, AWQ-W4A16) and 90 at 29 req/pt (SGLANG, NVFP4), both in about an hour. 
 
-#### xhigh reasoning *score=98*
+#### xhigh reasoning *score=93-97*
 
-The **xhigh** mode is still over chatty without real benefit for those tasks.
+This is where xhigh pays for real : 97, the best score of the study, for ~60% more requests and twice the tokens than medium. Still the chattiest of the family, but the gain is now measurable.
+
+### Muse-Glimmer-30B *score=73-76*
+
+Dense 30B on the single RTX 6000. Score in the Qwen3.6-27B range, but extremely chatty : 8.5k to 9.5k requests for those points (115-127 req/pt, twice a Qwen3.6-27B). The heretic finetune is indistinguishable from the base model (73-75 vs 74-76).
 
 ### Bigger models via llama.cpp
 
-#### MiniMax-M2.7 Q4_K_M *score=79*
+#### MiniMax-M2.7 Q4_K_M *score=77*
 
-Very good model, even highly quantized. Just 1 point shy of bigger and more recent models. And very efficient too, with just 1.1M token generated.
+Very good model, even highly quantized. It now matches the best API model I tested (Deepseek v4 pro, 77) and beats GLM 5.2. And very efficient too, with just 1.1M token generated.
 
-#### Deepseek v4 flash (preview) Q3_K_XL *score=79*
+#### Deepseek v4 flash 0731 Q2_K_XL / Q3_K_XL / Q8_K_XL *score 90-92*
 
-Also a good model, even more highly quantized. Just 1 point shy of bigger and more recent models.
+Both highly quantized k-quants of the release score 90+. 
 
-The final release version is expected to be very good!
+#### Deepseek v4 flash 0731 MXFP4 *score 79-85*
 
-#### Deepseek v4 flash 0731 MXFP4 *score 81*
-
-It just came out and is very good. Best score *AND* very efficient!
+When it came out it was very good. One of the most efficient too, 7 points behind the Q2_K_XL run that costs 50 req/pt.
 
 Very strong model! Too bad it was lacking vision support...
 
@@ -249,17 +275,17 @@ With Dspark enabled for 3 predicted tokens, I reached 95 tokens/s average for th
 
 #### DeepSeek-V4-Flash-Vision-Exp (Q3_K_XL) *score 81*
 
-Now with vision!
+Now with vision! Same base model and quantization as the Q3_K_XL above, but 6 points lower and paid for with 4219 requests and 11h25 of wall time (the slowest run of the study).
 
-### Bigger models yet to be tested
+### Bigger models yet to be tested locally (maybe someday...)
 
 #### Tencent Hy3 *score=70*
 
-Tested on the cloud has proved to get a decent score while being the most efficient of them all. I shall test it soon locally.
+Tested on the cloud has proved to get a decent score while being the most efficient of all the API models (38 req/pt, 0.61M tokens generated). I shall test it soon locally.
 
 #### Xiaomi Mimo 2.5 *score=70*
 
-Has the same score, but is way less efficient.
+Has the same score, but is way less efficient (61 req/pt, 1.82M tokens).
 
 ## Impact of Model Weights Quantization
 
@@ -271,11 +297,11 @@ It is estimated that the precision loss of FP8 is negligible. It depends...
 
 ### Gemma4 31B
 
-Surprisingly, FP8 quantization slightly improves the score, up to +3 pts, but generates more requests and tokens. NVFP4 is in between, also surprising...
+The re-verified runs span 67 to 73 depending on weights quantization, KV cache quantization and chat template. The BF16 weights runs are 72-73, the FP8-dynamic ones 67-71, but they don't order consistently (FP8 weights with FP8 cache scored 71 against 67 for BF16 cache). 
 
 ### Qwen3.6 27B
 
-Some small impact on the score, between -3 and -1 pts on the score. **When possible**, it is better to avoid it...
+Some small impact on the score : the FP8 weights run scored 72 against 75 for the same configuration in BF16. **When possible**, it is better to avoid it...
 
 ## Impact of KV cache Quantization
 
@@ -285,15 +311,15 @@ Even if the score is not negatively impacted by KV Cache quantization, it genera
 
 ### Gemma4 31B BF16 && Gemma4 31B FP8 (vLLM)
 
-The FP8 quantization of the KV Cache has no impact on the score, but a small impact on speed. However, we see that it generated more requests and more tokens to reach the same score, which seems to indicate that errors were generated, but they were fixed, and in the end, the speed gain was still beneficial.
+FP8 KV cache costs 1 point on the BF16 weights pair (73 -> 72) and gains 4 on the FP8 weights pair (67 -> 71). Both effects are inside the noise band measured in the disclaimer, and the requests/token counts don't move in a consistent direction. The initial observation that it generated more requests, but fixed its own errors, is not reproduced on all pairs.
 
 ### Qwen3.6 27B BF16 (SGLANG)
 
-Quantizing the KV cache to FP8 had no impact on the score and very little on the other metrics.
+Quantizing the KV cache to FP8 has no negative impact on the score (72 vs 75 on the 2 GPU pair) and very little on the other metrics.
 
 ### Qwen3.6 27B FP8 (SGLANG)
 
-The FP8 quantization of the KV Cache resulted in lost time. More requests and more tokens. However the score remained identical.
+The FP8 quantized weights with FP8 cache scored 72 with 5285 requests, against 75 with BF16 weights and the same cache. The score difference is the quantization of the weights, not of the cache.
 
 ## Context sizes
 
@@ -332,5 +358,6 @@ vLLM efficiency for KV cache is even more visible with Gemma4.
 
 ## Personal notes and things to investigate
 
-- SGLANG seems faster than vLLM for fewer batches
-- With Qwen models, vLLM crashes in TP2 on my 2x4090D after a few minutes, SGLANG is fine. Gemma models ok on vLLM.
+- Test bigger models with llama.cpp on all 3 GPUs
+- Test GGUFs in vLLM/SGLANG
+- 
