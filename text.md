@@ -64,10 +64,11 @@ The token generation speed is not relevant here, because it's derived from the b
 
 New models worth mentioning :
 
-- Flint 40B-A2B : scored around 90
-- Nanbeige4.3 33B : scored 92
-- Hy4-flash : scored 88 but very efficient
-- Ternary Bonzai 2.5 : ternary (lower than 2bits) quantization of Qwen3.8 27B, is by far the smaller model at only 7GB and still scores an honorable 75 ! the best ratio pts/GB for sure.
+- Inkling 2 Mini 26B-A3B : scored around 82, quite good for a small MoE model.
+- Flint 40B-A2B : scored around 90, also an interesting MoE model with a very good score.
+- Nanbeige 4.3 33B : scored 92, very good.
+- Hy4-flash 155B-E63B-A11B : scored 88 but very efficient. Comparable to Qwen 3.8 flash next
+- Ternary Bonzai 2.5 27B : ternary (lower than 2bits) quantization of Qwen3.8 27B, is by far the smaller model at only 7GB and still scores an honorable 75 ! the best ratio pts/GB for sure.
 
 ### update Sept 23rd 2026 — complete re-evaluation on a pinned environment
 
