@@ -1045,7 +1045,20 @@
 <p>The token generation speed is not relevant here, because it's derived from the benchmark total execution duration divided by the output token number. This duration contains all kinds of overheads related to the benchmark and the agentic harness. But the methodology is consistent between all runs, so we can compare the values between each others.</p>
 <h1>Analysis</h1>
 <h2>Hall of fame</h2>
-<details open><summary>update Sept 23rd 2026 — complete re-evaluation on a pinned environment</summary>
+<details open><summary>update Nov 25th 2026 - a bunch of new models!</summary>
+<ul>
+<li><strong>Best score</strong> : tie : (97) Ling-3.2-air NVFP4 cache BF16 in vLLM (but very verbose, not very token efficient)</li>
+<li><strong>Best score local</strong> : same (dropping this category since I now only test local models.)</li>
+<li><strong>Fewer number of request</strong> : (2099) score 75 Qwen3.8-Flash-Next Swift version, Heretic uncensored, running with custom Basalt engine in NVFP4.</li>
+</ul>
+<p>New models worth mentioning :</p>
+<ul>
+<li>Flint 40B-A2B : scored around 90</li>
+<li>Nanbeige4.3 33B : scored 92</li>
+<li>Hy4-flash : scored 88 but very efficient</li>
+<li>Ternary Bonzai 2.5 : ternary (lower than 2bits) quantization of Qwen3.8 27B, is by far the smaller model at only 7GB and still scores an honorable 75 ! the best ratio pts/GB for sure.</li>
+</ul>
+</details><details><summary>update Sept 23rd 2026 — complete re-evaluation on a pinned environment</summary>
 <p>Every run was graded again with a frozen evaluation setup (see the disclaimer above). </p>
 <ul>
 <li><strong>Best score overall</strong> : (97) Qwen3.8-Flash-Next AWQ-W4A16 + PLE INT4 (<strong>xhigh</strong>) on vLLM, single RTX 6000</li>
