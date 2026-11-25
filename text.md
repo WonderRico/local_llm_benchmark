@@ -56,6 +56,19 @@ The token generation speed is not relevant here, because it's derived from the b
 
 ## Hall of fame
 
+### update Nov 25th 2026 - a bunch of new models!
+
+- **Best score** : tie : (97) Ling-3.2-air NVFP4 cache BF16 in vLLM (but very verbose, not very token efficient)
+- **Best score local** : same (dropping this category since I now only test local models.)
+- **Fewer number of request** : (2099) score 75 Qwen3.8-Flash-Next Swift version, Heretic uncensored, running with custom Basalt engine in NVFP4.
+
+New models worth mentioning :
+
+- Flint 40B-A2B : scored around 90
+- Nanbeige4.3 33B : scored 92
+- Hy4-flash : scored 88 but very efficient
+- Ternary Bonzai 2.5 : ternary (lower than 2bits) quantization of Qwen3.8 27B, is by far the smaller model at only 7GB and still scores an honorable 75 ! the best ratio pts/GB for sure.
+
 ### update Sept 23rd 2026 — complete re-evaluation on a pinned environment
 
 Every run was graded again with a frozen evaluation setup (see the disclaimer above). 
